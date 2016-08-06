@@ -1,0 +1,16 @@
+LIBS += `pkg-config opencv --libs` -lboost_filesystem -lboost_system -lglpk -lboost_thread
+ 
+LIBS += -L/usr/local/lib/ChinesePostman -lChinesePostman
+INCLUDEPATH +=  /usr/local/include/ChinesePostman
+
+LIBS += -L/usr/local/lib/Boustrophedon -lBoustrophedon
+INCLUDEPATH +=  /usr/local/include/Boustrophedon
+
+LIBS += -L/usr/local/lib/Leo -lLeo
+INCLUDEPATH +=  /usr/local/include/Leo
+
+LIBS += -L/usr/local/lib/WayPoints -lWayPoints
+INCLUDEPATH +=  /usr/local/include/WayPoints
+
+LIBS += -L/usr/local/lib/KCPP -lKCPP
+INCLUDEPATH +=  /usr/local/include/KCPP

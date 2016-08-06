@@ -1,0 +1,5 @@
+/usr/local/lib/ChinesePostman/libChinesePostman.so
+/usr/local/include/ChinesePostman/ChinesePostman.h
+/usr/local/include/ChinesePostman/DrawImage.h
+/usr/lib/cmake/ChinesePostman/ChinesePostmanConfig.cmake
+/etc/ld.so.conf.d/BensonKE_ChinesePostman.conf
