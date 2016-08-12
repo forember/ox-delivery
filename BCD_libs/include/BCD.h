@@ -23,20 +23,21 @@ class BCD {
 
 public:
 
-  BCD();
-  BCD(string directory, string fileName, RegionData& data, ReebGraph& graph);
-  ~BCD(); 
+    BCD();
+    BCD(string directory, string fileName, RegionData& data, ReebGraph& graph);
+    ~BCD(); 
 
-  void buildBCD(RegionData& data, ReebGraph& graph) throw (const std::string&);
-  void viewReebGraph(QString fileName, RegionData data, ReebGraph graph);
-  void printBCDInfo(ReebGraph graph);
+    void buildBCD(RegionData& data, ReebGraph& graph)
+        throw (const std::string&);
+    void viewReebGraph(QString fileName, RegionData data, ReebGraph graph);
+    void printBCDInfo(ReebGraph graph);
 
 private:
 
-  OpenImage imageLoader;
+    OpenImage imageLoader;
 
-  // Constants
-  const static unsigned char BLACK = 0;
-  const static unsigned char WHITE = 255;
+    // Constants
+    const static unsigned char BLACK = 0;
+    const static unsigned char WHITE = 255;
 };
 #endif

@@ -17,29 +17,27 @@
  * Constructor
  *
 **/
-DrawImage::DrawImage()
-{
-};
+DrawImage::DrawImage() {};
 
 
 /*************************************************************************
  * Alt Constructor
  *
 **/
-DrawImage::DrawImage(ReebGraph graph, RegionData data,\
-  std::list<Edge> eulerCycle, std::vector<Point2D> wayPoints)
+DrawImage::DrawImage(ReebGraph graph, RegionData data,
+        std::list<Edge> eulerCycle, std::vector<Point2D> wayPoints)
 {
-  g = graph;
-  d = data;
-  e = eulerCycle;
-  w = wayPoints;
+    g = graph;
+    d = data;
+    e = eulerCycle;
+    w = wayPoints;
 
-  //If the device is empty set it to the image buffer. QPaintDevice as a 
-  //  class takes in things like widgets and QImages to draw overtop. 
-  //  So the paint device has to be set to a QImage. Especially since 
-  //  QPainter draws overtop paint devices. 
-  setImageBuffer(&(d.image)); 
-  device = &imageBuffer;
+    // If the device is empty set it to the image buffer. QPaintDevice as a
+    // class takes in things like widgets and QImages to draw overtop. So the
+    // paint device has to be set to a QImage. Especially since QPainter draws
+    // overtop paint devices.
+    setImageBuffer(&(d.image)); 
+    device = &imageBuffer;
 };
 
 
@@ -50,8 +48,8 @@ DrawImage::DrawImage(ReebGraph graph, RegionData data,\
 DrawImage::~DrawImage() 
 {
 /*
-  clearDevice();
-  delete device;
+    clearDevice();
+    delete device;
 */
 };
 
@@ -68,49 +66,49 @@ DrawImage::~DrawImage()
  *   cv::Mat* source - Image being converted to QImage format
  *
 **/
-void DrawImage::setImageBuffer(cv::Mat* const source) 
+void DrawImage::setImageBuffer(cv::Mat* const source)
 {
-  matBuffer = cv::Mat();
-  QImage::Format imgFormat = QImage::Format_Invalid;
-  if (source == NULL) 
-  {
-    return;
-  }
-  
-  if ((source->depth() != CV_8U) && (source->depth() != CV_8S)) 
-  {
-    std::cout<< "ERROR > Image depth is not 8U/8S!";
-    return;
-  }
- 
-  else 
-  {
-    switch(source->channels()) 
+    matBuffer = cv::Mat();
+    QImage::Format imgFormat = QImage::Format_Invalid;
+    if (source == NULL) 
     {
-      case 1:
-        cv::cvtColor(*source, matBuffer, CV_GRAY2RGB);
-        imgFormat = QImage::Format_RGB888;
-        break;
-
-      case 3:
-        cv::cvtColor(*source, matBuffer, CV_BGR2RGB);
-        imgFormat = QImage::Format_RGB888;
-        break;
-
-      case 4:
-        cv::cvtColor(*source, matBuffer, CV_BGR2RGB);
-        imgFormat = QImage::Format_ARGB32;
-        break;
-
-      default:
-        imgFormat = QImage::Format_Invalid;
-        std::cout << "Format Invalid";
         return;
     }
-  }
 
-  imageBuffer = QImage(matBuffer.data, matBuffer.cols, matBuffer.rows,\
-    matBuffer.step, imgFormat);
+    if ((source->depth() != CV_8U) && (source->depth() != CV_8S)) 
+    {
+        std::cout<< "ERROR > Image depth is not 8U/8S!";
+        return;
+    }
+
+    else 
+    {
+        switch(source->channels()) 
+        {
+            case 1:
+                cv::cvtColor(*source, matBuffer, CV_GRAY2RGB);
+                imgFormat = QImage::Format_RGB888;
+                break;
+
+            case 3:
+                cv::cvtColor(*source, matBuffer, CV_BGR2RGB);
+                imgFormat = QImage::Format_RGB888;
+                break;
+
+            case 4:
+                cv::cvtColor(*source, matBuffer, CV_BGR2RGB);
+                imgFormat = QImage::Format_ARGB32;
+                break;
+
+            default:
+                imgFormat = QImage::Format_Invalid;
+                std::cout << "Format Invalid";
+                return;
+        }
+    }
+
+    imageBuffer = QImage(matBuffer.data, matBuffer.cols, matBuffer.rows,
+            matBuffer.step, imgFormat);
 };
 
 
@@ -118,10 +116,10 @@ void DrawImage::setImageBuffer(cv::Mat* const source)
  * Function 'setImageBuffer(QImage)'
  *
  * Method that can initialize the QImage imageBuffer. Allows QImages
- * to be passed into this class. 
+ * to be passed into this class.
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   var - QImage being taken in and set to the imageBuffer
@@ -129,7 +127,7 @@ void DrawImage::setImageBuffer(cv::Mat* const source)
 **/
 void DrawImage::setImageBuffer(QImage var) 
 {
-  imageBuffer = var;
+    imageBuffer = var;
 }
 
 
@@ -137,10 +135,10 @@ void DrawImage::setImageBuffer(QImage var)
  * Function 'getImageBuffer()'
  *
  * Method that gets the QImage variable imageBuffer and returns it so it
- * can be used elsewhere. 
+ * can be used elsewhere.
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   source - Image source being converted to QImage format
@@ -148,7 +146,7 @@ void DrawImage::setImageBuffer(QImage var)
 **/
 QImage DrawImage::getImageBuffer() 
 {
-  return imageBuffer;
+    return imageBuffer;
 };
 
 
@@ -158,7 +156,7 @@ QImage DrawImage::getImageBuffer()
  * Method that clears the imageBuffer
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   None
@@ -166,7 +164,7 @@ QImage DrawImage::getImageBuffer()
 **/
 void DrawImage::clearImage() 
 {
-  imageBuffer = QImage();
+    imageBuffer = QImage();
 };
 
 
@@ -184,7 +182,7 @@ void DrawImage::clearImage()
 **/
 void DrawImage::clearDevice() 
 {
-  device = NULL;
+    device = NULL;
 };
 
 /*************************************************************************
@@ -199,142 +197,142 @@ void DrawImage::clearDevice()
  *   None
  *
 **/
-void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, \
-  int highlightID, unsigned int highlightCount) 
+void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
+        unsigned int highlightCount)
 {
-  QColor lightGreen = QColor(128, 255, 128);
-  QColor green = Qt::green;
-  QColor yellow = Qt::yellow;
-  QColor orange = QColor(255, 128, 0);
+    QColor lightGreen = QColor(128, 255, 128);
+    QColor green = Qt::green;
+    QColor yellow = Qt::yellow;
+    QColor orange = QColor(255, 128, 0);
 
-  QPainter painter;
-  QPolygon path;
-  painter.begin(device);
+    QPainter painter;
+    QPolygon path;
+    painter.begin(device);
 
-  QPen pen;
-  pen.setColor(green);
-  pen.setWidth(3);
-  painter.setPen(pen);
-  painter.setBrush(green);
-
-  // Draw all waypoints
-  double currXPixel, currYPixel;
-  QPoint currPoint;
-
-  //Loops through the passed in Points
-  std::vector<Point2D>::iterator wit;
-  for (wit = wpPixels.begin(); wit != wpPixels.end(); wit++) 
-  {
-    currXPixel = round(wit->xcoord());
-    currYPixel = round(wit->ycoord());
-    currPoint = QPoint(currXPixel, currYPixel);
-    path << currPoint;
-
-    pen.setColor(yellow);
-    painter.setPen(pen);
-    painter.setBrush(yellow);
-
-    //drawing the yellow circles for the waypoints
-    painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS, \
-        WAYPOINT_NORMAL_RADIUS);
-    pen.setColor(orange);
-    painter.setPen(pen);
-    painter.setBrush(orange);
-
-    //drawing the orange outlines to those circles
-    painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2, \
-        WAYPOINT_NORMAL_RADIUS+2);
+    QPen pen;
     pen.setColor(green);
+    pen.setWidth(3);
     painter.setPen(pen);
     painter.setBrush(green);
 
+    // Draw all waypoints
+    double currXPixel, currYPixel;
+    QPoint currPoint;
 
-    //Don't actually see this codes effect anywhere?
-    //  Maybe i need to try a differernt image?
-    if (wit == wpPixels.begin()) 
+    //Loops through the passed in Points
+    std::vector<Point2D>::iterator wit;
+    for (wit = wpPixels.begin(); wit != wpPixels.end(); wit++)
     {
-        pen.setColor(Qt::darkBlue);
+        currXPixel = round(wit->xcoord());
+        currYPixel = round(wit->ycoord());
+        currPoint = QPoint(currXPixel, currYPixel);
+        path << currPoint;
+
+        pen.setColor(yellow);
         painter.setPen(pen);
-        painter.setBrush(Qt::darkBlue);
-        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS-2, \
-            WAYPOINT_NORMAL_RADIUS-2);
-        pen.setColor(Qt::cyan);
+        painter.setBrush(yellow);
+
+        //drawing the yellow circles for the waypoints
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS,
+                WAYPOINT_NORMAL_RADIUS);
+        pen.setColor(orange);
         painter.setPen(pen);
-        painter.setBrush(Qt::cyan);
-    }
-  }
+        painter.setBrush(orange);
 
-  pen.setColor(green);
-  pen.setWidth(8);
-  painter.setPen(pen);
-  painter.setBrush(green);
-  painter.drawPolyline(path);
-  pen.setColor(QColor(lightGreen));
-  pen.setWidth(4);
-  painter.setPen(pen);
-  painter.setBrush(lightGreen);
-  painter.drawPolyline(path);
+        //drawing the orange outlines to those circles
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2,
+                WAYPOINT_NORMAL_RADIUS+2);
+        pen.setColor(green);
+        painter.setPen(pen);
+        painter.setBrush(green);
 
-  //Looping through passed in points
-  for (wit = wpPixels.begin(); wit != wpPixels.end(); wit++) 
-  {
-    currXPixel = round(wit->xcoord());
-    currYPixel = round(wit->ycoord());
-    currPoint = QPoint(currXPixel, currYPixel);
 
-    pen.setColor(orange);
-    painter.setPen(pen);
-    painter.setBrush(orange);
-
-    //drawing orange outer circle
-    painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2, \
-        WAYPOINT_NORMAL_RADIUS+2);
-    pen.setColor(yellow);
-    painter.setPen(pen);
-    painter.setBrush(yellow);
-
-    //drawing yellow inner circle
-    painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS-2, \
-        WAYPOINT_NORMAL_RADIUS-2);
-  }
-
-  // Draw highlighted waypoints if necessary
-  if (highlightID >= 0 && highlightID < (int) wpPixels.size()) 
-  {
-    if (highlightID+highlightCount >= wpPixels.size()) 
-    {
-      highlightCount = wpPixels.size() - highlightID;
+        //Don't actually see this codes effect anywhere?
+        //  Maybe i need to try a differernt image?
+        if (wit == wpPixels.begin())
+        {
+                pen.setColor(Qt::darkBlue);
+                painter.setPen(pen);
+                painter.setBrush(Qt::darkBlue);
+                painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS-2,
+                        WAYPOINT_NORMAL_RADIUS-2);
+                pen.setColor(Qt::cyan);
+                painter.setPen(pen);
+                painter.setBrush(Qt::cyan);
+        }
     }
 
-    painter.setPen(Qt::white);
-    painter.setBrush(Qt::white);
-    path.clear();
+    pen.setColor(green);
+    pen.setWidth(8);
+    painter.setPen(pen);
+    painter.setBrush(green);
+    painter.drawPolyline(path);
+    pen.setColor(QColor(lightGreen));
+    pen.setWidth(4);
+    painter.setPen(pen);
+    painter.setBrush(lightGreen);
+    painter.drawPolyline(path);
 
-    for (int currID = highlightID; highlightCount > 0; \
-      currID++, highlightCount--) 
+    //Looping through passed in points
+    for (wit = wpPixels.begin(); wit != wpPixels.end(); wit++) 
     {
-      currXPixel = round((wpPixels)[currID].xcoord());
-      currYPixel = round((wpPixels)[currID].ycoord());
-      currPoint = QPoint(currXPixel, currYPixel);
-      path << currPoint;
-      painter.drawEllipse(currPoint, WAYPOINT_HIGHLIGHT_RADIUS, \
-          WAYPOINT_HIGHLIGHT_RADIUS);
-      if (currID == highlightID) 
-      {
-        // Draw first waypoint with different color
-        painter.setPen(Qt::darkGray);
-        painter.setBrush(Qt::darkGray);
-        painter.drawEllipse(currPoint, WAYPOINT_HIGHLIGHT_RADIUS-2, \
-                WAYPOINT_HIGHLIGHT_RADIUS-2);
+        currXPixel = round(wit->xcoord());
+        currYPixel = round(wit->ycoord());
+        currPoint = QPoint(currXPixel, currYPixel);
+
+        pen.setColor(orange);
+        painter.setPen(pen);
+        painter.setBrush(orange);
+
+        //drawing orange outer circle
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2,
+                WAYPOINT_NORMAL_RADIUS+2);
+        pen.setColor(yellow);
+        painter.setPen(pen);
+        painter.setBrush(yellow);
+
+        //drawing yellow inner circle
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS-2,
+                WAYPOINT_NORMAL_RADIUS-2);
+    }
+
+    // Draw highlighted waypoints if necessary
+    if (highlightID >= 0 && highlightID < (int) wpPixels.size())
+    {
+        if (highlightID+highlightCount >= wpPixels.size())
+        {
+            highlightCount = wpPixels.size() - highlightID;
+        }
+
         painter.setPen(Qt::white);
         painter.setBrush(Qt::white);
-      }
+        path.clear();
+
+        for (int currID = highlightID; highlightCount > 0;
+                currID++, highlightCount--) 
+        {
+            currXPixel = round((wpPixels)[currID].xcoord());
+            currYPixel = round((wpPixels)[currID].ycoord());
+            currPoint = QPoint(currXPixel, currYPixel);
+            path << currPoint;
+            painter.drawEllipse(currPoint, WAYPOINT_HIGHLIGHT_RADIUS, \
+                    WAYPOINT_HIGHLIGHT_RADIUS);
+            if (currID == highlightID) 
+            {
+                // Draw first waypoint with different color
+                painter.setPen(Qt::darkGray);
+                painter.setBrush(Qt::darkGray);
+                painter.drawEllipse(currPoint, WAYPOINT_HIGHLIGHT_RADIUS-2, \
+                                WAYPOINT_HIGHLIGHT_RADIUS-2);
+                painter.setPen(Qt::white);
+                painter.setBrush(Qt::white);
+            }
+        }
+
+        painter.drawPolyline(path);
     }
 
-    painter.drawPolyline(path);
-  }
-
-  painter.end();
+    painter.end();
 };
 
 
@@ -351,11 +349,11 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, \
  *
 **/
 void DrawImage::saveImageBuffer(QString fileName) 
-{    
-  if (imageBuffer.isNull()) 
-  {
-    return;
-  }
+{
+    if (imageBuffer.isNull()) 
+    {
+        return;
+    }
 
-  imageBuffer.save(fileName);
+    imageBuffer.save(fileName);
 };

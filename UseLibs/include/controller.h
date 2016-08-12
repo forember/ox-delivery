@@ -17,57 +17,58 @@
 
 /*class IncorrectInput : public excpetion 
 {
-    virtual const char* what() const throw()
-    {
-	return "The input to the algorithm is incorrect\n";
-    }
+        virtual const char* what() const throw()
+        {
+                return "The input to the algorithm is incorrect\n";
+        }
 } incorrectInput;
 */
 
 
 class Controller : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  Controller();
+    Controller();
 
-  //Runs k rout finding solver on the image
-  void run(const std::string& directory, const std::string& image, int k);
+    //Runs k rout finding solver on the image
+    void run(const std::string& directory, const std::string& image, int k);
 
 private:
-  /** Chinese postman problem solvers **
-   * for k = 1 **/
-  //ChinesePostman* runCPP(const ReebGraph& graph, const RegionData& data);
+    /** Chinese postman problem solvers **
+     * for k = 1 **/
+    //ChinesePostman* runCPP(const ReebGraph& graph, const RegionData& data);
 
-  /** and k > 1 **/
-  void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle);
+    /** and k > 1 **/
+    void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle);
 
-  //Used to verify the input arguments
-  void checkInputParams(const std::string& directory, const std::string& image, int k);
+    //Used to verify the input arguments
+    void checkInputParams(const std::string& directory,
+            const std::string& image, int k);
 
 
 public:
-  /** bulk testing **/
-  // void runTests(int n, std::string filePrefix);
+    /** bulk testing **/
+    // void runTests(int n, std::string filePrefix);
 
 private:
-  bool m_cppSolved;
+    bool m_cppSolved;
 
-  std::string m_image; 
-  std::string m_directory;
+    std::string m_image; 
+    std::string m_directory;
 
-  //number of robots
-  int m_k;
-  int m_vertices;
+    //number of robots
+    int m_k;
+    int m_vertices;
 
-  // vector of k tours
-  std::vector<EulerTour> m_tours;
-  // representation of the area as a boost graph
-  std::vector<Graph> m_graph;
+    // vector of k tours
+    std::vector<EulerTour> m_tours;
+    // representation of the area as a boost graph
+    std::vector<Graph> m_graph;
 
-  KChinesePostmen* m_kcpp;
-  ChinesePostman* m_cpp;
+    KChinesePostmen* m_kcpp;
+    ChinesePostman* m_cpp;
 };
 
 #endif // CONTROLLER_H

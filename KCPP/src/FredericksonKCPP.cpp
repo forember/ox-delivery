@@ -48,9 +48,9 @@ FredericksonKCPP::FredericksonKCPP(const EulerTour& tour, const ReebGraph& graph
 #ifdef DEBUG_FREDERICKSON
     Vertex_Iter vi, vi_end;
     for (tie(vi, vi_end) = m_graph.getVertices(); vi != vi_end; vi++) {
-	// BUG: mapping fails, after getting out from scope the descriptor is set to 0
-	std::cout << m_g[getVertex(*vi)].Vid << " %^  "; 
-	std::cout << (m_graph.getVProp(*vi)).Vid << "\n";
+        // BUG: mapping fails, after getting out from scope the descriptor is set to 0
+        std::cout << m_g[getVertex(*vi)].Vid << " %^  "; 
+        std::cout << (m_graph.getVProp(*vi)).Vid << "\n";
     }
 #endif    
 
@@ -82,12 +82,12 @@ double FredericksonKCPP::pathCost(EulerTour tour)
     EulerTour::iterator ei = tour.begin();
     EulerTour::iterator ei_end = tour.end();
     for (; ei != ei_end; ei++){
-	ReebEdge edge = m_graph.getEProp(*ei);
-	pathCost+= edge.area;
+        ReebEdge edge = m_graph.getEProp(*ei);
+        pathCost+= edge.area;
 
 #ifdef DEBUG_FREDERICKSON
-	std::cout << edge.Eid << " - ";
-	pathTravelCost += edge.travelCost;
+        std::cout << edge.Eid << " - ";
+        pathTravelCost += edge.travelCost;
 #endif
     }
 
@@ -116,68 +116,68 @@ void FredericksonKCPP::solve()
     EulerTour::iterator ei= m_optimalPath.begin();
 
     for(int j =1; j<=m_k; ++j) {
-	std::list<Edge> tour_j;
-	std::list<ReebEdge> tour_jv;
-	double L_j = (m_optimalCost-2*m_smax) * double(j)/double(m_k) + m_smax;
+        std::list<Edge> tour_j;
+        std::list<ReebEdge> tour_jv;
+        double L_j = (m_optimalCost-2*m_smax) * double(j)/double(m_k) + m_smax;
 
-	double C_R_Vl_j = m_shortTravelDistances.at(v_last);
+        double C_R_Vl_j = m_shortTravelDistances.at(v_last);
 
-	/***********************************************
-	 * Finding the last vertex on the optimal tour 
-	 *  such that the cost of the tour is <= L_j   */
-	while(ei!=m_optimalPath.end()) {
-	    Vertex v_first, v_second;
-	    tie(v_first, v_second) = m_graph.getEndNodes(*ei);
+        /***********************************************
+         * Finding the last vertex on the optimal tour 
+         *  such that the cost of the tour is <= L_j   */
+        while(ei!=m_optimalPath.end()) {
+            Vertex v_first, v_second;
+            tie(v_first, v_second) = m_graph.getEndNodes(*ei);
 
-	    kcpp::Vertex v1 = getVertex(v_first);
-	    kcpp::Vertex v2 = getVertex(v_second);
+            kcpp::Vertex v1 = getVertex(v_first);
+            kcpp::Vertex v2 = getVertex(v_second);
 
-	    ReebEdge edge = m_graph.getEProp(*ei);
+            ReebEdge edge = m_graph.getEProp(*ei);
 
-	    c_subR += edge.area; 
-	    c_R = c_subR + m_shortTravelDistances.at(v_last) + m_shortTravelDistances.at(v2); 
-	    tour_jv.push_back(edge);
-	    tour_j.push_back(*ei);
+            c_subR += edge.area; 
+            c_R = c_subR + m_shortTravelDistances.at(v_last) + m_shortTravelDistances.at(v2); 
+            tour_jv.push_back(edge);
+            tour_j.push_back(*ei);
 
-	    if(c_R>L_j) {
-		//--ei;
-		c_subR = 0;
-		    c_R = 0;
+            if(c_R>L_j) {
+                //--ei;
+                c_subR = 0;
+                    c_R = 0;
 
-		// Determine which vertex of the edge to take: first or second one
-		double r_j = L_j - c_R_last;
-		double sum_1 = r_j + m_shortTravelDistances.at(v1);
-		double sum_2 = edge.area  - r_j + m_shortTravelDistances.at(v2);
-		if(sum_1 <= sum_2) {
-		    --ei;
-		    tour_j.pop_back();
-		    tour_jv.pop_back();
-		}
-		++ei;
-		break;
-	    }
+                // Determine which vertex of the edge to take: first or second one
+                double r_j = L_j - c_R_last;
+                double sum_1 = r_j + m_shortTravelDistances.at(v1);
+                double sum_2 = edge.area  - r_j + m_shortTravelDistances.at(v2);
+                if(sum_1 <= sum_2) {
+                    --ei;
+                    tour_j.pop_back();
+                    tour_jv.pop_back();
+                }
+                ++ei;
+                break;
+            }
 
-	    c_subR_last = c_subR;
-	    c_R_last = c_R;
+            c_subR_last = c_subR;
+            c_R_last = c_R;
 
-	    ++ei;
-	}
+            ++ei;
+        }
 
-	if(ei!=m_optimalPath.end()) {
+        if(ei!=m_optimalPath.end()) {
 
-	    Vertex v_first, v_second;
+            Vertex v_first, v_second;
 
-	    tie(v_first, v_second) = m_graph.getEndNodes(*ei);
+            tie(v_first, v_second) = m_graph.getEndNodes(*ei);
 
-	    //std::cout << "edge -> " << m_graph.getEProp(*ei).Eid;
-	    v_last = getVertex(v_second);
-	}
-	/***********************************************/
+            //std::cout << "edge -> " << m_graph.getEProp(*ei).Eid;
+            v_last = getVertex(v_second);
+        }
+        /***********************************************/
 
-	if(!tour_j.empty()) {
+        if(!tour_j.empty()) {
 
-	    m_eulerTours.push_back(tour_j);
-	}
+            m_eulerTours.push_back(tour_j);
+        }
     }
 }
 
@@ -196,13 +196,13 @@ double FredericksonKCPP::computeSMax(EulerTour tour)
         // FIXME should be changed to m_shorTravelDistance
         //double S_V1_Vij = m_shortCoverDistance->at(m_optimalPath.at(i).startNode);
         //double S_Vij_1_V1 = m_shortCoverDistance->at(m_optimalPath.at(i).endNode);
-	Vertex v_first, v_second;
-	tie(v_first, v_second) = m_graph.getEndNodes(*ei);
+        Vertex v_first, v_second;
+        tie(v_first, v_second) = m_graph.getEndNodes(*ei);
 
-	kcpp::Vertex v1 = getVertex(v_first);
-	kcpp::Vertex v2 = getVertex(v_second);
+        kcpp::Vertex v1 = getVertex(v_first);
+        kcpp::Vertex v2 = getVertex(v_second);
 
-	ReebEdge edge = m_graph.getEProp(*ei);
+        ReebEdge edge = m_graph.getEProp(*ei);
 
         double S_V1_Vij = m_shortTravelDistances.at(v1);
         double S_Vij_1_V1 = m_shortTravelDistances.at(v2);

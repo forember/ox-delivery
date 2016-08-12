@@ -27,35 +27,35 @@ class DrawImage
 
 public:
 
-  DrawImage();
-  DrawImage(ReebGraph g, RegionData d);
-  ~DrawImage(); 
+    DrawImage();
+    DrawImage(ReebGraph g, RegionData d);
+    ~DrawImage(); 
 
-  void setImageBuffer(cv::Mat* const source);
-  void setImageBuffer(QImage var);  
-  QImage getImageBuffer(); 
+    void setImageBuffer(cv::Mat* const source);
+    void setImageBuffer(QImage var);    
+    QImage getImageBuffer(); 
 
-  void clearImage();
-  void clearDevice();
+    void clearImage();
+    void clearDevice();
 
-  void drawBCDRegions();
-  void drawReebGraph();
-  void saveImageBuffer(QString fileName);
+    void drawBCDRegions();
+    void drawReebGraph();
+    void saveImageBuffer(QString fileName);
 
 private:
-  cv::Mat matBuffer;
-  QImage imageBuffer;
+    cv::Mat matBuffer;
+    QImage imageBuffer;
 
-  QPaintDevice* device;
-  RegionData d;
-  ReebGraph g;
+    QPaintDevice* device;
+    RegionData d;
+    ReebGraph g;
 
-  const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
-  const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
+    const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
+    const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
 
-  // Constants
-  const static unsigned char BLACK = 0;
-  const static unsigned char WHITE = 255;
+    // Constants
+    const static unsigned char BLACK = 0;
+    const static unsigned char WHITE = 255;
 
 };
 #endif

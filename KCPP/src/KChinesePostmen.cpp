@@ -28,19 +28,19 @@ class record_shortest_path_edge : public boost::dijkstra_visitor<>
 {
 public:
     record_shortest_path_edge(T e)
-	: m_edgePredecessor(e)
+        : m_edgePredecessor(e)
     {}
 
     template <class Edge, class Graph>
     void edge_relaxed(Edge e, Graph& g) {
-	// set the parent of the target(e) to e
-	boost::put(m_edgePredecessor, target(e, g), e);
+        // set the parent of the target(e) to e
+        boost::put(m_edgePredecessor, target(e, g), e);
 #ifdef DEBUG_KCHINESEPOSTMAN
-	std::cout << "from the caller \n";
-	std::cout << "target is: " << target(e, g) << "  source is: " << source(e, g) ;
-	std::cout << " and edge is "  << g[e].Eid;
-	std::cout << " area is "  << g[e].area;
-	std::cout << std::endl;
+        std::cout << "from the caller \n";
+        std::cout << "target is: " << target(e, g) << "  source is: " << source(e, g) ;
+        std::cout << " and edge is "  << g[e].Eid;
+        std::cout << " area is "  << g[e].area;
+        std::cout << std::endl;
 #endif
     }
 protected:
@@ -72,15 +72,15 @@ KChinesePostmen::KChinesePostmen()
 : m_graph(graph),
     m_k(k)
 {
-	//cerr << "K1 \n";
+        //cerr << "K1 \n";
     //create boost graph based on reebGraph's information
     // and sets also the staring point
     m_g = getSimpleGraph(/*m_graph*/);
 #ifdef DEBUG_KCHINESEPOSTMAN
     Vertex_Iter vi, vi_end;
     for (tie(vi, vi_end) = m_graph.getVertices(); vi != vi_end; vi++) {
-	// BUG: mapping fails, after getting out from scope the descriptor is set to 0
-	std::cout << m_g[getVertex(*vi)].Vid << " /  "; 
+        // BUG: mapping fails, after getting out from scope the descriptor is set to 0
+        std::cout << m_g[getVertex(*vi)].Vid << " /  "; 
     }
     testGraph(m_g);
 #endif
@@ -121,21 +121,21 @@ void KChinesePostmen::computeShortestDistances(kcpp::Graph graph)
     /**Computing shortest paths based on area and travel costs*/
     //"-------------------------Based on Area Cost----------------------------------\n";
     boost::dijkstra_shortest_paths(graph, m_sourceVertex,
-	    boost::weight_map(boost::get(&ReebEdge::area,graph))
-	    .distance_map(boost::make_iterator_property_map(m_shortCoverDistances.begin(), boost::get(boost::vertex_index,graph)))
-	    .visitor(make_shortest_path_recorder(&m_coverEdgePredecessor[0]))
-	    .predecessor_map(boost::make_iterator_property_map(m_coverPredecessors.begin(), boost::get(boost::vertex_index,graph)))
-	    );
+            boost::weight_map(boost::get(&ReebEdge::area,graph))
+            .distance_map(boost::make_iterator_property_map(m_shortCoverDistances.begin(), boost::get(boost::vertex_index,graph)))
+            .visitor(make_shortest_path_recorder(&m_coverEdgePredecessor[0]))
+            .predecessor_map(boost::make_iterator_property_map(m_coverPredecessors.begin(), boost::get(boost::vertex_index,graph)))
+            );
 
     cerr << "computer shortest distance - inside 3" << "\n";
 
     //"-------------------------Based on Travel Cost----------------------------------\n";
     boost::dijkstra_shortest_paths(graph, m_sourceVertex,
-	    boost::weight_map(boost::get(&ReebEdge::travelCost,graph))
-	    .distance_map(boost::make_iterator_property_map(m_shortTravelDistances.begin(), boost::get(boost::vertex_index,graph)))
-	    .visitor(make_shortest_path_recorder(&m_travelEdgePredecessor[0]))
-	    .predecessor_map(boost::make_iterator_property_map(m_travelPredecessors.begin(), boost::get(boost::vertex_index,graph)))
-	    );
+            boost::weight_map(boost::get(&ReebEdge::travelCost,graph))
+            .distance_map(boost::make_iterator_property_map(m_shortTravelDistances.begin(), boost::get(boost::vertex_index,graph)))
+            .visitor(make_shortest_path_recorder(&m_travelEdgePredecessor[0]))
+            .predecessor_map(boost::make_iterator_property_map(m_travelPredecessors.begin(), boost::get(boost::vertex_index,graph)))
+            );
 
     cerr << "computer shortest distance - inside 4" << "\n";
 }
@@ -168,16 +168,16 @@ kcpp::Graph KChinesePostmen::getSimpleGraph(/*ReebGraph g*/)
 #endif
     std::vector<Vertex> cppVert = g.getGraphVertex();
     for (size_t i = 0; i < cppVert.size(); ++i) {
-	Vertex v = cppVert.at(i);
-	rVertex = g.getVProp(v);
-	kcpp::Vertex vk = boost::add_vertex(rVertex, graph);
-	m_vertices_.push_back(vk);
-//	std::cout << i << " - " << (m_graph.getVProp((cppVert.at(i)))).Vid << " ,";
+        Vertex v = cppVert.at(i);
+        rVertex = g.getVProp(v);
+        kcpp::Vertex vk = boost::add_vertex(rVertex, graph);
+        m_vertices_.push_back(vk);
+//      std::cout << i << " - " << (m_graph.getVProp((cppVert.at(i)))).Vid << " ,";
     }
 #ifdef DEBUG_KCHINESEPOSTMAN
     std::cout << std::endl;
     for (tie(vi, vi_end) = g.getVertices(); vi != vi_end; vi++) {
-	std::cout << graph[getVertex(*vi)].Vid << " /  ";
+        std::cout << graph[getVertex(*vi)].Vid << " /  ";
     }
     std::cout << std::endl;
 #endif
@@ -190,35 +190,35 @@ kcpp::Graph KChinesePostmen::getSimpleGraph(/*ReebGraph g*/)
 
     for (tie(ei, ei_end) = g.getEdges(); ei != ei_end; ei++) 
     {
-	//no need for check
-	// all reebGraph's vertices must be included in the graph
-	//if( *vi != ReebGraph::nullVertex()) 
-	rEdge = g.getEProp(*ei); // the return type is ReebEdge
+        //no need for check
+        // all reebGraph's vertices must be included in the graph
+        //if( *vi != ReebGraph::nullVertex()) 
+        rEdge = g.getEProp(*ei); // the return type is ReebEdge
 
-	//if there is not edge between source and target vertices
-	//of current edge then add it to graph
-	Vertex v_first, v_second;
-	boost::tie(v_first, v_second) = g.getEndNodes(*ei); // <---- IMPORTANT
-	kcpp::Vertex v1 = getVertex(v_first);
-	kcpp::Vertex v2 = getVertex(v_second);
-	std::pair<kcpp::Edge, bool> retrEdge = boost::edge(v1, v2, graph); // for checking if there is edge between this vertices
-	if( retrEdge.second == false)  {
-	    add_edge(v1, v2, rEdge, graph);
-	    //std::cout << rEdge.Eid << " ";
-	} else  {
-	    //otherwise replace it with an edge that has min travel cost
-	    //FIXME: if we have to compute also based on area cost  we have to include that edges as well
+        //if there is not edge between source and target vertices
+        //of current edge then add it to graph
+        Vertex v_first, v_second;
+        boost::tie(v_first, v_second) = g.getEndNodes(*ei); // <---- IMPORTANT
+        kcpp::Vertex v1 = getVertex(v_first);
+        kcpp::Vertex v2 = getVertex(v_second);
+        std::pair<kcpp::Edge, bool> retrEdge = boost::edge(v1, v2, graph); // for checking if there is edge between this vertices
+        if( retrEdge.second == false)  {
+            add_edge(v1, v2, rEdge, graph);
+            //std::cout << rEdge.Eid << " ";
+        } else  {
+            //otherwise replace it with an edge that has min travel cost
+            //FIXME: if we have to compute also based on area cost  we have to include that edges as well
 
-	    ReebEdge retrREdge = graph[retrEdge.first];
-	    if (rEdge.area < retrREdge.area) { //FIXME: just for checking if the computation is correct
-	    //if (rEdge.travelCost < retrREdge.travelCost) { 
-		//FIXME: remove might cause some problems
-		//remove(source(*ei, graph), target(*ei, graph), graph);
-		//add_edge(rEdge, graph);
-		graph[retrEdge.first] = rEdge;
-		//std::cout << rEdge.Eid << " ";
-	    }
-	}
+            ReebEdge retrREdge = graph[retrEdge.first];
+            if (rEdge.area < retrREdge.area) { //FIXME: just for checking if the computation is correct
+            //if (rEdge.travelCost < retrREdge.travelCost) { 
+                //FIXME: remove might cause some problems
+                //remove(source(*ei, graph), target(*ei, graph), graph);
+                //add_edge(rEdge, graph);
+                graph[retrEdge.first] = rEdge;
+                //std::cout << rEdge.Eid << " ";
+            }
+        }
 
     }
 #ifdef DEBUG_KCHINESEPOSTMAN
@@ -243,27 +243,27 @@ std::list<ReebEdge> KChinesePostmen::getShortPath(Vertex v, kcpp::Graph g)
     //std::cout << m_graph.getVProp(v).Vid << "  "  << g[curr].Vid << " ";
     //kcpp::Vertex curr = v;
     while(curr!=m_sourceVertex) {
-	vPath.push_back(curr);
-	curr = m_travelPredecessors.at(curr);
+        vPath.push_back(curr);
+        curr = m_travelPredecessors.at(curr);
     }
     vPath.push_back(m_sourceVertex);
 
     std::vector< kcpp::Vertex >::reverse_iterator rit, next;
     if(vPath.size() <= 1){
-	return ePath;
+        return ePath;
     }
     for ( rit=vPath.rbegin(), next = rit + 1; next!=vPath.rend(); ++next) 
     {
-	
-	std::pair<kcpp::Edge, bool> edgeDesc = boost::edge(*rit, *next, g);
+        
+        std::pair<kcpp::Edge, bool> edgeDesc = boost::edge(*rit, *next, g);
 #ifdef DEBUG_KCHINESEPOSTMAN
-	    std::cout << g[*rit].Vid << " - "  << g[*next].Vid << std::endl;
+            std::cout << g[*rit].Vid << " - "  << g[*next].Vid << std::endl;
 #endif
-	if(edgeDesc.second == true) {
-	    ReebEdge edge = g[edgeDesc.first];
-	    ePath.push_back(edge);
-	}
-	rit = next;
+        if(edgeDesc.second == true) {
+            ReebEdge edge = g[edgeDesc.first];
+            ePath.push_back(edge);
+        }
+        rit = next;
     }
     return ePath;
 }
@@ -277,18 +277,18 @@ std::list<ReebEdge> KChinesePostmen::getShortPath(Vertex v, kcpp::Graph g)
  **==============================================================*/
 void KChinesePostmen::printEulerianTours()
 {
-	    /*Vertex v_first, v_second;
+            /*Vertex v_first, v_second;
 
-	    Edge e = tour_j.front();
-	    tie(v_first, v_second) = m_graph.getEndNodes(e);
-	    std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
-	    tour_jv.splice(tour_jv.begin(), t1);
+            Edge e = tour_j.front();
+            tie(v_first, v_second) = m_graph.getEndNodes(e);
+            std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
+            tour_jv.splice(tour_jv.begin(), t1);
 
-	    e = tour_j.back();
-	    tie(v_first, v_second) = m_graph.getEndNodes(e);
-	    t1 = getShortPath(v_second, m_g);
-	    tour_jv.splice(tour_jv.end(), t1);
-	    */
+            e = tour_j.back();
+            tie(v_first, v_second) = m_graph.getEndNodes(e);
+            t1 = getShortPath(v_second, m_g);
+            tour_jv.splice(tour_jv.end(), t1);
+            */
 
     std::cerr << "start \n";
     
@@ -296,42 +296,42 @@ void KChinesePostmen::printEulerianTours()
     std::cout << "The number of robots is: " << m_k << "\n";
     std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
     for(size_t i = 0; i < m_eulerTours.size(); ++i) {
-	std::cout << "Route no " <<  i+1 << "  -->  ";
-	EulerTour tour_i = m_eulerTours.at(i);
-	    Vertex v_first, v_second;
+        std::cout << "Route no " <<  i+1 << "  -->  ";
+        EulerTour tour_i = m_eulerTours.at(i);
+            Vertex v_first, v_second;
 
     std::cerr << "1/4 \n";
 
-	Edge e = tour_i.front();
-	tie(v_first, v_second) = m_graph.getEndNodes(e);
-	std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
-	std::list<ReebEdge>::iterator i1;
-	std::cout << " travel edges ( ";
-	for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-	    std::cout << (*i1).Eid << " ";
-	}
-	std::cout << " )";
+        Edge e = tour_i.front();
+        tie(v_first, v_second) = m_graph.getEndNodes(e);
+        std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
+        std::list<ReebEdge>::iterator i1;
+        std::cout << " travel edges ( ";
+        for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
+            std::cout << (*i1).Eid << " ";
+        }
+        std::cout << " )";
 
     std::cerr << "1/2 \n";
 
-	std::cout << " coverage edges ( ";
-	for (EulerTour::iterator it = tour_i.begin(); it!=tour_i.end(); ++it) {
-	    std::cout << m_graph.getEProp(*it).Eid << " ";
-	}
-	std::cout << " )";
+        std::cout << " coverage edges ( ";
+        for (EulerTour::iterator it = tour_i.begin(); it!=tour_i.end(); ++it) {
+            std::cout << m_graph.getEProp(*it).Eid << " ";
+        }
+        std::cout << " )";
 
     std::cerr << "3/4 \n";
 
-	e = tour_i.back();
-	tie(v_first, v_second) = m_graph.getEndNodes(e);
-	t1 = getShortPath(v_second, m_g);
-	std::cout << " travel edges ( ";
-	for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-	    std::cout << (*i1).Eid << " ";
-	}
-	std::cout << " )";
+        e = tour_i.back();
+        tie(v_first, v_second) = m_graph.getEndNodes(e);
+        t1 = getShortPath(v_second, m_g);
+        std::cout << " travel edges ( ";
+        for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
+            std::cout << (*i1).Eid << " ";
+        }
+        std::cout << " )";
 
-	std::cout << std::endl;
+        std::cout << std::endl;
     }
 
     std::cerr << "end \n";
@@ -351,8 +351,8 @@ void KChinesePostmen::testGraph(kcpp::Graph graph)
     kcpp::Edge_Iter ei, eend;
     std::cout << "------ Edges of simple graph created from multigraph----\n";
     for (boost::tie(ei, eend) = boost::edges(graph); ei != eend; ++ei) {
-	ReebEdge edge = graph[*ei];
-	std::cout << edge.Eid << " area " << edge.area << " travel cost " << edge.travelCost << std::endl;
+        ReebEdge edge = graph[*ei];
+        std::cout << edge.Eid << " area " << edge.area << " travel cost " << edge.travelCost << std::endl;
     }
     std::cout << "------------------ !!!!!!!!! ---------------------------\n";
 }
@@ -372,14 +372,14 @@ void KChinesePostmen::printShortestPaths(kcpp::Graph graph)
     std::cout << "----------------------SHORTEST PATH-----------------------------\n";
     Vertex_Iter vi, vend;
     for (boost::tie(vi, vend) = m_graph.getVertices(); vi != vend; vi++) {
-	kcpp::Vertex v = getVertex(*vi);
-	std::cout << graph[v].Vid << " the path is ";
-	std::list<ReebEdge> path = getShortPath(*vi, graph);
-	std::list<ReebEdge>::iterator it;
-	for ( it=path.begin(); it!=path.end(); ++it) {
-	    std::cout << (*it).Eid << " ";
-	}
-	std::cout << std::endl;
+        kcpp::Vertex v = getVertex(*vi);
+        std::cout << graph[v].Vid << " the path is ";
+        std::list<ReebEdge> path = getShortPath(*vi, graph);
+        std::list<ReebEdge>::iterator it;
+        for ( it=path.begin(); it!=path.end(); ++it) {
+            std::cout << (*it).Eid << " ";
+        }
+        std::cout << std::endl;
     }
     std::cout << "----------------------------------------------------------------\n";
 

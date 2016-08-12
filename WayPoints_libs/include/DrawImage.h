@@ -25,43 +25,43 @@
 #include "Leo/RegionData.h"
 
 
-class DrawImage 
+class DrawImage
 {
 
 public:
 
-  DrawImage();
-  DrawImage(ReebGraph graph, RegionData data, \
-    std::list<Edge> eulerCycle, std::vector<Point2D> wayPoints);
-  ~DrawImage(); 
+    DrawImage();
+    DrawImage(ReebGraph graph, RegionData data, std::list<Edge> eulerCycle,
+            std::vector<Point2D> wayPoints);
+    ~DrawImage(); 
 
-  void setImageBuffer(cv::Mat* const source);
-  void setImageBuffer(QImage var);  
-  QImage getImageBuffer(); 
+    void setImageBuffer(cv::Mat* const source);
+    void setImageBuffer(QImage var);
+    QImage getImageBuffer(); 
 
-  void clearImage();
-  void clearDevice();
+    void clearImage();
+    void clearDevice();
 
-  void drawWaypoints(std::vector<Point2D> wpPixels, \
-    int highlightID, unsigned int highlightCount);
+    void drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
+            unsigned int highlightCount);
 
-  void saveImageBuffer(QString fileName);
+    void saveImageBuffer(QString fileName);
 
 private:
-  cv::Mat matBuffer;
-  QImage imageBuffer;
+    cv::Mat matBuffer;
+    QImage imageBuffer;
 
-  RegionData d;
-  ReebGraph g;
-  std::list<Edge> e;
-  vector<Point2D> w;
-  QPaintDevice* device;
+    RegionData d;
+    ReebGraph g;
+    std::list<Edge> e;
+    vector<Point2D> w;
+    QPaintDevice* device;
 
-  const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
-  const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
+    const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
+    const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
 
-  // Constants
-  const static unsigned char BLACK = 0;
-  const static unsigned char WHITE = 255;
+    // Constants
+    const static unsigned char BLACK = 0;
+    const static unsigned char WHITE = 255;
 };
 #endif

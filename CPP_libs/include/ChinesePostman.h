@@ -25,61 +25,63 @@ class ChinesePostman
 
 public:
 
-  ChinesePostman();
-  ChinesePostman(RegionData& data, ReebGraph& graph, std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints);
-  ~ChinesePostman(); 
+    ChinesePostman();
+    ChinesePostman(RegionData& data, ReebGraph& graph,
+            std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints);
+    ~ChinesePostman(); 
 
-  QImage getImageBuffer(); 
-  void setImageBuffer(cv::Mat* const source);
-  void setImageBuffer(QImage var);  
-  void clearImage();
+    QImage getImageBuffer(); 
+    void setImageBuffer(cv::Mat* const source);
+    void setImageBuffer(QImage var);    
+    void clearImage();
 
-  void viewEulerGraph(QString fileName, RegionData& data, ReebGraph& graph, std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints);
-  void printGraphInfo();
-  void testValues(RegionData& data, ReebGraph& graph); 
+    void viewEulerGraph(QString fileName, RegionData& data, ReebGraph& graph,
+            std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints);
+    void printGraphInfo();
+    void testValues(RegionData& data, ReebGraph& graph); 
 
-  /**
-   * Solves the Chinese Postman Problem using linear programming
-   *
-   * WARNING: The user should check if eulerCycle->size() > 0 after calling
-   *          this function to see if linear programming has returned a
-   *          valid solution.
-   */
-  void solveCPP(RegionData& data, ReebGraph& graph, std::list<Edge>& eulerCycle);
+    /**
+     * Solves the Chinese Postman Problem using linear programming
+     *
+     * WARNING: The user should check if eulerCycle->size() > 0 after calling
+     * this function to see if linear programming has returned a valid
+     * solution.
+     */
+    void solveCPP(RegionData& data, ReebGraph& graph,
+            std::list<Edge>& eulerCycle);
 
 protected:
 
+    ReebVertex vert;
 
-  ReebVertex vert;
-
-  DrawImage imageDrawer;
-
+    DrawImage imageDrawer;
 
 
-  const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
-  const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
 
-  // Constants
-  const static unsigned char BLACK = 0;
-  const static unsigned char WHITE = 255;
-  const static double desiredAltitudeM = 200;
+    const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
+    const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
 
-
-  // Helper function: forms an end-pair from two selected edges
-  static void addPairToEndPairings(
-      Edge e1, Edge e2, Vertex n,
-      std::list<Edge> *unpairedEdges,
-      std::list<Edge> *pairedEdges,
-      std::list< std::pair<std::pair<Edge,Edge>,Vertex> > *EndPairs);
+    // Constants
+    const static unsigned char BLACK = 0;
+    const static unsigned char WHITE = 255;
+    const static double desiredAltitudeM = 200;
 
 
-  static glp_prob* lp; // linear programming pointer, static due to callback requirement
-  static bool glp_successful; // deprecated -- flag written to, but not being used
+    // Helper function: forms an end-pair from two selected edges
+    static void addPairToEndPairings(
+            Edge e1, Edge e2, Vertex n,
+            std::list<Edge> *unpairedEdges,
+            std::list<Edge> *pairedEdges,
+            std::list< std::pair<std::pair<Edge,Edge>,Vertex> > *EndPairs);
 
-  Edge firstEdge;
-  bool forwardEulerTour;
 
+    static glp_prob* lp;
+            // linear programming pointer, static due to callback requirement
+    static bool glp_successful;
+            // deprecated -- flag written to, but not being used
 
+    Edge firstEdge;
+    bool forwardEulerTour;
 
 };
 #endif

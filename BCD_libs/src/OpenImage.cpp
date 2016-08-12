@@ -17,18 +17,14 @@
  * Constructor
  *
 **/
-OpenImage::OpenImage()
-{
-};
+OpenImage::OpenImage() {};
 
 
 /*************************************************************************
  * Destructor
  *
 **/
-OpenImage::~OpenImage() 
-{
-};
+OpenImage::~OpenImage() {};
 
 
 /*************************************************************************
@@ -36,10 +32,10 @@ OpenImage::~OpenImage()
  *
  * Method that sets the QImage variable imageBuffer to the appropriate
  * image file from the input folder. Acts in many ways to initialize
- * specific variables. 
+ * specific variables.
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   directory - directory that holds the image file
@@ -48,38 +44,37 @@ OpenImage::~OpenImage()
 **/
 RegionData OpenImage::open(string directory, string fileName)
 {
-  RegionData data;
-  if(mapFiles.empty() == true)
-  {
-    dir = directory;
-    file = fileName;
-    setMapFiles();
-  }
-
-  try 
-  {
-    string search = dir + "/" + file;
-
-    //File was found
-    if(mapFiles.find(search) != mapFiles.end())
+    RegionData data;
+    if (mapFiles.empty() == true)
     {
-      data.loadWorld(search);
+        dir = directory;
+        file = fileName;
+        setMapFiles();
     }
 
-    //File was not found so iter returns set.end() 
-    else
+    try
     {
-      std::cout << "File not found";
-    }
-    
-    return data;
-  }
+        string search = dir + "/" + file;
 
-  catch (const std::string& err) 
-  {
-    std::cerr << "HERE ERROR WHY?";
-    return data;
-  }
+        // File was found
+        if(mapFiles.find(search) != mapFiles.end())
+        {
+            data.loadWorld(search);
+        }
+
+        // File was not found so iter returns set.end()
+        else
+        {
+            std::cout << "File not found";
+        }
+
+        return data;
+    }
+    catch (const std::string& err)
+    {
+        std::cerr << "HERE ERROR WHY?";
+        return data;
+    }
 } 
 
 
@@ -89,7 +84,7 @@ RegionData OpenImage::open(string directory, string fileName)
  * Method that finds all of the files in the directory
  *
  * Returns:
- *   set<string> - Set of string values that stores the file names. 
+ *   set<string> - Set of string values that stores the file names.
  *
  * Parameters:
  *   None
@@ -97,41 +92,40 @@ RegionData OpenImage::open(string directory, string fileName)
 **/
 set<string> OpenImage::findFiles()
 {
-  DIR* directory;
-  struct dirent* dirPath;
-  set<string> files;
+    DIR* directory;
+    struct dirent* dirPath;
+    set<string> files;
 
-  const char* dirC = dir.c_str();
-  directory = opendir(dirC);
+    const char* dirC = dir.c_str();
+    directory = opendir(dirC);
 
-  if(directory == NULL)
-  {
-    exit(0);
-  }
- 
-  bool keep = true;
-
-  //reading in the files from the directory. 
-  while(keep == true)
-  {
-    dirPath = readdir(directory);
-    if(dirPath == NULL)
+    if(directory == NULL)
     {
-      keep = false;
+        exit(0);
     }
 
-    else
+    bool keep = true;
+
+    // Reading in the files from the directory.
+    while(keep == true)
     {
-      string fileName = dirPath->d_name;
-      if(fileName != "." && fileName != "..")
-      {
-        fileName = dir + "/" + fileName;
-        files.insert(fileName);
-      }
+        dirPath = readdir(directory);
+        if(dirPath == NULL)
+        {
+            keep = false;
+        }
+        else
+        {
+            string fileName = dirPath->d_name;
+            if (fileName != "." && fileName != "..")
+            {
+                fileName = dir + "/" + fileName;
+                files.insert(fileName);
+            }
+        }
     }
-  }
-  closedir(directory);
-  return files; 
+    closedir(directory);
+    return files;
 }
 
 
@@ -139,10 +133,10 @@ set<string> OpenImage::findFiles()
  * Function 'setMapFiles()'
  *
  * Method that sets the mapFiles variable to all the map files found in
- * the input folder. 
+ * the input folder.
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   None
@@ -150,31 +144,31 @@ set<string> OpenImage::findFiles()
 **/
 void OpenImage::setMapFiles()
 {
-  set<string> files;
+    set<string> files;
 
-  //gets all of the files and then sorts them into a
-  //  set of strings. This also works because sets 
-  //  automatically sort alphabetically.
-  files = findFiles();
+    //gets all of the files and then sorts them into a
+    //  set of strings. This also works because sets 
+    //  automatically sort alphabetically.
+    files = findFiles();
 
-  string s = "";
-  set<string>::iterator iter;
-  for(iter = files.begin(); iter != files.end(); ++iter)
-  {
-    s = (*iter);
-   
-    if(s.find("png") != std::string::npos)
+    string s = "";
+    set<string>::iterator iter;
+    for(iter = files.begin(); iter != files.end(); ++iter)
     {
-      mapFiles.insert(s); 
+        s = (*iter);
+
+        if(s.find("png") != std::string::npos)
+        {
+            mapFiles.insert(s); 
+        }
     }
-  }
 }
 
 
 /*************************************************************************
  * Function 'getMapFiles()'
  *
- * Method that gets the mapFiles variable. 
+ * Method that gets the mapFiles variable.
  *
  * Returns:
  *   mapFiles - set that has all the names of the map files
@@ -185,16 +179,16 @@ void OpenImage::setMapFiles()
 **/
 set<string> OpenImage::getMapFiles()
 {
-  return mapFiles;
+    return mapFiles;
 }
 
 
 /*************************************************************************
  * Function 'printMapFiles()'
  *
- * Method that prints off the names of all the files found using 
- * findFiles() and then set to mapFiles. Used for testing that all the 
- * map files are being found. 
+ * Method that prints off the names of all the files found using
+ * findFiles() and then set to mapFiles. Used for testing that all the
+ * map files are being found.
  *
  * Returns:
  *   mapFiles - set that has all the names of the map files
@@ -205,22 +199,22 @@ set<string> OpenImage::getMapFiles()
 **/
 void OpenImage::printMapFiles()
 {
-  if(mapFiles.empty() == true)
-  {
-    setMapFiles();
-  }
+    if(mapFiles.empty() == true)
+    {
+        setMapFiles();
+    }
 
-  string s = "";
-  string files = "";
+    string s = "";
+    string files = "";
 
-  set<string>::iterator iter;
-  for(iter = mapFiles.begin(); iter != mapFiles.end(); ++iter)
-  {
-    s = (*iter);
-    files += s;
-    files += "\n";
-  }
+    set<string>::iterator iter;
+    for(iter = mapFiles.begin(); iter != mapFiles.end(); ++iter)
+    {
+        s = (*iter);
+        files += s;
+        files += "\n";
+    }
 
-  std::cout << files;
+    std::cout << files;
 }
 

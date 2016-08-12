@@ -28,12 +28,13 @@ using namespace std;
 
 class Point2D
 {
- public:
+
+public:
 
     //Sets up a 2d object with x and y coordinates
     Point2D() { x = 0; y = 0; }
     Point2D(double xcoord, double ycoord) { x = xcoord; y = ycoord; }
-    Point2D(std::pair<double, double> xycoord) \
+    Point2D(std::pair<double, double> xycoord)
         { x = xycoord.first; y = xycoord.second; }
     ~Point2D() {}
 
@@ -83,7 +84,7 @@ class Point2D
     // returns rotate90(point(0, 0))
     Point2D rotate90() const;
 
- protected:
+protected:
 
     double x, y;   // x, y coordinates of a point
 };

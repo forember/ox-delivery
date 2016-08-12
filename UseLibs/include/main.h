@@ -41,8 +41,8 @@ class Main
 {
 
 public:
-  int main();
-  virtual ~Main();
+    int main();
+    virtual ~Main();
 
 private:
 

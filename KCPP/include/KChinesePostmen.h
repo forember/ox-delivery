@@ -38,9 +38,9 @@
 
 namespace kcpp {
     typedef boost::adjacency_list< boost::vecS, boost::vecS,
-	    boost::undirectedS,
-	    ReebVertex,
-	    ReebEdge> Graph;
+            boost::undirectedS,
+            ReebVertex,
+            ReebEdge> Graph;
 
     typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
     typedef boost::graph_traits<Graph>::edge_descriptor Edge;
@@ -66,7 +66,7 @@ public:
 
     /** Function that returns the created routes */
     std::vector<EulerTour> getKEulerianTours(){
-	return m_eulerTours;
+        return m_eulerTours;
     };
 
     virtual void printEulerianTours();
@@ -96,11 +96,11 @@ protected:
 
     //FIXME: const is removed 
     kcpp::Vertex getVertex(Vertex vdesc) {
-	//FIXME: add assert at this point to be sure 
-	// that the element exists or use c++ 11's .at()
-	unsigned int  id = m_graph.getVProp(vdesc).Vid;
-//	std::cout << "V --- >>> " << id << std::endl;
-	return m_vertices_.at(id);
+        //FIXME: add assert at this point to be sure 
+        // that the element exists or use c++ 11's .at()
+        unsigned int  id = m_graph.getVProp(vdesc).Vid;
+//      std::cout << "V --- >>> " << id << std::endl;
+        return m_vertices_.at(id);
     }
 
 protected:

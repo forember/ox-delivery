@@ -23,20 +23,20 @@ class OpenImage
 
 public:
 
-  OpenImage();
-  ~OpenImage(); 
+    OpenImage();
+    ~OpenImage(); 
 
-  RegionData open(string directory, string fileName);
-  set<string> findFiles();
-  void setMapFiles();
-  set<string> getMapFiles();
-  void printMapFiles();
+    RegionData open(string directory, string fileName);
+    set<string> findFiles();
+    void setMapFiles();
+    set<string> getMapFiles();
+    void printMapFiles();
 
 private:
 
-  set<string> mapFiles;
-  string dir;
-  string file;
+    set<string> mapFiles;
+    string dir;
+    string file;
 
 };
 #endif
