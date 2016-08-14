@@ -46,7 +46,7 @@ WayPoints::WayPoints(RegionData& data, ReebGraph& graph,
     _setupCompleted = true;
 */
 
-    cerr << "Start\n";
+    cerr << "Start Genpath\n";
     genPath_All(data, graph, wayPoints, desiredAltitudeM);
     cerr << "End\n";
 };
@@ -187,7 +187,7 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
     }
 
     bool _upDir = upDir;
-    for (int i = 0; i<numStep; ++i, _upDir = !_upDir)
+    for (int i = 0; i < numStep; ++i, _upDir = !_upDir)
     {
         int index = (numStep != 1
                 ? round((cellWidth-1)*i*1.0 / (numStep-1)) : 0);
@@ -196,6 +196,9 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
             index = cellWidth - index - 1;
         }
 
+        std::cerr << i << ": " << &(_currEdge.bottomBoundary[index])
+            << std::endl;
+
         if (_currEdge.bottomBoundary.size() == 0
                 || _currEdge.topBoundary.size() == 0) {
             //continue;
@@ -203,9 +206,9 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
 
         if (i == 0)
         {
-            if(_upDir)
+            if (_upDir)
             {
-                if(completeCover)
+                if (completeCover)
                 {
                     path.push_back(_currEdge.bottomBoundary[index]);
                 }
@@ -213,20 +216,20 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
             }
             else
             {
-                if(completeCover)
+                if (completeCover)
                 {
                     path.push_back(_currEdge.topBoundary[index]);
                 }
                 path.push_back(_currEdge.bottomBoundary[index]);
             }
         }
-        else if(i == numStep-1)
+        else if (i == numStep-1)
         {
-            if(_upDir)
+            if (_upDir)
             {
                 path.push_back(_currEdge.bottomBoundary[index]);
 
-                if(completeCover)
+                if (completeCover)
                 {
                     path.push_back(_currEdge.topBoundary[index]);
                 }
@@ -239,7 +242,7 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
             else
             {
                 path.push_back(_currEdge.topBoundary[index]);
-                if(completeCover)
+                if (completeCover)
                 {
                     path.push_back(_currEdge.bottomBoundary[index]);
                 }
@@ -252,7 +255,7 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
         }
         else
         {
-            if(_upDir)
+            if (_upDir)
             {
                 path.push_back(_currEdge.bottomBoundary[index]);
                 path.push_back(_currEdge.topBoundary[index]);
@@ -286,7 +289,8 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
         ReebGraph &m_graph, ReebGraph &dest) {
     std::cerr << "Converting tour to Reeb Graph\n";
     std::list<ReebEdge>::const_iterator it;
-    ReebEdge edge;
+    ReebEdge edge, *addedReebEdge;
+    Edge addedEdge;
     Vertex v_first, v_second, nvf, nvs;
     ReebVertex rvf, rvs;
     for (it = tour.begin(); it != tour.end(); ++it) {
@@ -300,7 +304,10 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
             << "), color: " << edge.color << ")\n";
         nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
         nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
-        dest.addEdge(nvf, nvs, edge.color);
+        addedEdge = dest.addEdge(nvf, nvs, edge.color);
+        addedReebEdge = &(dest.getEProp(addedEdge));
+        addedReebEdge->topBoundary = edge.topBoundary;
+        addedReebEdge->bottomBoundary = edge.bottomBoundary;
     }
 }
 

@@ -147,11 +147,28 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         cerr << "\nTour 1:\n";
         std::list<ReebEdge>::iterator it;
-        for (it = t1.begin(); it != t1.end(); ++it) {
+        for (it = t1.begin(); it != t1.end(); ++it)
+        {
             std::cerr << "ReebEdge: (" /*<< it->topBoundary << ","
                 << it->bottomBoundary << ","*/ << it->color << "," << it->cost
                 << "," << it->Eid << "," << it->area << "," << it->travelCost
                 << ")\n";
+            std::cerr << "  Top Boundary:" << std::endl;
+            vector<Point2D>::iterator itTop;
+            for (itTop = it->topBoundary.begin();
+                    itTop != it->topBoundary.end(); ++itTop)
+            {
+                std::cerr << "\t" << &(*itTop);
+            }
+            std::cerr << std::endl;
+            std::cerr << "  Bottom Boundary:" << std::endl;
+            vector<Point2D>::iterator itBot;
+            for (itBot = it->bottomBoundary.begin();
+                    itBot != it->bottomBoundary.end(); ++itBot)
+            {
+                std::cerr << "\t" << &(*itBot);
+            }
+            std::cerr << std::endl;
         }
 
         //temporary graph that will be used for converting
@@ -170,6 +187,31 @@ void Controller::run(const std::string& directory, const std::string& image,
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
         std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
 
+        std::cerr << std::endl << "Graph Edges:" << std::endl;
+        std::list<Edge>::iterator tbcit;
+        for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
+        {
+            std::cerr << " Edge:" << std::endl;
+            ReebEdge e = temporaryGraph.getEProp(*tbcit);
+            std::cerr << "  Top Boundary:" << std::endl;
+            vector<Point2D>::iterator itTop;
+            for (itTop = e.topBoundary.begin();
+                    itTop != e.topBoundary.end(); ++itTop)
+            {
+                std::cerr << "\t" << &(*itTop);
+            }
+            std::cerr << std::endl;
+            std::cerr << "  Bottom Boundary:" << std::endl;
+            vector<Point2D>::iterator itBot;
+            for (itBot = e.bottomBoundary.begin();
+                    itBot != e.bottomBoundary.end(); ++itBot)
+            {
+                std::cerr << "\t" << &(*itBot);
+            }
+            std::cerr << std::endl;
+        }
+        std::cerr << std::endl;
+
         //should generate a new waypoints path for this route
         //  Done like this because the constructor automatically runs
         //  the functions necessary to create waypoints. 
@@ -177,7 +219,7 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         cout << "\nWayPoints:\n";
         vector<Point2D>::iterator iter;
-        for(iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
+        for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
         {
             cout << (*iter) << " ";
         }
@@ -185,6 +227,13 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         //pushes each tours waypoints to store for future use
         tourPoints.push_back(tempWayPoints);
+
+        int rmExt = m_image.find_last_of("."); 
+        string img = m_image.substr(0, rmExt); 
+        QString imageQS = QString(img.c_str());
+        QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i));
+        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
+        tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
     for (int i = 0; i < tourPoints.size(); ++i)
@@ -202,16 +251,6 @@ void Controller::run(const std::string& directory, const std::string& image,
         cerr << "\n";
         cerr << "END" << "\n"<< "\n";
     }
-
-
-/*
-    int rmExt = m_image.find_last_of("."); 
-    string img = m_image.substr(0, rmExt); 
-    QString imageQS = QString(img.c_str());
-    QString fileName = imageQS + ".EulerGraph.png";
-    //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
-    way.viewWaypoints(fileName, data, graph, eulerCycle, wayPoints);
-*/
 
 }
 
