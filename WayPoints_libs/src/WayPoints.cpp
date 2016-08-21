@@ -1,3 +1,4 @@
+//#define DEBUG
 #include "WayPoints.h"
 
 /******************************************************************************
@@ -46,9 +47,15 @@ WayPoints::WayPoints(RegionData& data, ReebGraph& graph,
     _setupCompleted = true;
 */
 
+#ifdef DEBUG    
     cerr << "Start Genpath\n";
+#endif 
+
     genPath_All(data, graph, wayPoints, desiredAltitudeM);
+
+#ifdef DEBUG
     cerr << "End\n";
+#endif 
 };
 
 
@@ -196,8 +203,10 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
             index = cellWidth - index - 1;
         }
 
+#ifdef DEBUG
         std::cerr << i << ": " << &(_currEdge.bottomBoundary[index])
             << std::endl;
+#endif
 
         if (_currEdge.bottomBoundary.size() == 0
                 || _currEdge.topBoundary.size() == 0) {
@@ -287,7 +296,11 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
 **/
 void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
         ReebGraph &m_graph, ReebGraph &dest) {
+
+#ifdef DEBUG
     std::cerr << "Converting tour to Reeb Graph\n";
+#endif 
+
     std::list<ReebEdge>::const_iterator it;
     ReebEdge edge, *addedReebEdge;
     Edge addedEdge;
@@ -298,10 +311,14 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
         tie(v_first, v_second) = m_graph.getEndNodes(edge.Eid);
         rvf = m_graph.getVProp(v_first);
         rvs = m_graph.getVProp(v_second);
+
+#ifdef DEBUG
         cerr << "Edge: (Vertex: (" << rvf.x << "," << rvf.y1 << "," << rvf.y2
             << "," << rvf.color << "," << "), Vertex (" << rvs.x << ","
             << rvs.y1 << "," << rvs.y2 << "," << rvs.color << ","
             << "), color: " << edge.color << ")\n";
+#endif 
+
         nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
         nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
         addedEdge = dest.addEdge(nvf, nvs, edge.color);
@@ -323,21 +340,6 @@ void WayPoints::genPath_All(RegionData& data, ReebGraph& graph,
         Edge firstEdge)
     throw (const std::string&) 
 {
-    // Check for pre-conditions
-/*
-    if (!_setupCompleted) 
-    {
-        throw string("genPath_All() - Offline setup has not been completed");
-    }
-
-    if (_onlineLoopAlive) 
-    {
-        // Reason: need to set edge colorings!
-        throw string("genPath_All() - Cannot generate all waypoints while online loop is alive");
-    }
-*/
-
-
     Point2D _lastPoint;
     Out_Edge_Iter oi, oi_end;
     Vertex _currVertex;
@@ -931,6 +933,144 @@ void WayPoints::stopInvestigate()
 
 
 /*************************************************************************
+ * Function 'viewWayPoints(QString fileName)'
+ *
+ * Draws the waypoints to an image file. 
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
+void WayPoints::viewWaypoints(QString fileName, RegionData& data,
+        ReebGraph& graph, std::list<Edge>& eulerCycle,
+        vector<Point2D>& wayPoints)
+{
+    if(graph.empty() == true)
+    {
+        std::cout << "graph is empty";
+        return;
+    }
+
+    else if(eulerCycle.empty() == true)
+    {
+        std::cout << "euler is empty";
+        return;
+    }
+
+    DrawImage placeHolder(graph, data, eulerCycle, wayPoints);
+    placeHolder.drawWaypoints(wayPoints, 0, 0);
+    placeHolder.saveImageBuffer(fileName);
+};
+
+/*************************************************************************
+ * Auxiliary functions
+**/
+
+/*************************************************************************
+ * Function 'isSetupCompleted()'
+ *
+ * Returns a boolean for if the setup has been run and is complete.  
+ *
+ * Returns:
+ *   bool - setup complete
+ *
+ * Parameters:
+ *   None
+ *
+**/
+/*
+bool isSetupCompleted()
+{ 
+    return _setupCompleted;
+};*/
+
+/*************************************************************************
+ * Function 'isRunningOnlineLoop()'
+ *
+ * Returns a boolean for if the loop is still running. 
+ *
+ * Returns:
+ *   bool - loop alive
+ *
+ * Parameters:
+ *   None
+ *
+**/
+/*
+bool isRunningOnlineLoop()
+{ 
+    return _onlineLoopAlive;
+};*/
+
+/*************************************************************************
+ * Function 'isRunningInvestigate()'
+ *
+ * Returns a boolean for if the investigation method is running
+ *
+ * Returns:
+ *   bool - investigation running
+ *
+ * Parameters:
+ *   None
+ *
+**/
+/*
+bool isRunningInvestigate()
+{ 
+    return _investigateAlive;
+};*/
+
+/*************************************************************************
+ * Function 'resetOnlineLoopState()'
+ *
+ * Resets and cleans up variables
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
+/*
+void resetOnlineLoopState() 
+{
+    numCellsCovered = 0;
+    currVertex = ReebGraph::nullVertex();
+    currEdge = ReebGraph::nullEdge();
+    upDir = true;
+    resumedWaypointIndex = 0;
+    resumedCommandIndex = 1;
+    resumeOnlineLoop = false;
+};
+*/
+
+/*************************************************************************
+ * Function 'stopServices()'
+ *
+ * Stops all running services
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
+/*
+void stopServices() 
+{
+    serviceQueueMutex.lock();
+    serviceQueue.clear();
+    serviceQueueMutex.unlock();
+    _onlineLoopAlive = false;
+    _investigateAlive = false;
+};*/
+
+/*************************************************************************
  * Function 'runServiceThread()'
  *
  * Returns:
@@ -1006,43 +1146,6 @@ void WayPoints::runServiceThread() throw (const std::string&)
             serviceQueue.erase(it);
         }
         serviceQueueMutex.unlock();
-
-
     }
 };
 */
-
-
-
-/*************************************************************************
- * Function 'viewWayPoints(QString fileName)'
- *
- * Draws the waypoints to an image file. 
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   None
- *
-**/
-void WayPoints::viewWaypoints(QString fileName, RegionData& data,
-        ReebGraph& graph, std::list<Edge>& eulerCycle,
-        vector<Point2D>& wayPoints)
-{
-    if(graph.empty() == true)
-    {
-        std::cout << "graph is empty";
-        return;
-    }
-
-    else if(eulerCycle.empty() == true)
-    {
-        std::cout << "euler is empty";
-        return;
-    }
-
-    DrawImage placeHolder(graph, data, eulerCycle, wayPoints);
-    placeHolder.drawWaypoints(wayPoints, 0, 0);
-    placeHolder.saveImageBuffer(fileName);
-};

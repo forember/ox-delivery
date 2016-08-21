@@ -1,3 +1,5 @@
+//#define SHORT_PRINT_OUT
+//#define LONG_PRINT_OUT
 #include "ReebGraph.h"
 
 /*****************************************************************************
@@ -7,10 +9,366 @@
  *
 **/
 
-
 // Declares the singleton null vertex & edge pointers
 const Vertex ReebGraph::Vnull = Vertex();
 const Edge ReebGraph::Enull = Edge();
+
+// Initializes member variables
+ReebGraph::ReebGraph() : g(), Vpointers(), Epointers(), Vid_free(0), Eid_free(0) {};
+
+ReebGraph::ReebGraph(const ReebGraph& _g) : g(), Vpointers(), Epointers(), Vid_free(0), Eid_free(0)
+{
+    g = _g.g;
+    Vpointers.resize(_g.Vpointers.size());
+    copy(_g.Vpointers.begin(),_g.Vpointers.end(),Vpointers.begin());
+    Epointers.resize(_g.Epointers.size());
+    copy(_g.Epointers.begin(),_g.Epointers.end(),Epointers.begin());
+    Vid_free = _g.Vid_free;
+    Eid_free = _g.Eid_free;
+};
+
+ReebGraph& ReebGraph::operator=( const ReebGraph& _g ) 
+{
+    g = _g.g;
+    Vpointers.resize(_g.Vpointers.size());
+    copy(_g.Vpointers.begin(),_g.Vpointers.end(),Vpointers.begin());
+    Epointers.resize(_g.Epointers.size());
+    copy(_g.Epointers.begin(),_g.Epointers.end(),Epointers.begin());
+    Vid_free = _g.Vid_free;
+    Eid_free = _g.Eid_free;
+    return *this;
+};
+
+// Cleans up member variables
+ReebGraph::~ReebGraph() 
+{
+    clear();
+};
+
+void ReebGraph::clear() 
+{
+    Vpointers.clear();
+    Epointers.clear();
+    g.clear();
+    Vid_free = 0;
+    Eid_free = 0;
+};
+
+std::list<Edge> ReebGraph::getEdgeList()
+{
+    std::list<Edge> temp(Epointers.begin(), Epointers.end());
+    return temp;
+}
+
+
+// Adds a new vertex into the current graph : g(), Vpointers(), Epointers(), Vid_free(0), Eid_free(0)
+Vertex ReebGraph::addVertex(double x, double y1, double y2, int color) 
+{
+    Vertex v = add_vertex(ReebVertex(x, y1, y2, color, Vid_free++), g);
+    Vpointers.push_back(v);
+    return v;
+};
+
+
+Vertex ReebGraph::addVertex(double x, double y, int color) 
+{
+    return addVertex(x, y, y, color);
+};
+
+// Adds a new edge into the current graph
+Edge ReebGraph::addEdge(Vertex V1, Vertex V2, int color) 
+{
+    Edge e = add_edge(V1, V2, ReebEdge(color, Eid_free++), g).first;
+    Epointers.push_back(e);
+    return e;
+};
+
+Edge ReebGraph::addEdge(unsigned int Vid1, unsigned int Vid2, int color) 
+{
+    return addEdge(Vpointers[Vid1], Vpointers[Vid2], color);
+};
+
+
+// Makes a clone of a particular edge (deep copy)
+Edge ReebGraph::cloneEdge(Edge old_e) 
+{
+    // Clone properties of the existing edge
+    ReebEdge old_eprop = g[old_e];
+    ReebEdge new_eprop(old_eprop.color, Eid_free++);
+    new_eprop.cost = old_eprop.cost;
+    new_eprop.topBoundary = old_eprop.topBoundary;
+    new_eprop.bottomBoundary = old_eprop.bottomBoundary;
+
+    // Access the vertices attached to the existing edge
+    Vertex V1 = source(old_e, g);
+    Vertex V2 = target(old_e, g);
+
+    // Create new edge with the cloned properties and the same vertices
+    Edge new_e = add_edge(V1, V2, new_eprop, g).first;
+    Epointers.push_back(new_e);
+    return new_e;
+};
+
+Edge ReebGraph::cloneEdge(unsigned int Eid) 
+{
+    return cloneEdge(Epointers[Eid]);
+};
+
+// Makes a clone of a particular edge (deep copy)
+void ReebGraph::updateCellArea() 
+{
+    for(unsigned int i = 0; i < Epointers.size(); i++)
+    {
+        g[Epointers[i]].updateArea();
+    }
+};
+
+//FIXME <N>: Must be modified to assign shortest geometrical distance between critical points
+/* Computes the travel - Euclidean Distance, for each edge in the graph
+* */
+void ReebGraph::updateTravelDistances()
+{
+    for (unsigned int i = 0; i < Epointers.size(); i++)
+    {
+        Edge e = Epointers[i];
+        ReebVertex V1 = getVProp( source(e, g));
+        ReebVertex V2 = getVProp( target(e, g));
+        Point2D p1(V1.x, (V1.y1 + V1.y2)/2);
+        Point2D p2(V2.x, (V2.y1 + V2.y2)/2);
+        g[e].setTravelCost(p1.distance(p2));
+        /*FIXME <N> debug
+        std::cout << "distance for edge -> " << g[e].Eid << " " << g[e].travelCost << std::endl;
+        */
+    }
+}
+
+// Returns the common vertex shared by 2 edges; if not applicable
+// then return ReebGraph::nullVertex()
+Vertex ReebGraph::findCommonVertex(Edge e1, Edge e2)
+{
+    if (e1 != ReebGraph::nullEdge() && e2 != ReebGraph::nullEdge())
+    {
+        Vertex v1 = source(e1, g), v2 = target(e1, g);
+        Vertex v3 = source(e2, g), v4 = target(e2, g);
+
+        if (v1 == v3 || v2 == v3)
+        {
+            return v3;
+        }
+
+        else if (v1 == v4 || v2 == v4)
+        {
+            return v4;
+        }
+    }
+    return ReebGraph::nullVertex();
+};
+
+
+// Returns the vertex / edge object for a specific vertex / edge pointer
+// WARNING: check if agument is valid BEFORE calling the following functions
+ReebVertex& ReebGraph::getVProp(Vertex v) 
+{
+    return g[v];
+};
+
+ReebVertex& ReebGraph::getVProp(unsigned int Vid) 
+{
+    return g[Vpointers[Vid]];
+};
+
+ReebEdge& ReebGraph::getEProp(Edge e) 
+{
+    return g[e];
+};
+
+ReebEdge& ReebGraph::getEProp(unsigned int Eid) 
+{
+    return g[Epointers[Eid]];
+};
+
+
+// Returns the 2 vertices attached to a specific edge
+std::pair<Vertex, Vertex> ReebGraph::getEndNodes(Edge e)
+{
+    if (e != nullEdge())
+    {
+        return std::make_pair(source(e, g), target(e, g));
+    } 
+    else
+    {
+        return std::make_pair(nullVertex(), nullVertex());
+    }
+};
+
+
+std::pair<Vertex, Vertex> ReebGraph::getEndNodes(unsigned int Eid)
+{
+    return getEndNodes(Epointers[Eid]);
+};
+
+
+// Modifies the end node(s) attached to a specific edge
+// NOTE: if newV2 == ReebGraph::Vnull, then newV2 will be assigned to
+//       target(e, graph), i.e. one of the end nodes of the previously
+//       specified edge
+Edge ReebGraph::modifyEndNodes(Edge e, Vertex newV1, Vertex newV2) 
+{
+    ReebEdge eData = getEProp(e);
+
+    if (newV2 == ReebGraph::Vnull) 
+    {
+        newV2 = target(e, g);
+    }
+
+    remove_edge(e, g);
+    Edge newE = add_edge(newV1, newV2, eData, g).first;
+    Epointers[eData.Eid] = newE;
+    return newE;
+};
+
+
+Edge ReebGraph::modifyEndNodes(unsigned int Eid, unsigned int newV1id,
+        unsigned int newV2id = 0) 
+{
+    return modifyEndNodes(Epointers[Eid], Vpointers[newV1id],
+            ((newV2id == 0) ? ReebGraph::Vnull : Vpointers[newV2id]));
+};
+
+
+// Returns the first vertex in the graph
+// NOTE: If no vertices exist in graph, then this function returns NULL
+Vertex ReebGraph::getFirstVertex()
+{
+    if (num_vertices(g) > 0)
+    {
+        return Vpointers[0];
+    }
+    else
+    {
+        return NULL;
+    }
+};
+
+
+// Returns start and past-the-end iterators for vertices / edges
+std::pair<Vertex_Iter, Vertex_Iter> ReebGraph::getVertices() 
+{
+    return vertices(g);
+};
+
+
+
+std::pair<Edge_Iter, Edge_Iter> ReebGraph::getEdges() 
+{
+    return edges(g);
+};
+
+
+// Returns start and past-the-end iterators for edges attached to
+// a specific vertex
+std::pair<Out_Edge_Iter, Out_Edge_Iter> ReebGraph::getEdges(Vertex v)
+{
+    return out_edges(v, g);
+};
+
+std::pair<Out_Edge_Iter, Out_Edge_Iter> ReebGraph::getEdges(unsigned int Vid)
+{
+    return getEdges(Vpointers[Vid]);
+};
+
+
+
+Vertex ReebGraph::getVertex(unsigned int Vid)
+{
+    if (Vid >= Vpointers.size())
+    {
+        return nullVertex();
+    }
+    else
+    {
+        return Vpointers[Vid];
+    }
+};
+
+Edge ReebGraph::getEdge(unsigned int Eid)
+{
+    if (Eid >= Epointers.size()) 
+    {
+        return nullEdge();
+    }
+    else
+    {
+        return Epointers[Eid];
+    }
+};
+
+
+// Provides auxiliary informations regarding graphs, vertices, and edges
+unsigned int ReebGraph::numVertices() 
+{
+    return num_vertices(g);
+};
+
+unsigned int ReebGraph::numEdges() 
+{
+    return num_edges(g);
+};
+
+unsigned int ReebGraph::degree(Vertex v) 
+{
+    return out_degree(v, g);
+};
+
+unsigned int ReebGraph::degree(int Vid) 
+{
+    return degree(Vpointers[Vid]);
+};
+
+bool ReebGraph::empty() 
+{
+    return ((num_vertices(g) == 0) || (num_edges(g) == 0));
+};
+
+// Mass-reset member variables
+void ReebGraph::resetAllVertexColor() 
+{
+    int newColor = 0;
+    Vertex_Iter vi, vi_end;
+    for (tie(vi, vi_end) = vertices(g); vi != vi_end; vi++) 
+    {
+        g[*vi].color = newColor;
+    }
+};
+
+void ReebGraph::resetAllEdgeColor() 
+{
+    int newColor = 0;
+    Edge_Iter ei, ei_end;
+    for (tie(ei, ei_end) = edges(g); ei != ei_end; ei++) 
+    {
+        g[*ei].color = newColor;
+    }
+};
+
+void ReebGraph::resetAllColor() 
+{
+    resetAllVertexColor();
+    resetAllEdgeColor();
+};
+
+
+// Returns singleton objects for null vertex & null edge pointers
+Vertex ReebGraph::nullVertex() 
+{
+    return ReebGraph::Vnull;
+};
+
+Edge ReebGraph::nullEdge() 
+{
+    return ReebGraph::Enull;
+};
+
 
 
 /*************************************************************************
@@ -53,7 +411,7 @@ bool ReebGraph::equals(ReebGraph Graph)
         return false;
     }
 
-    for(int i = 0; i < Epointers.size(); ++i)
+    for(unsigned int i = 0; i < Epointers.size(); ++i)
     {
         if(Epointers.at(i) != Graph.Epointers.at(i))
         {
@@ -61,7 +419,7 @@ bool ReebGraph::equals(ReebGraph Graph)
         }
     }
 
-    for(int i = 0; i < Vpointers.size(); ++i)
+    for(unsigned int i = 0; i < Vpointers.size(); ++i)
     {
         if(Vpointers.at(i) != Graph.Vpointers.at(i))
         {
@@ -91,10 +449,13 @@ ostream& operator<< (ostream& out, ReebVertex& v)
 {
 #ifdef SHORT_PRINT_OUT
     out << "V" << v.Vid;
-#else
+#endif
+
+#ifdef LONG_PRINT_OUT
     out << "VERTEX [Vid=" << v.Vid << " x=" << v.x << " y1=" << v.y1
         << " y2=" << v.y2 << " color=" << v.color << "]";
 #endif
+
     return out;
 };
  
@@ -116,12 +477,15 @@ ostream& operator<< (ostream& out, ReebEdge& e)
 {
 #ifdef SHORT_PRINT_OUT
     out << "E" << e.Eid;
-#else
+#endif
+
+#ifdef LONG_PRINT_OUT
     out << "EDGE [Eid=" << e.Eid << " color=" << e.color << " cost="
         << e.cost << " area=" << e.area << " topBoundary.size()="
         << e.topBoundary.size() << " bottomBoundary.size()="
         << e.bottomBoundary.size() << "]";
 #endif
+
     return out;
 };
 
@@ -156,6 +520,7 @@ ostream& operator<< (ostream& out, ReebGraph& g)
     // Accesses general information about the current graph
     out << "The graph has " << g.numVertices() << " vertices and "
         << g.numEdges() << " edges" << endl;
+
     // Iterates over the vertices &
     // Accesses parameters for each vertex &
     // Accesses the degree of each vertex (NOT A PROPERTY OF THE VERTEX!) &
@@ -223,17 +588,17 @@ void ReebGraph::runExample()
     Vertex v1 = g.addVertex(5, 6, 7);           // Vid == 1
     Vertex v2 = g.addVertex(8, 9, 10);          // Vid == 2
     Vertex v3 = g.addVertex(11, 12, 13, 14);    // Vid == 3
-    Vertex v4 = g.addVertex(15, 16, 17);        // Vid == 4
+    //Vertex v4 = g.addVertex(15, 16, 17);        // Vid == 4
     Vertex vnull = ReebGraph::nullVertex();
 
     // Adds edges by either specifying Vid or Vertex end-points
     // and specifying edge properties
     // NOTE: Eid are automatically assigned by addEdge()
-    Edge e0 = g.addEdge(0, 1, 15);              // Eid == 0
-    Edge e1 = g.addEdge(v1, v4, 16);            // Eid == 1
-    Edge e2 = g.addEdge(0, 3, 17);              // Eid == 2
+    //Edge e0 = g.addEdge(0, 1, 15);              // Eid == 0
+    //Edge e1 = g.addEdge(v1, v4, 16);            // Eid == 1
+    //Edge e2 = g.addEdge(0, 3, 17);              // Eid == 2
     Edge e3 = g.addEdge(v0, v3, 18);            // Eid == 3
-    Edge e4 = g.cloneEdge(e1);                  // Eid == 4
+    //Edge e4 = g.cloneEdge(e1);                  // Eid == 4
     Edge e5 = g.addEdge(v0, v0, 19);            // Eid == 5
     Edge enull = ReebGraph::nullEdge();
 

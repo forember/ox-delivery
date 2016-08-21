@@ -53,70 +53,24 @@ public:
 
     // Utility macro to rotate both the world and the map
     // NOTE: angle is in degrees, IN RIGHT HAND COORD SYSTEM!!!
-    inline void rotateAllData(double angle, cv::Point2f src_center)
-    {
-        image = rotateImage(ori_image, angle, src_center);
-        map = rotateImage(ori_map, angle, src_center);
-    };
-    inline void rotateAllData(double angle)
-    {
-        rotateAllData(angle, cv::Point2f(ori_image.cols/2.0,
-                    ori_image.rows/2.0));
-    };
-    inline void rotateAllData(std::pair<double, cv::Point2f> angle_ctr)
-    {
-        rotateAllData(angle_ctr.first, angle_ctr.second);
-    };
+    inline void rotateAllData(double angle, cv::Point2f src_center);
+    inline void rotateAllData(double angle);
+    inline void rotateAllData(std::pair<double, cv::Point2f> angle_ctr);
     inline void rotateAllData(const cv::Mat& newTransform, double width,
-            double height)
-    {
-        image = rotateImage(ori_image, newTransform, width, height);
-        map = rotateImage(ori_map, newTransform, width, height);
-    };
+            double height);
 
-    std::pair<double, double> transformPoint(double xPixel, double yPixel) {
-        double *data = (double*) transform.data;
-        return std::make_pair(xPixel*data[0] + yPixel*data[1] + data[2],
-                xPixel*data[3] + yPixel*data[4] + data[5]);
-    };
-    std::pair<double, double> invertTransformPoint(double xPixel,
-            double yPixel)
-    {
-        double *data = (double*) invertTransform.data;
-        return std::make_pair(xPixel*data[0] + yPixel*data[1] + data[2],
-                xPixel*data[3] + yPixel*data[4] + data[5]);
-    };
+    std::pair<double, double> transformPoint(double xPixel, double yPixel);
+    std::pair<double, double> invertTransformPoint(double xPixel, double yPixel);
 
     // Same as transformPoint, except does not shift by offsets
-    std::pair<double, double> rotateVector(double xPixel, double yPixel) {
-        double *data = (double*) transform.data;
-        return std::make_pair(xPixel*data[0] + yPixel*data[1],
-                xPixel*data[3] + yPixel*data[4]);
-    };
-    std::pair<double, double> invertRotateVector(double xPixel, double yPixel)
-    {
-        double *data = (double*) invertTransform.data;
-        return std::make_pair(xPixel*data[0] + yPixel*data[1],
-                xPixel*data[3] + yPixel*data[4]);
-    };
-
-    void clear() 
-    {
-        ori_image = cv::Mat();
-        ori_map = cv::Mat();
-        image = cv::Mat();
-        map = cv::Mat();
-
-        xRes = 1.0;
-        yRes = 1.0;
-        transform = cv::getRotationMatrix2D(cv::Point2f(0,0), 0, 1.0);
-        invertTransform = cv::getRotationMatrix2D(cv::Point2f(0,0), 0, 1.0);
-        hasRotated = false;
-    };
+    std::pair<double, double> rotateVector(double xPixel, double yPixel);
+    std::pair<double, double> invertRotateVector(double xPixel, double yPixel);
 
     // Static functions
     static bool solveQuadraticEquation(double A, double B, double C,
             double &r1, double &r2);
+
+    void clear();
 
     cv::Mat getImage();
     cv::Mat getMap();

@@ -1,3 +1,5 @@
+//#define INFO
+//#define DEBUG
 #include "controller.h"
 
 Controller::Controller() :
@@ -24,16 +26,18 @@ void Controller::run(const std::string& directory, const std::string& image,
     std::list<Edge> eulerCycle;
     vector<Point2D> wayPoints;
 
+#ifdef DEBUG
     std::cout << "Controller's run executed\n";
+#endif
+
     checkInputParams(directory, image, k);
-    std::cerr << "here...\n";
 
     m_directory = directory;
     m_image = image;
     m_k = k;
 
     //-------------------- BCD call -------------------------
-    std::cerr << "BCD is starting...\n";
+
 #ifdef DEBUG
     std::cerr << "BCD is starting...\n";
 #endif
@@ -43,108 +47,57 @@ void Controller::run(const std::string& directory, const std::string& image,
 #ifdef DEBUG
     std::cerr << "BCD is completed\n"; 
 #endif
-    std::cerr << "BCD is completed\n"; 
 
     //----------------- BCD call ended ----------------------
 
     ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
 
-    std::cerr << "After running cpp, checking the m_cpp var ...\n";
 #ifdef DEBUG
-
     std::cout << "After running cpp, checking the m_cpp var ...\n";
     std::cout << eulerCycle;
     std::cout << graph;
     std::cout << std::endl;
     std::cout << "Checking is passed!\n";
     m_cppSolved = true;
-
 #endif
-    std::cerr << "Checking is passed!\n";
 
     m_cppSolved = true;
     if(k > 1) 
     {
+
+#ifdef DEBUG
         std::cerr << "k greater \n";
+#endif
+
         runkCPP(m_k, graph, eulerCycle);
         m_kcpp->printEulerianTours();
         std::cout << std::endl;
     }
     else
     {
+
+#ifdef DEBUG
         std::cerr << "k not greater \n";
+#endif
+
         m_tours.push_back(eulerCycle);
     }
 
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
+    //Starting from v_first
     std::vector<std::vector<Point2D> > tourPoints;
-
     std::vector<EulerTour> m_eulerTours = m_kcpp->getKEulerianTours();
-
-
-    std::cerr << "start \n";
-
-    std::cout << "----------------------Eulerian Tours-----------------------------\n";
-    std::cout << "The number of robots is: " << m_kcpp->m_k << "\n";
-    std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
-    for(size_t i = 0; i < m_eulerTours.size(); ++i) {
-        std::cout << "Route no " <<  i+1 << "  -->  ";
-        EulerTour tour_i = m_eulerTours.at(i);
-        Vertex v_first, v_second;
-
-        std::cerr << "1/4 \n";
-
-        Edge e = tour_i.front();
-        tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
-        std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_first, m_kcpp->m_g);
-        std::list<ReebEdge>::iterator i1;
-        std::cout << " travel edges ( ";
-        for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-            std::cout << (*i1).Eid << " ";
-        }
-        std::cout << " )";
-
-        std::cerr << "1/2 \n";
-
-        std::cout << " coverage edges ( ";
-        for (EulerTour::iterator it = tour_i.begin(); it!=tour_i.end(); ++it) {
-            std::cout << (m_kcpp->m_graph).getEProp(*it).Eid << " ";
-        }
-        std::cout << " )";
-
-        std::cerr << "3/4 \n";
-
-        e = tour_i.back();
-        tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
-        t1 = m_kcpp->getShortPath(v_second, m_kcpp->m_g);
-        std::cout << " travel edges ( ";
-        for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-            std::cout << (*i1).Eid << " ";
-        }
-        std::cout << " )";
-
-        std::cout << std::endl;
-    }
-
-    std::cerr << "end \n";
-
-    std::cout << "----------------------------------------------------------------\n";
-
-
-
-    std::cerr <<"Size: "<< m_eulerTours.size() << "\n";
     for (size_t i = 0; i < m_eulerTours.size(); ++i)
     {
-        std::cerr << "Route no " <<  i+1 << "  -->  ";
         EulerTour tour_i = m_eulerTours.at(i);
 
         Vertex v_first, v_second;
         Edge e = tour_i.front();
         tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
-        //kcpp::Graph m_g = m_kcpp->getSimpleGraph();
         std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_first, m_kcpp->m_g);
 
+#ifdef DEBUG
         cerr << "\nTour 1:\n";
         std::list<ReebEdge>::iterator it;
         for (it = t1.begin(); it != t1.end(); ++it)
@@ -154,14 +107,17 @@ void Controller::run(const std::string& directory, const std::string& image,
                 << "," << it->Eid << "," << it->area << "," << it->travelCost
                 << ")\n";
             std::cerr << "  Top Boundary:" << std::endl;
+
             vector<Point2D>::iterator itTop;
             for (itTop = it->topBoundary.begin();
                     itTop != it->topBoundary.end(); ++itTop)
             {
                 std::cerr << "\t" << &(*itTop);
             }
+
             std::cerr << std::endl;
             std::cerr << "  Bottom Boundary:" << std::endl;
+
             vector<Point2D>::iterator itBot;
             for (itBot = it->bottomBoundary.begin();
                     itBot != it->bottomBoundary.end(); ++itBot)
@@ -170,6 +126,7 @@ void Controller::run(const std::string& directory, const std::string& image,
             }
             std::cerr << std::endl;
         }
+#endif
 
         //temporary graph that will be used for converting
         //  reebedges to a new reeb graph for each tour
@@ -179,14 +136,17 @@ void Controller::run(const std::string& directory, const std::string& image,
         //only used in modifying temporaryGraph. Nothing else. 
         way.convertTourToReebGraph(t1, m_kcpp->m_graph, temporaryGraph); 
 
+#ifdef DEBUG
         std::cerr << "\n\nVerticies:\n";
         temporaryGraph.printVertex();
         std::cerr << "\nEdges:\n";
         temporaryGraph.printEdges();
+#endif
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
-        std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
 
+#ifdef DEBUG
+        std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
         std::cerr << std::endl << "Graph Edges:" << std::endl;
         std::list<Edge>::iterator tbcit;
         for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
@@ -211,12 +171,14 @@ void Controller::run(const std::string& directory, const std::string& image,
             std::cerr << std::endl;
         }
         std::cerr << std::endl;
+#endif
 
         //should generate a new waypoints path for this route
         //  Done like this because the constructor automatically runs
         //  the functions necessary to create waypoints. 
         WayPoints tourWayPoints(data, temporaryGraph, tmpBcCpp, tempWayPoints);
 
+#ifdef INFO
         cout << "\nWayPoints:\n";
         vector<Point2D>::iterator iter;
         for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
@@ -224,6 +186,7 @@ void Controller::run(const std::string& directory, const std::string& image,
             cout << (*iter) << " ";
         }
         cout << "\n\n";
+#endif
 
         //pushes each tours waypoints to store for future use
         tourPoints.push_back(tempWayPoints);
@@ -236,10 +199,10 @@ void Controller::run(const std::string& directory, const std::string& image,
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
+#ifdef INFO
     for (int i = 0; i < tourPoints.size(); ++i)
     {
-        cerr << "\n";
-        cerr << "START" << "\n"; 
+        cerr << "\n" << "Start Tour " << i << "\n"; 
         std::vector<Point2D> tempPoints = tourPoints.at(i);
 
         vector<Point2D>::iterator iter;
@@ -248,10 +211,138 @@ void Controller::run(const std::string& directory, const std::string& image,
             cout << (*iter) << " ";
         }
 
-        cerr << "\n";
-        cerr << "END" << "\n"<< "\n";
+        cerr << "\n" << "End Tour " << i << "\n";
+    }
+#endif
+
+    //Starting from v_second
+    m_eulerTours = m_kcpp->getKEulerianTours();
+    for (size_t i = 0; i < m_eulerTours.size(); ++i)
+    {
+        EulerTour tour_i = m_eulerTours.at(i);
+
+        Vertex v_first, v_second;
+        Edge e = tour_i.front();
+        tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
+        std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_second, m_kcpp->m_g);
+
+#ifdef DEBUG
+        cerr << "\nTour 1:\n";
+        std::list<ReebEdge>::iterator it;
+        for (it = t1.begin(); it != t1.end(); ++it)
+        {
+            std::cerr << "ReebEdge: (" /*<< it->topBoundary << ","
+                << it->bottomBoundary << ","*/ << it->color << "," << it->cost
+                << "," << it->Eid << "," << it->area << "," << it->travelCost
+                << ")\n";
+            std::cerr << "  Top Boundary:" << std::endl;
+
+            vector<Point2D>::iterator itTop;
+            for (itTop = it->topBoundary.begin();
+                    itTop != it->topBoundary.end(); ++itTop)
+            {
+                std::cerr << "\t" << &(*itTop);
+            }
+
+            std::cerr << std::endl;
+            std::cerr << "  Bottom Boundary:" << std::endl;
+
+            vector<Point2D>::iterator itBot;
+            for (itBot = it->bottomBoundary.begin();
+                    itBot != it->bottomBoundary.end(); ++itBot)
+            {
+                std::cerr << "\t" << &(*itBot);
+            }
+            std::cerr << std::endl;
+        }
+#endif
+
+        //temporary graph that will be used for converting
+        //  reebedges to a new reeb graph for each tour
+        ReebGraph temporaryGraph;
+        std::vector<Point2D> tempWayPoints;
+
+        //only used in modifying temporaryGraph. Nothing else. 
+        way.convertTourToReebGraph(t1, m_kcpp->m_graph, temporaryGraph); 
+
+#ifdef DEBUG
+        std::cerr << "\n\nVerticies:\n";
+        temporaryGraph.printVertex();
+        std::cerr << "\nEdges:\n";
+        temporaryGraph.printEdges();
+#endif
+
+        std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
+
+#ifdef DEBUG
+        std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
+        std::cerr << std::endl << "Graph Edges:" << std::endl;
+        std::list<Edge>::iterator tbcit;
+        for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
+        {
+            std::cerr << " Edge:" << std::endl;
+            ReebEdge e = temporaryGraph.getEProp(*tbcit);
+            std::cerr << "  Top Boundary:" << std::endl;
+            vector<Point2D>::iterator itTop;
+            for (itTop = e.topBoundary.begin();
+                    itTop != e.topBoundary.end(); ++itTop)
+            {
+                std::cerr << "\t" << &(*itTop);
+            }
+            std::cerr << std::endl;
+            std::cerr << "  Bottom Boundary:" << std::endl;
+            vector<Point2D>::iterator itBot;
+            for (itBot = e.bottomBoundary.begin();
+                    itBot != e.bottomBoundary.end(); ++itBot)
+            {
+                std::cerr << "\t" << &(*itBot);
+            }
+            std::cerr << std::endl;
+        }
+        std::cerr << std::endl;
+#endif
+
+        //should generate a new waypoints path for this route
+        //  Done like this because the constructor automatically runs
+        //  the functions necessary to create waypoints. 
+        WayPoints tourWayPoints(data, temporaryGraph, tmpBcCpp, tempWayPoints);
+
+#ifdef INFO
+        cout << "\nWayPoints:\n";
+        vector<Point2D>::iterator iter;
+        for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
+        {
+            cout << (*iter) << " ";
+        }
+        cout << "\n\n";
+#endif
+
+        //pushes each tours waypoints to store for future use
+        tourPoints.push_back(tempWayPoints);
+
+        int rmExt = m_image.find_last_of("."); 
+        string img = m_image.substr(0, rmExt); 
+        QString imageQS = QString(img.c_str());
+        QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i+2));
+        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
+        tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
+#ifdef INFO
+    for (int i = 0; i < tourPoints.size(); ++i)
+    {
+        cerr << "\n" << "Start Tour " << i << "\n"; 
+        std::vector<Point2D> tempPoints = tourPoints.at(i);
+
+        vector<Point2D>::iterator iter;
+        for(iter = tempPoints.begin(); iter != tempPoints.end(); ++iter)
+        {
+            cout << (*iter) << " ";
+        }
+
+        cerr << "\n" << "End Tour " << i << "\n";
+    }
+#endif
 }
 
 

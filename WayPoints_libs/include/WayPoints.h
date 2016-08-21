@@ -87,67 +87,19 @@ public:
     // and also remove points on the middle of 2 near-straight lines
     static void prunePathPoints(std::vector<Point2D>& buffer);
 
-/*
-    void reset() 
-    {
-        stopServices();
-        _investigateAlive = false;
-        _onlineLoopAlive = false;
-        _setupCompleted = false;
-
-        investigateCenterGCS = \
-                std::make_pair(INVALID_DEGREE_VALUE, INVALID_DEGREE_VALUE);
-
-        graph->clear();
-        data->clear();
-        resetOnlineLoopState();
-    };
-*/
-
-    void resetOnlineLoopState() 
-    {
-        numCellsCovered = 0;
-        currVertex = ReebGraph::nullVertex();
-        currEdge = ReebGraph::nullEdge();
-        upDir = true;
-        resumedWaypointIndex = 0;
-        resumedCommandIndex = 1;
-        resumeOnlineLoop = false;
-    };
-
-    void stopServices() 
-    {
-        serviceQueueMutex.lock();
-        serviceQueue.clear();
-        serviceQueueMutex.unlock();
-        _onlineLoopAlive = false;
-        _investigateAlive = false;
-    };
-
+    void resetOnlineLoopState();
+    void stopServices();
     void startOnlineLoop();
-
     void stopOnlineLoop();
 
     void startInvestigate(double centerLat = INVALID_DEGREE_VALUE,
             double centerLon = INVALID_DEGREE_VALUE);
 
-    void stopInvestigate();
-
     // Auxiliary functions
-    bool isSetupCompleted()
-    { 
-        return _setupCompleted;
-    };
-
-    bool isRunningOnlineLoop()
-    { 
-        return _onlineLoopAlive;
-    };
-
-    bool isRunningInvestigate()
-    { 
-        return _investigateAlive;
-    };
+    bool isSetupCompleted();
+    bool isRunningOnlineLoop();
+    bool isRunningInvestigate();
+    void stopInvestigate();
 
     /**
      * Returns a string containing the state variables needed to restart the
@@ -157,8 +109,6 @@ public:
 
     void setOnlineLoopState(const std::string& state)
         throw (const std::string&);
-
-
 
     void viewWaypoints(QString fileName, RegionData& data, ReebGraph& graph,
             std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints);
