@@ -58,38 +58,38 @@ class EfficientCoverage
 
 public:
 
-  const static double MIN_SCAN_ANGLE_RAD = -60.0/180*M_PI;
-  const static double MAX_SCAN_ANGLE_RAD = +60.0/180*M_PI;
+    const static double MIN_SCAN_ANGLE_RAD = -60.0/180*M_PI;
+    const static double MAX_SCAN_ANGLE_RAD = +60.0/180*M_PI;
 
-  int id;
-  ros::Publisher commandPub;
-  ros::Subscriber poseSub; 
+    int id;
+    ros::Publisher commandPub;
+    ros::Subscriber poseSub; 
 
-  double x; 
-  double y; 
-  double heading; 
-  Point2D currentPoint;
+    double x; 
+    double y; 
+    double heading; 
+    Point2D currentPoint;
 
-  ros::Time rotateStartTime;
-  ros::Duration rotateDuration; 
+    ros::Time rotateStartTime;
+    ros::Duration rotateDuration; 
 
-  ros::Time moveStart;
-  ros::Duration moveDuration; 
+    ros::Time moveStart;
+    ros::Duration moveDuration; 
 
-  vector<Point2D> wayPoints;
+    vector<Point2D> wayPoints;
 
-  int count;
+    int count;
 
-  // Tunable motion controller parameters
-  const static double PROXIMITY_RANGE_M = 1.0;
-  const static double FORWARD_SPEED_MPS = 10.0;
-  const static double ROTATE_SPEED_RADPS = M_PI/2;
-  const static int SPIN_RATE_HZ = 15;
+    // Tunable motion controller parameters
+    const static double PROXIMITY_RANGE_M = 1.0;
+    const static double FORWARD_SPEED_MPS = 10.0;
+    const static double ROTATE_SPEED_RADPS = M_PI/2;
+    const static int SPIN_RATE_HZ = 15;
  
-  const static char CELL_OCCUPIED = 0;
-  const static char CELL_UNKNOWN = 86;
-  const static char CELL_FREE = 172;
-  const static char CELL_ROBOT = 255;
+    const static char CELL_OCCUPIED = 0;
+    const static char CELL_UNKNOWN = 86;
+    const static char CELL_FREE = 172;
+    const static char CELL_ROBOT = 255;
 
 
 /*************************************************************************
@@ -109,26 +109,26 @@ public:
 EfficientCoverage(ros::NodeHandle& nh, vector<Point2D>& points)
 {
 
-  //Publisher for velocity commands
-  commandPub = nh.advertise<geometry_msgs::Twist>("/robot_0/cmd_vel", 1);
-  /*commandPub1 = nh.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1);
-  commandPub2 = nh.advertise<geometry_msgs::Twist>("/robot_2/cmd_vel", 1);
-  commandPub3 = nh.advertise<geometry_msgs::Twist>("/robot_3/cmd_vel", 1);
+    //Publisher for velocity commands
+    commandPub = nh.advertise<geometry_msgs::Twist>("/robot_0/cmd_vel", 1);
+    /*commandPub1 = nh.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1);
+    commandPub2 = nh.advertise<geometry_msgs::Twist>("/robot_2/cmd_vel", 1);
+    commandPub3 = nh.advertise<geometry_msgs::Twist>("/robot_3/cmd_vel", 1);
 */
 
-  //Subscriber to robot position
-  poseSub = nh.subscribe("/robot_0/base_pose_ground_truth", 1, \
-    &EfficientCoverage::poseCallback, this);
-  /*
-  poseSub1 = nh.subscribe("/robot_1/base_pose_ground_truth", 1, \
-    &EfficientCoverage::poseCallback, this);
-  poseSub2 = nh.subscribe("/robot_2/base_pose_ground_truth", 1, \
-    &EfficientCoverage::poseCallback, this);
-  poseSub3 = nh.subscribe("/robot_3/base_pose_ground_truth", 1, \
-    &EfficientCoverage::poseCallback, this);*/
+    //Subscriber to robot position
+    poseSub = nh.subscribe("/robot_0/base_pose_ground_truth", 1, \
+        &EfficientCoverage::poseCallback, this);
+    /*
+    poseSub1 = nh.subscribe("/robot_1/base_pose_ground_truth", 1, \
+        &EfficientCoverage::poseCallback, this);
+    poseSub2 = nh.subscribe("/robot_2/base_pose_ground_truth", 1, \
+        &EfficientCoverage::poseCallback, this);
+    poseSub3 = nh.subscribe("/robot_3/base_pose_ground_truth", 1, \
+        &EfficientCoverage::poseCallback, this);*/
  
-  wayPoints = points;
-  count = 0;
+    wayPoints = points;
+    count = 0;
 
 };
 
@@ -148,18 +148,18 @@ EfficientCoverage(ros::NodeHandle& nh, vector<Point2D>& points)
  //Think the issue is the posecallback not being called right
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) 
 {
-  x = msg->pose.pose.position.x;
-  y = msg->pose.pose.position.y;
-  heading = tf::getYaw(msg->pose.pose.orientation);
-
-  cerr << "x: " << x << "\n";
-  cerr << "y: " << y << "\n";
-  cerr << "z: " << heading * 180 / M_PI << "\n";
-
-  currentPoint = Point2D(x,y);
+    x = msg->pose.pose.position.x;
+    y = msg->pose.pose.position.y;
+    heading = tf::getYaw(msg->pose.pose.orientation);
+/*
+    cerr << "x: " << x << "\n";
+    cerr << "y: " << y << "\n";
+    cerr << "z: " << heading * 180 / M_PI << "\n";
+*/
+    currentPoint = Point2D(x,y);
 };
 
-    
+        
 /*************************************************************************
  * Function 'move()'
  *
@@ -175,11 +175,11 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg)
 **/
 void move(double linearVelMPS, double angularVelRadPS)
 {
-  geometry_msgs::Twist msg; 
+    geometry_msgs::Twist msg; 
 
-  msg.linear.x = linearVelMPS;
-  msg.angular.z = angularVelRadPS;
-  commandPub.publish(msg);
+    msg.linear.x = linearVelMPS;
+    msg.angular.z = angularVelRadPS;
+    commandPub.publish(msg);
 };
 
 
@@ -199,11 +199,11 @@ void move(double linearVelMPS, double angularVelRadPS)
  /*
 void move_mult(int robot_id, double linearVelMPS, double angularVelRadPS)
 {
-  geometry_msgs::Twist msg; 
+    geometry_msgs::Twist msg; 
 
-  msg.linear.x = linearVelMPS;
-  msg.angular.z = angularVelRadPS;
-  commandPub.publish(msg);
+    msg.linear.x = linearVelMPS;
+    msg.angular.z = angularVelRadPS;
+    commandPub.publish(msg);
 };*/
 
 
@@ -226,48 +226,55 @@ void move_mult(int robot_id, double linearVelMPS, double angularVelRadPS)
 void moveTo(double wayX, double wayY, double distance)
 {
 
-  //using atan2 to find the angle between two points in degrees. 
-  double angleDeg = atan2((wayY-y),(wayX-x)) * 180 / M_PI;
+    double dx = wayX - x;
+    double dy = wayY - y;
 
-  //angle in radians
-  //wrong in that it only considers based on where 0 is. If its
-  //  already facing 0 then theres an issue. 
-  double angle = atan2((wayY-y),(wayX-x));
+    cerr << "MOVETO:" << endl;
+    cerr << "way: (" << wayX << ", " << wayY << ")" << endl;
+    cerr << "distance: " << distance << endl;
+    cerr << "calculated: " << sqrt(dx*dx + dy*dy) << endl;
 
-  cerr << "Angle Degrees: " << angleDeg << "\n";
-  cerr << "Angle Radians: " << angle << "\n";
+    //using atan2 to find the angle between two points in degrees. 
+    //angle in radians
+    //wrong in that it only considers based on where 0 is. If its
+    //  already facing 0 then theres an issue. 
+    double angle = atan2(dy,dx);
 
-  rotateStartTime = ros::Time::now();
-  rotateDuration = ros::Duration(angle/ROTATE_SPEED_RADPS);
-  
-  //Angle not working right
-  //angle is positive spin in the positive direction
-  if(angle > 0)
-  {
-    while(ros::Time::now()-rotateStartTime < rotateDuration)
+    cerr << "Angle Degrees: " << angle * 180 / M_PI << endl;
+    cerr << "Angle Radians: " << angle << endl << endl;
+
+    rotateStartTime = ros::Time::now();
+    rotateDuration = ros::Duration(abs(angle) / ROTATE_SPEED_RADPS);
+
+    //Angle not working right
+    //angle is positive spin in the positive direction
+    if (angle > 0)
     {
-      move(0, ROTATE_SPEED_RADPS);
+        while (ros::Time::now() - rotateStartTime < rotateDuration)
+        {
+            move(0, ROTATE_SPEED_RADPS);
+            ros::spinOnce();
+        }
     }
-    
-  }
-  
-  //angle is negative spin in the negative direction.
-  else if(angle < 0)
-  {
-    while(ros::Time::now()-rotateStartTime < rotateDuration)
+    //angle is negative spin in the negative direction.
+    else if (angle < 0)
     {
-      move(0, -ROTATE_SPEED_RADPS);
+        while (ros::Time::now() - rotateStartTime < rotateDuration)
+        {
+            move(0, -ROTATE_SPEED_RADPS);
+            ros::spinOnce();
+        }
     }
-  }
 
-  moveStart = ros::Time::now();
-  moveDuration = ros::Duration(distance/FORWARD_SPEED_MPS);
+    moveStart = ros::Time::now();
+    moveDuration = ros::Duration(distance / FORWARD_SPEED_MPS);
 
-  //move forward - done
-  while(ros::Time::now()-moveStart < moveDuration)
-  {
-    move(distance, 0);
-  }
+    //move forward - done
+    while (ros::Time::now() - moveStart < moveDuration)
+    {
+        move(FORWARD_SPEED_MPS, 0);
+        ros::spinOnce();
+    }
 }
 
 
@@ -285,25 +292,25 @@ void moveTo(double wayX, double wayY, double distance)
 **/
 void followPath()
 {
-  double wayX, wayY, distance;
-  Point2D nextPoint;
+    double wayX, wayY, distance;
+    Point2D nextPoint;
 
-  //robot is in position and ready to move around the waypoints
-  if(count < wayPoints.size())
-  {     
-    nextPoint = wayPoints.at(count);  
-    wayX = nextPoint.xcoord();
-    wayY = nextPoint.ycoord();
-    distance = currentPoint.distance(nextPoint);
+    //robot is in position and ready to move around the waypoints
+    if(count < wayPoints.size())
+    {           
+        nextPoint = wayPoints.at(count);    
+        wayX = nextPoint.xcoord();
+        wayY = nextPoint.ycoord();
+        distance = currentPoint.distance(nextPoint);
 
-    cerr << "Current Position: " << currentPoint.xcoord() << ", " << currentPoint.ycoord() << "\n";
-    cerr << "Next WayPoint: Count " << count << " (" << wayX << ", " << wayY << ") \n";
-    cerr << "Distance" << ": " << distance << "\n";
+        cerr << "Current Position: " << currentPoint.xcoord() << ", " << currentPoint.ycoord() << "\n";
+        cerr << "Next WayPoint: Count " << count << " (" << wayX << ", " << wayY << ") \n";
+        cerr << "Distance" << ": " << distance << "\n";
 
-    //tell the robot to move to the waypoint
-    moveTo(wayX, wayY, distance);    
-    count++;
-  }
+        //tell the robot to move to the waypoint
+        moveTo(wayX, wayY, distance);        
+        count++;
+    }
 };
 
 
@@ -324,24 +331,24 @@ void followPath()
 **/
 void spin() 
 {
-  sleep(10);
+    sleep(10);
 
-  ros::Rate rate(1); // Specify the FSM looprate in Hz
+    ros::Rate rate(1); // Specify the FSM looprate in Hz
 
 
-  //to clear up the position data
-  for(int i = 0; i < 100; i++)
-  {
-    ros::spinOnce();
-  }
+    //to clear up the position data
+    for(int i = 0; i < 100; i++)
+    {
+        ros::spinOnce();
+    }
 
-  // Keep spinning loop until user presses Ctrl+C
-  while (ros::ok()) 
-  {
-  	ros::spinOnce();
-    followPath();
-    rate.sleep(); 
-  }
+    // Keep spinning loop until user presses Ctrl+C
+    while (ros::ok()) 
+    {
+        ros::spinOnce();
+        followPath();
+        rate.sleep(); 
+    }
 
 };
 
@@ -363,21 +370,21 @@ void spin()
 **/
 void spin_multiple() 
 {
-  ros::Rate rate(1); // Specify the FSM looprate in Hz
+    ros::Rate rate(1); // Specify the FSM looprate in Hz
 
-  //to clear up the position data
-  for(int i = 0; i < 100; i++)
-  {
-    ros::spinOnce();
-  }
+    //to clear up the position data
+    for(int i = 0; i < 100; i++)
+    {
+        ros::spinOnce();
+    }
 
-  // Keep spinning loop until user presses Ctrl+C
-  while (ros::ok()) 
-  {
-  	ros::spinOnce();
-    followPath();
-    rate.sleep(); 
-  }
+    // Keep spinning loop until user presses Ctrl+C
+    while (ros::ok()) 
+    {
+        ros::spinOnce();
+        followPath();
+        rate.sleep(); 
+    }
 
 };
 
@@ -406,45 +413,45 @@ ChinesePostman* m_cpp;
 
 int parseInputArgs(int argc, char **argv, std::string& directory, std::string& image, int& k)
 {
-  bool printUsage = false;
-  // Parse and validate command line input arguments
-  if (argc <= 3) 
-  {
-    printUsage = true;
-  }
-
-  else 
-  {
-    try 
+    bool printUsage = false;
+    // Parse and validate command line input arguments
+    if (argc <= 3) 
     {
-      directory = boost::lexical_cast<string>(argv[1]);
-      image = boost::lexical_cast<string>(argv[2]);
-      k = boost::lexical_cast<int>(argv[3]);
-
-      if (directory.size() <= 0) 
-      {
-        printUsage = true; 
-      }
-
-      else if (image.size() <= 0) 
-      {
         printUsage = true;
-      }
     }
 
-    catch (std::exception err)
+    else 
     {
-      printUsage = true;
+        try 
+        {
+            directory = boost::lexical_cast<string>(argv[1]);
+            image = boost::lexical_cast<string>(argv[2]);
+            k = boost::lexical_cast<int>(argv[3]);
+
+            if (directory.size() <= 0) 
+            {
+                printUsage = true; 
+            }
+
+            else if (image.size() <= 0) 
+            {
+                printUsage = true;
+            }
+        }
+
+        catch (std::exception err)
+        {
+            printUsage = true;
+        }
     }
-  }
 
-  if (printUsage)
-  {
-    std::cerr << "Usage: " << argv[0] << " [IMAGE_DIRECTORY] [IMAGE_NAME] [NUMBER_OF_ROBOTS]" << std::endl;
-    return -1;
-  }
+    if (printUsage)
+    {
+        std::cerr << "Usage: " << argv[0] << " [IMAGE_DIRECTORY] [IMAGE_NAME] [NUMBER_OF_ROBOTS]" << std::endl;
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 
@@ -463,25 +470,25 @@ int parseInputArgs(int argc, char **argv, std::string& directory, std::string& i
 **/
 void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle)
 {
-  std::cerr << "runkCPP 1 \n";
-  assert(m_cppSolved && "runCPP must be called before runkCPP");
-  std::cerr << "runkCPP 2 \n";
+    std::cerr << "runkCPP 1 \n";
+    assert(m_cppSolved && "runCPP must be called before runkCPP");
+    std::cerr << "runkCPP 2 \n";
 
-  //runs out of memory here for some reason
-  try
-  {
-    std::cerr << "k? \n";
-    m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
-    std::cerr << "runkCPP 3 \n";
-    m_kcpp->solve();
-  }
+    //runs out of memory here for some reason
+    try
+    {
+        std::cerr << "k? \n";
+        m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
+        std::cerr << "runkCPP 3 \n";
+        m_kcpp->solve();
+    }
 
-  catch (const std::string& err) 
-  {
-    std::cout << "runkCPP meh";
-  }
+    catch (const std::string& err) 
+    {
+        std::cout << "runkCPP meh";
+    }
 
-  std::cerr << "runkCPP 4 \n";
+    std::cerr << "runkCPP 4 \n";
 }
 
 
@@ -500,113 +507,113 @@ void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle)
 **/
 void checkInputParams(const std::string& directory, const std::string& image, int k)
 {
-  std::string message = "";
+    std::string message = "";
 
-  if(k<1) 
-  {
-    message = "ERR:Number of robots must be positive integer!";
-    throw std::invalid_argument(message);
-  }
+    if(k<1) 
+    {
+        message = "ERR:Number of robots must be positive integer!";
+        throw std::invalid_argument(message);
+    }
 
-  /**TODO: Add also check for valid image format*/
-  if( !std::ifstream((directory + "/" + image).c_str())) 
-  {
-    message = "ERR:There is no image at this path:  " + directory + "/" +  image;
-    throw std::invalid_argument(message);
-  }
+    /**TODO: Add also check for valid image format*/
+    if( !std::ifstream((directory + "/" + image).c_str())) 
+    {
+        message = "ERR:There is no image at this path:  " + directory + "/" +  image;
+        throw std::invalid_argument(message);
+    }
 }
 
 
 int main(int argc, char **argv) 
 {
-  string image;
-  string directory;
-  QImage imageBuffer;
-  int k = 1;
+    string image;
+    string directory;
+    QImage imageBuffer;
+    int k = 1;
 
-  RegionData data;
-  ReebGraph graph;
-  std::list<Edge> eulerCycle;
-  vector<Point2D> wayPoints;
+    RegionData data;
+    ReebGraph graph;
+    std::list<Edge> eulerCycle;
+    vector<Point2D> wayPoints;
 
 
-  if(parseInputArgs(argc, argv, directory, image, k) == -1) 
-  {
-    return EXIT_FAILURE;
-  }
+    if(parseInputArgs(argc, argv, directory, image, k) == -1) 
+    {
+        return EXIT_FAILURE;
+    }
 
-  std::cout << "Controller's run executed\n";
-  checkInputParams(directory, image, k);
-  std::cerr << "here...\n";
+    std::cout << "Controller's run executed\n";
+    checkInputParams(directory, image, k);
+    std::cerr << "here...\n";
 
-  m_directory = directory;
-  m_image = image;
-  m_k = k;
+    m_directory = directory;
+    m_image = image;
+    m_k = k;
 
-  //-------------------- BCD call -------------------------
-  std::cerr << "BCD is starting...\n";
+    //-------------------- BCD call -------------------------
+    std::cerr << "BCD is starting...\n";
 #ifdef DEBUG
-  std::cerr << "BCD is starting...\n";
+    std::cerr << "BCD is starting...\n";
 #endif
 
-  BCD bcd(directory, image, data, graph);
+    BCD bcd(directory, image, data, graph);
 
 #ifdef DEBUG
-    std::cerr << "BCD is completed\n"; 
+        std::cerr << "BCD is completed\n"; 
 #endif
-    std::cerr << "BCD is completed\n"; 
+        std::cerr << "BCD is completed\n"; 
 
-    //----------------- BCD call ended ----------------------
+        //----------------- BCD call ended ----------------------
 
-  ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
-  
+    ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
+    
 std::cerr << "After running cpp, checking the m_cpp var ...\n";
 #ifdef DEBUG
 
-  std::cout << "After running cpp, checking the m_cpp var ...\n";
-  std::cout << eulerCycle;
-  std::cout << graph;
-  std::cout << std::endl;
-  std::cout << "Checking is passed!\n";
-  m_cppSolved = true;
+    std::cout << "After running cpp, checking the m_cpp var ...\n";
+    std::cout << eulerCycle;
+    std::cout << graph;
+    std::cout << std::endl;
+    std::cout << "Checking is passed!\n";
+    m_cppSolved = true;
 
 #endif
-  std::cerr << "Checking is passed!\n";
+    std::cerr << "Checking is passed!\n";
 
-  m_cppSolved = true;
-  if(k > 1) 
-  {
-    std::cerr << "k greater \n";
-    runkCPP(m_k, graph, eulerCycle);    
-    std::cout << std::endl;
-    m_kcpp->printEulerianTours();
-    std::cout << std::endl;
-  }
+    m_cppSolved = true;
+    if(k > 1) 
+    {
+        std::cerr << "k greater \n";
+        runkCPP(m_k, graph, eulerCycle);        
+        std::cout << std::endl;
+        m_kcpp->printEulerianTours();
+        std::cout << std::endl;
+    }
  
-  else 
-  {
-    std::cerr << "k not greater \n";
-    m_tours.push_back(eulerCycle);
-  }
+    else 
+    {
+        std::cerr << "k not greater \n";
+        m_tours.push_back(eulerCycle);
+    }
 
-  WayPoints waypoints(data, graph, eulerCycle, wayPoints);
+    WayPoints waypoints(data, graph, eulerCycle, wayPoints);
 
-  cerr << "\n";
-  cerr << "START" << "\n";
-  vector<Point2D>::iterator iter;
-  for(iter = wayPoints.begin(); iter != wayPoints.end(); ++iter)
-  {
-    cout << (*iter) << " ";;
-  }
-  cerr << "\n";
-  cerr << "END" << "\n"<< "\n";
+    cerr << "\n";
+    cerr << "START" << "\n";
+    vector<Point2D>::iterator iter;
+    for(iter = wayPoints.begin(); iter != wayPoints.end(); ++iter)
+    {
+        cout << (*iter) << " ";;
+    }
+    cerr << "\n";
+    cerr << "END" << "\n"<< "\n";
 
-  ros::init(argc, argv, "efficient_coverage"); // Initiate ROS node
-  ros::NodeHandle nh; // Create default handle
+    ros::init(argc, argv, "efficient_coverage"); // Initiate ROS node
+    ros::NodeHandle nh; // Create default handle
 
-  // Create new EfficientCoverage object
-  EfficientCoverage robbie(nh, wayPoints); 
-  robbie.spin();   
+    // Create new EfficientCoverage object
+    EfficientCoverage robbie(nh, wayPoints); 
+    robbie.spin();   
 
-  return 0;
+    return 0;
 };
