@@ -1,10 +1,7 @@
-//#define INFO
-//#define DEBUG
+#define DEBUG
 #include "controller.h"
 
-Controller::Controller() :
-    m_cppSolved(false), m_k(1) {}
-
+Controller::Controller() : m_cppSolved(false), m_k(1) {}
 
 /*************************************************************************
  * Function 'run()'
@@ -53,12 +50,12 @@ void Controller::run(const std::string& directory, const std::string& image,
     ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
 
 #ifdef DEBUG
-    std::cout << "After running cpp, checking the m_cpp var ...\n";
-    std::cout << eulerCycle;
-    std::cout << graph;
-    std::cout << std::endl;
-    std::cout << "Checking is passed!\n";
-    m_cppSolved = true;
+    //std::cout << "After running cpp, checking the m_cpp var ...\n";
+    //std::cout << eulerCycle;
+    //std::cout << graph;
+    //std::cout << std::endl;
+    //std::cout << "Checking is passed!\n";
+    //m_cppSolved = true;
 #endif
 
     m_cppSolved = true;
@@ -98,7 +95,8 @@ void Controller::run(const std::string& directory, const std::string& image,
         std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_first, m_kcpp->m_g);
 
 #ifdef DEBUG
-        cerr << "\nTour 1:\n";
+        cerr << "\nV_First"<< ":\n";
+        cerr << "\nTour " << i <<":\n";
         std::list<ReebEdge>::iterator it;
         for (it = t1.begin(); it != t1.end(); ++it)
         {
@@ -106,8 +104,8 @@ void Controller::run(const std::string& directory, const std::string& image,
                 << it->bottomBoundary << ","*/ << it->color << "," << it->cost
                 << "," << it->Eid << "," << it->area << "," << it->travelCost
                 << ")\n";
+/*
             std::cerr << "  Top Boundary:" << std::endl;
-
             vector<Point2D>::iterator itTop;
             for (itTop = it->topBoundary.begin();
                     itTop != it->topBoundary.end(); ++itTop)
@@ -125,6 +123,7 @@ void Controller::run(const std::string& directory, const std::string& image,
                 std::cerr << "\t" << &(*itBot);
             }
             std::cerr << std::endl;
+*/
         }
 #endif
 
@@ -153,6 +152,8 @@ void Controller::run(const std::string& directory, const std::string& image,
         {
             std::cerr << " Edge:" << std::endl;
             ReebEdge e = temporaryGraph.getEProp(*tbcit);
+
+/*
             std::cerr << "  Top Boundary:" << std::endl;
             vector<Point2D>::iterator itTop;
             for (itTop = e.topBoundary.begin();
@@ -169,6 +170,8 @@ void Controller::run(const std::string& directory, const std::string& image,
                 std::cerr << "\t" << &(*itBot);
             }
             std::cerr << std::endl;
+*/
+
         }
         std::cerr << std::endl;
 #endif
@@ -178,7 +181,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         //  the functions necessary to create waypoints. 
         WayPoints tourWayPoints(data, temporaryGraph, tmpBcCpp, tempWayPoints);
 
-#ifdef INFO
+#ifdef DEBUG
         cout << "\nWayPoints:\n";
         vector<Point2D>::iterator iter;
         for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
@@ -199,7 +202,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
-#ifdef INFO
+#ifdef DEBUG
     for (int i = 0; i < tourPoints.size(); ++i)
     {
         cerr << "\n" << "Start Tour " << i << "\n"; 
@@ -227,7 +230,8 @@ void Controller::run(const std::string& directory, const std::string& image,
         std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_second, m_kcpp->m_g);
 
 #ifdef DEBUG
-        cerr << "\nTour 1:\n";
+        cerr << "\nV_Second"<< ":\n";
+        cerr << "\nTour " << i << ":\n";
         std::list<ReebEdge>::iterator it;
         for (it = t1.begin(); it != t1.end(); ++it)
         {
@@ -235,8 +239,9 @@ void Controller::run(const std::string& directory, const std::string& image,
                 << it->bottomBoundary << ","*/ << it->color << "," << it->cost
                 << "," << it->Eid << "," << it->area << "," << it->travelCost
                 << ")\n";
-            std::cerr << "  Top Boundary:" << std::endl;
 
+/*
+            std::cerr << "  Top Boundary:" << std::endl;
             vector<Point2D>::iterator itTop;
             for (itTop = it->topBoundary.begin();
                     itTop != it->topBoundary.end(); ++itTop)
@@ -254,6 +259,8 @@ void Controller::run(const std::string& directory, const std::string& image,
                 std::cerr << "\t" << &(*itBot);
             }
             std::cerr << std::endl;
+*/
+
         }
 #endif
 
@@ -282,6 +289,8 @@ void Controller::run(const std::string& directory, const std::string& image,
         {
             std::cerr << " Edge:" << std::endl;
             ReebEdge e = temporaryGraph.getEProp(*tbcit);
+
+/*
             std::cerr << "  Top Boundary:" << std::endl;
             vector<Point2D>::iterator itTop;
             for (itTop = e.topBoundary.begin();
@@ -298,6 +307,8 @@ void Controller::run(const std::string& directory, const std::string& image,
                 std::cerr << "\t" << &(*itBot);
             }
             std::cerr << std::endl;
+*/
+
         }
         std::cerr << std::endl;
 #endif
@@ -307,7 +318,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         //  the functions necessary to create waypoints. 
         WayPoints tourWayPoints(data, temporaryGraph, tmpBcCpp, tempWayPoints);
 
-#ifdef INFO
+#ifdef DEBUG
         cout << "\nWayPoints:\n";
         vector<Point2D>::iterator iter;
         for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
@@ -328,7 +339,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
-#ifdef INFO
+#ifdef DEBUG
     for (int i = 0; i < tourPoints.size(); ++i)
     {
         cerr << "\n" << "Start Tour " << i << "\n"; 
@@ -408,61 +419,3 @@ void Controller::checkInputParams(const std::string& directory,
     }
 }
 
-
-/*
-Interesting idea for waypoints issue. Why not find the beggining vertex
-of each edge, then use that to search the existing waypoints for the
-waypoints to hit. 
-
-
-
-        std::cerr << "start \n";
-
-        std::cout << "----------------------Eulerian Tours-----------------------------\n";
-        std::cout << "The number of robots is: " << m_k << "\n";
-        std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
-        for(size_t i = 0; i < m_eulerTours.size(); ++i) {
-    std::cout << "Route no " <<  i+1 << "  -->  ";
-    EulerTour tour_i = m_eulerTours.at(i);
-            Vertex v_first, v_second;
-
-        std::cerr << "1/4 \n";
-
-    Edge e = tour_i.front();
-    tie(v_first, v_second) = m_graph.getEndNodes(e);
-    std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
-    std::list<ReebEdge>::iterator i1;
-    std::cout << " travel edges ( ";
-    for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-            std::cout << (*i1).Eid << " ";
-    }
-    std::cout << " )";
-
-        std::cerr << "1/2 \n";
-
-    std::cout << " coverage edges ( ";
-    for (EulerTour::iterator it = tour_i.begin(); it!=tour_i.end(); ++it) {
-            std::cout << m_graph.getEProp(*it).Eid << " ";
-    }
-    std::cout << " )";
-
-        std::cerr << "3/4 \n";
-
-    e = tour_i.back();
-    tie(v_first, v_second) = m_graph.getEndNodes(e);
-    t1 = getShortPath(v_second, m_g);
-    std::cout << " travel edges ( ";
-    for(i1 = t1.begin(); i1!=t1.end(); ++i1) {
-            std::cout << (*i1).Eid << " ";
-    }
-    std::cout << " )";
-
-    std::cout << std::endl;
-        }
-
-        std::cerr << "end \n";
-
-        std::cout << "----------------------------------------------------------------\n";
-
-
-*/
