@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 enter_to_continue () {
     read -p 'Press ENTER to continue (or ^C to exit).' _
 }

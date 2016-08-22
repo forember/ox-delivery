@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 print_usage () {
     echo 'usage: convert_install_path.sh --local'
