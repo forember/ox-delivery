@@ -14,3 +14,4 @@ clean_lib BCD_libs
 clean_lib CPP_libs
 clean_lib KCPP
 clean_lib UseLibs
+clean_lib catkin_ws
