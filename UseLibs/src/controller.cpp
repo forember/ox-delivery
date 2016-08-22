@@ -82,21 +82,22 @@ void Controller::run(const std::string& directory, const std::string& image,
 
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
-    //Starting from v_first
+    //Coverage edges are the ones you need to use to move
     std::vector<std::vector<Point2D> > tourPoints;
     std::vector<EulerTour> m_eulerTours = m_kcpp->getKEulerianTours();
     for (size_t i = 0; i < m_eulerTours.size(); ++i)
     {
         EulerTour tour_i = m_eulerTours.at(i);
 
-        Vertex v_first, v_second;
-        Edge e = tour_i.front();
-        tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
-        std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_first, m_kcpp->m_g);
+        std::list<ReebEdge> t1;
+        for (EulerTour::iterator it = tour_i.begin();
+                it != tour_i.end(); ++it) {
+            t1.push_back((m_kcpp->m_graph).getEProp(*it));
+        }
 
 #ifdef DEBUG
-        cerr << "\nV_First"<< ":\n";
-        cerr << "\nTour " << i <<":\n";
+        cerr << "\nCOVERAGE"<< ":\n";
+        cerr << "\nTour " << i << ":\n";
         std::list<ReebEdge>::iterator it;
         for (it = t1.begin(); it != t1.end(); ++it)
         {
@@ -104,26 +105,6 @@ void Controller::run(const std::string& directory, const std::string& image,
                 << it->bottomBoundary << ","*/ << it->color << "," << it->cost
                 << "," << it->Eid << "," << it->area << "," << it->travelCost
                 << ")\n";
-/*
-            std::cerr << "  Top Boundary:" << std::endl;
-            vector<Point2D>::iterator itTop;
-            for (itTop = it->topBoundary.begin();
-                    itTop != it->topBoundary.end(); ++itTop)
-            {
-                std::cerr << "\t" << &(*itTop);
-            }
-
-            std::cerr << std::endl;
-            std::cerr << "  Bottom Boundary:" << std::endl;
-
-            vector<Point2D>::iterator itBot;
-            for (itBot = it->bottomBoundary.begin();
-                    itBot != it->bottomBoundary.end(); ++itBot)
-            {
-                std::cerr << "\t" << &(*itBot);
-            }
-            std::cerr << std::endl;
-*/
         }
 #endif
 
@@ -152,25 +133,6 @@ void Controller::run(const std::string& directory, const std::string& image,
         {
             std::cerr << " Edge:" << std::endl;
             ReebEdge e = temporaryGraph.getEProp(*tbcit);
-
-/*
-            std::cerr << "  Top Boundary:" << std::endl;
-            vector<Point2D>::iterator itTop;
-            for (itTop = e.topBoundary.begin();
-                    itTop != e.topBoundary.end(); ++itTop)
-            {
-                std::cerr << "\t" << &(*itTop);
-            }
-            std::cerr << std::endl;
-            std::cerr << "  Bottom Boundary:" << std::endl;
-            vector<Point2D>::iterator itBot;
-            for (itBot = e.bottomBoundary.begin();
-                    itBot != e.bottomBoundary.end(); ++itBot)
-            {
-                std::cerr << "\t" << &(*itBot);
-            }
-            std::cerr << std::endl;
-*/
 
         }
         std::cerr << std::endl;
@@ -198,143 +160,6 @@ void Controller::run(const std::string& directory, const std::string& image,
         string img = m_image.substr(0, rmExt); 
         QString imageQS = QString(img.c_str());
         QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i));
-        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
-        tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
-    }
-
-#ifdef DEBUG
-    for (int i = 0; i < tourPoints.size(); ++i)
-    {
-        cerr << "\n" << "Start Tour " << i << "\n"; 
-        std::vector<Point2D> tempPoints = tourPoints.at(i);
-
-        vector<Point2D>::iterator iter;
-        for(iter = tempPoints.begin(); iter != tempPoints.end(); ++iter)
-        {
-            cout << (*iter) << " ";
-        }
-
-        cerr << "\n" << "End Tour " << i << "\n";
-    }
-#endif
-
-    //Starting from v_second
-    m_eulerTours = m_kcpp->getKEulerianTours();
-    for (size_t i = 0; i < m_eulerTours.size(); ++i)
-    {
-        EulerTour tour_i = m_eulerTours.at(i);
-
-        Vertex v_first, v_second;
-        Edge e = tour_i.front();
-        tie(v_first, v_second) = (m_kcpp->m_graph).getEndNodes(e);
-        std::list<ReebEdge> t1 = m_kcpp->getShortPath(v_second, m_kcpp->m_g);
-
-#ifdef DEBUG
-        cerr << "\nV_Second"<< ":\n";
-        cerr << "\nTour " << i << ":\n";
-        std::list<ReebEdge>::iterator it;
-        for (it = t1.begin(); it != t1.end(); ++it)
-        {
-            std::cerr << "ReebEdge: (" /*<< it->topBoundary << ","
-                << it->bottomBoundary << ","*/ << it->color << "," << it->cost
-                << "," << it->Eid << "," << it->area << "," << it->travelCost
-                << ")\n";
-
-/*
-            std::cerr << "  Top Boundary:" << std::endl;
-            vector<Point2D>::iterator itTop;
-            for (itTop = it->topBoundary.begin();
-                    itTop != it->topBoundary.end(); ++itTop)
-            {
-                std::cerr << "\t" << &(*itTop);
-            }
-
-            std::cerr << std::endl;
-            std::cerr << "  Bottom Boundary:" << std::endl;
-
-            vector<Point2D>::iterator itBot;
-            for (itBot = it->bottomBoundary.begin();
-                    itBot != it->bottomBoundary.end(); ++itBot)
-            {
-                std::cerr << "\t" << &(*itBot);
-            }
-            std::cerr << std::endl;
-*/
-
-        }
-#endif
-
-        //temporary graph that will be used for converting
-        //  reebedges to a new reeb graph for each tour
-        ReebGraph temporaryGraph;
-        std::vector<Point2D> tempWayPoints;
-
-        //only used in modifying temporaryGraph. Nothing else. 
-        way.convertTourToReebGraph(t1, m_kcpp->m_graph, temporaryGraph); 
-
-#ifdef DEBUG
-        std::cerr << "\n\nVerticies:\n";
-        temporaryGraph.printVertex();
-        std::cerr << "\nEdges:\n";
-        temporaryGraph.printEdges();
-#endif
-
-        std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
-
-#ifdef DEBUG
-        std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
-        std::cerr << std::endl << "Graph Edges:" << std::endl;
-        std::list<Edge>::iterator tbcit;
-        for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
-        {
-            std::cerr << " Edge:" << std::endl;
-            ReebEdge e = temporaryGraph.getEProp(*tbcit);
-
-/*
-            std::cerr << "  Top Boundary:" << std::endl;
-            vector<Point2D>::iterator itTop;
-            for (itTop = e.topBoundary.begin();
-                    itTop != e.topBoundary.end(); ++itTop)
-            {
-                std::cerr << "\t" << &(*itTop);
-            }
-            std::cerr << std::endl;
-            std::cerr << "  Bottom Boundary:" << std::endl;
-            vector<Point2D>::iterator itBot;
-            for (itBot = e.bottomBoundary.begin();
-                    itBot != e.bottomBoundary.end(); ++itBot)
-            {
-                std::cerr << "\t" << &(*itBot);
-            }
-            std::cerr << std::endl;
-*/
-
-        }
-        std::cerr << std::endl;
-#endif
-
-        //should generate a new waypoints path for this route
-        //  Done like this because the constructor automatically runs
-        //  the functions necessary to create waypoints. 
-        WayPoints tourWayPoints(data, temporaryGraph, tmpBcCpp, tempWayPoints);
-
-#ifdef DEBUG
-        cout << "\nWayPoints:\n";
-        vector<Point2D>::iterator iter;
-        for (iter = tempWayPoints.begin(); iter != tempWayPoints.end(); ++iter)
-        {
-            cout << (*iter) << " ";
-        }
-        cout << "\n\n";
-#endif
-
-        //pushes each tours waypoints to store for future use
-        tourPoints.push_back(tempWayPoints);
-
-        int rmExt = m_image.find_last_of("."); 
-        string img = m_image.substr(0, rmExt); 
-        QString imageQS = QString(img.c_str());
-        QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i+2));
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
