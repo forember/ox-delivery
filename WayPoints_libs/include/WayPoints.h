@@ -120,6 +120,13 @@ public:
             Edge firstEdge = ReebGraph::nullEdge())
         throw (const std::string&);
 
+    vector<Point2D> getWayPoints();
+    void setWayPoints(vector<Point2D> givenPoints);
+    void printWayPoints();
+    void printWayPoints(vector<Point2D> givenPoints);
+
+private:
+    vector<Point2D> points;
 
 protected:
     // Helper function used by findClosestGraphPos()

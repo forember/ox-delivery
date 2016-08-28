@@ -784,9 +784,26 @@ void ReebGraph::printEdges()
     vector<Edge>::iterator iter;
     for(iter = Epointers.begin(); iter != Epointers.end(); ++iter)
     {
-        cout << (*iter) << " ";;
+        ReebEdge edge = getEProp(*iter);
+        
+        Vertex v1,v2;
+        tie(v1,v2) = getEndNodes(*iter);
+
+        ReebVertex vertexOne = getVProp(v1);
+        ReebVertex vertexTwo = getVProp(v2);
+
+        Point2D first = Point2D(vertexOne.x,
+            (vertexOne.y1 + vertexOne.y2) / 2);
+        Point2D second = Point2D(vertexTwo.x,
+            (vertexTwo.y1 + vertexTwo.y2) / 2);
+
+        std::cout << first;
+        std::cout << " ";
+        std::cout << second;
+        std::cout << " " << edge.Eid << "\n";
     }
 }
+
 
 /*************************************************************************
  * Function 'printVertex()'
@@ -805,7 +822,8 @@ void ReebGraph::printVertex()
     vector<Vertex>::iterator iter;
     for(iter = Vpointers.begin(); iter != Vpointers.end(); ++iter)
     {
-        cout << (*iter) << " ";;
+        ReebVertex vertex = getVProp(*iter);
+        vertex.printV();
     }
 }
 

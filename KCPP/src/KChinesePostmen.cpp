@@ -104,7 +104,7 @@ KChinesePostmen::KChinesePostmen()
 void KChinesePostmen::computeShortestDistances(kcpp::Graph graph)
 {
 
-    cerr << "computer shortest distance - inside 1" << "\n";
+    //cerr << "computer shortest distance - inside 1" << "\n";
     
     m_shortCoverDistances.resize(boost::num_vertices(graph));
     m_shortTravelDistances.resize(boost::num_vertices(graph));
@@ -116,7 +116,7 @@ void KChinesePostmen::computeShortestDistances(kcpp::Graph graph)
     m_travelPredecessors.resize(boost::num_vertices(graph));
 
 
-    cerr << "computer shortest distance - inside 2" << "\n";
+    //cerr << "computer shortest distance - inside 2" << "\n";
 
     /**Computing shortest paths based on area and travel costs*/
     //"-------------------------Based on Area Cost----------------------------------\n";
@@ -127,7 +127,7 @@ void KChinesePostmen::computeShortestDistances(kcpp::Graph graph)
             .predecessor_map(boost::make_iterator_property_map(m_coverPredecessors.begin(), boost::get(boost::vertex_index,graph)))
             );
 
-    cerr << "computer shortest distance - inside 3" << "\n";
+    //cerr << "computer shortest distance - inside 3" << "\n";
 
     //"-------------------------Based on Travel Cost----------------------------------\n";
     boost::dijkstra_shortest_paths(graph, m_sourceVertex,
@@ -137,7 +137,7 @@ void KChinesePostmen::computeShortestDistances(kcpp::Graph graph)
             .predecessor_map(boost::make_iterator_property_map(m_travelPredecessors.begin(), boost::get(boost::vertex_index,graph)))
             );
 
-    cerr << "computer shortest distance - inside 4" << "\n";
+    //cerr << "computer shortest distance - inside 4" << "\n";
 }
 
 /**==============================================================
@@ -290,7 +290,7 @@ void KChinesePostmen::printEulerianTours()
             tour_jv.splice(tour_jv.end(), t1);
             */
 
-    std::cerr << "start \n";
+    //std::cerr << "start \n";
     
     std::cout << "----------------------Eulerian Tours-----------------------------\n";
     std::cout << "The number of robots is: " << m_k << "\n";

@@ -38,6 +38,15 @@ struct ReebVertex
     //       try to use custom constructor if possible
     ReebVertex() :
         x(-1), y1(-1), y2(-1), color(-1), Vid(0) {};
+
+
+    // Print vertex information
+    void printV()
+    {
+       std::cout << "x " << x << ", y1 " << y1 << ", y2 " << y2
+           << ", Vid" << Vid << "\n";
+    }
+    
 };
 
 
@@ -78,6 +87,7 @@ struct ReebEdge
             area += abs(topBoundary[i].ycoord() - bottomBoundary[i].xcoord());
         }
     }
+
 
     //FIXME: <N> set travel cost
     void setTravelCost(const double tCost) {
