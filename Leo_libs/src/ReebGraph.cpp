@@ -1,4 +1,4 @@
-//#define SHORT_PRINT_OUT
+#define SHORT_PRINT_OUT
 //#define LONG_PRINT_OUT
 #include "ReebGraph.h"
 
@@ -13,9 +13,17 @@
 const Vertex ReebGraph::Vnull = Vertex();
 const Edge ReebGraph::Enull = Edge();
 
-// Initializes member variables
+
+/*************************************************************************
+ * Constructor
+ *
+**/
 ReebGraph::ReebGraph() : g(), Vpointers(), Epointers(), Vid_free(0), Eid_free(0) {};
 
+/*************************************************************************
+ * Copy Constructor
+ *
+**/
 ReebGraph::ReebGraph(const ReebGraph& _g) : g(), Vpointers(), Epointers(), Vid_free(0), Eid_free(0)
 {
     g = _g.g;
@@ -26,6 +34,7 @@ ReebGraph::ReebGraph(const ReebGraph& _g) : g(), Vpointers(), Epointers(), Vid_f
     Vid_free = _g.Vid_free;
     Eid_free = _g.Eid_free;
 };
+
 
 ReebGraph& ReebGraph::operator=( const ReebGraph& _g ) 
 {
@@ -39,11 +48,18 @@ ReebGraph& ReebGraph::operator=( const ReebGraph& _g )
     return *this;
 };
 
-// Cleans up member variables
+
+/*************************************************************************
+ * Destructor
+ *
+ * Cleans up member variables
+ *
+**/
 ReebGraph::~ReebGraph() 
 {
     clear();
 };
+
 
 void ReebGraph::clear() 
 {
@@ -265,20 +281,56 @@ std::pair<Edge_Iter, Edge_Iter> ReebGraph::getEdges()
 };
 
 
-// Returns start and past-the-end iterators for edges attached to
-// a specific vertex
+/*************************************************************************
+ * Function 'getEdges(Vertex v)'
+ *
+ * Returns start and past-the-end iterators for edges attached to
+ * a specific vertex
+ *
+ * Returns:
+ *   std::pair<Out_Edge_Iter, Out_Edge_Iter> - edges attached to vertex
+ *
+ * Parameters:
+ *   Vertex v 
+ *
+**/
 std::pair<Out_Edge_Iter, Out_Edge_Iter> ReebGraph::getEdges(Vertex v)
 {
     return out_edges(v, g);
 };
 
+
+/*************************************************************************
+ * Function 'getEdges(unsigned int Vid)'
+ *
+ * Returns start and past-the-end iterators for edges attached to
+ * a specific vertex
+ *
+ * Returns:
+ *   std::pair<Out_Edge_Iter, Out_Edge_Iter> - edges attached to vertex
+ *
+ * Parameters:
+ *   unsigned int Vid - id of vertex
+ *
+**/
 std::pair<Out_Edge_Iter, Out_Edge_Iter> ReebGraph::getEdges(unsigned int Vid)
 {
     return getEdges(Vpointers[Vid]);
 };
 
 
-
+/*************************************************************************
+ * Function 'getVertex(unsigned int Vid)'
+ *
+ * Looks up and returns a specified vertex based on vertex id
+ *
+ * Returns:
+ *   Vertex - specified vertex
+ *
+ * Parameters:
+ *   unsigned int Vid - id of vertex to be found
+ *
+**/
 Vertex ReebGraph::getVertex(unsigned int Vid)
 {
     if (Vid >= Vpointers.size())
@@ -291,6 +343,19 @@ Vertex ReebGraph::getVertex(unsigned int Vid)
     }
 };
 
+
+/*************************************************************************
+ * Function 'getEdge(unsigned int Eid)'
+ *
+ * Looks up and returns a specified edge based on edge id
+ *
+ * Returns:
+ *   Edge - specified edge
+ *
+ * Parameters:
+ *   unsigned int Eid - id of edge to be found
+ *
+**/
 Edge ReebGraph::getEdge(unsigned int Eid)
 {
     if (Eid >= Epointers.size()) 
@@ -304,33 +369,108 @@ Edge ReebGraph::getEdge(unsigned int Eid)
 };
 
 
-// Provides auxiliary informations regarding graphs, vertices, and edges
+/*************************************************************************
+ * Function 'numVertices()'
+ *
+ * Returns the number of vertices in a graph
+ *
+ * Returns:
+ *   unsigned int - vertices in the graph
+ *
+ * Parameters:
+ *   None
+ *
+**/
 unsigned int ReebGraph::numVertices() 
 {
     return num_vertices(g);
 };
 
+
+/*************************************************************************
+ * Function 'numEdges()'
+ *
+ * Returns the number of edges in a graph
+ *
+ * Returns:
+ *   unsigned int - edges in the graph
+ *
+ * Parameters:
+ *   None
+ *
+**/
 unsigned int ReebGraph::numEdges() 
 {
     return num_edges(g);
 };
 
+
+/*************************************************************************
+ * Function 'degree(Vertex v)'
+ *
+ * Checks the degree of a vertex
+ *
+ * Returns:
+ *   unsigned int - degree of the vertex
+ *
+ * Parameters:
+ *   Vertex - vertex to be checked
+ *
+**/
 unsigned int ReebGraph::degree(Vertex v) 
 {
     return out_degree(v, g);
 };
 
+
+/*************************************************************************
+ * Function 'degree(int Vid)'
+ *
+ * Checks the degree of a vertex
+ *
+ * Returns:
+ *   unsigned int - degree of the vertex
+ *
+ * Parameters:
+ *   Vid - id of the vertex to be checked
+ *
+**/
 unsigned int ReebGraph::degree(int Vid) 
 {
     return degree(Vpointers[Vid]);
 };
 
+
+/*************************************************************************
+ * Function 'empty()'
+ *
+ * Checks to see if the graph is empty
+ *
+ * Returns:
+ *   bool - graph is empty
+ *
+ * Parameters:
+ *   None
+ *
+**/
 bool ReebGraph::empty() 
 {
     return ((num_vertices(g) == 0) || (num_edges(g) == 0));
 };
 
-// Mass-reset member variables
+
+/*************************************************************************
+ * Function 'resetAllVertexColor()'
+ *
+ * Resets the color of all vertex in the graph
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
 void ReebGraph::resetAllVertexColor() 
 {
     int newColor = 0;
@@ -341,6 +481,19 @@ void ReebGraph::resetAllVertexColor()
     }
 };
 
+
+/*************************************************************************
+ * Function 'resetAllEdgeColor() '
+ *
+ * Resets the color of all edges in the graph
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
 void ReebGraph::resetAllEdgeColor() 
 {
     int newColor = 0;
@@ -351,6 +504,19 @@ void ReebGraph::resetAllEdgeColor()
     }
 };
 
+
+/*************************************************************************
+ * Function 'resetAllColor() '
+ *
+ * Resets the color of all the vertices and edges in the graph
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
 void ReebGraph::resetAllColor() 
 {
     resetAllVertexColor();
@@ -358,17 +524,40 @@ void ReebGraph::resetAllColor()
 };
 
 
-// Returns singleton objects for null vertex & null edge pointers
+/*************************************************************************
+ * Function 'nullVertex()'
+ *
+ * Returns singleton objects for a null vertex
+ *
+ * Returns:
+ *   Edge - null boost edge
+ *
+ * Parameters:
+ *   None
+ *
+**/
 Vertex ReebGraph::nullVertex() 
 {
     return ReebGraph::Vnull;
 };
 
+
+/*************************************************************************
+ * Function 'nullEdge()'
+ *
+ * Returns singleton objects for a null edge pointer
+ *
+ * Returns:
+ *   Edge - null boost edge
+ *
+ * Parameters:
+ *   None
+ *
+**/
 Edge ReebGraph::nullEdge() 
 {
     return ReebGraph::Enull;
 };
-
 
 
 /*************************************************************************
@@ -434,66 +623,7 @@ bool ReebGraph::equals(ReebGraph Graph)
 /*************************************************************************
  * Operator overload: outstream operator
  *
- * Overloading outstream operator
- *   vertex object v
- *   vertex coordinates x and y1/y2.
- *
- * BGL - boost graph library    
- *   have to use the x,y1,y2,vid,and color conventions
- *   for the constructor
- *
- * printing out the reeb vertex parameters
- *
-**/
-ostream& operator<< (ostream& out, ReebVertex& v) 
-{
-#ifdef SHORT_PRINT_OUT
-    out << "V" << v.Vid;
-#endif
-
-#ifdef LONG_PRINT_OUT
-    out << "VERTEX [Vid=" << v.Vid << " x=" << v.x << " y1=" << v.y1
-        << " y2=" << v.y2 << " color=" << v.color << "]";
-#endif
-
-    return out;
-};
- 
-
-/*************************************************************************
- * Operator overload: outstream operator
- *
- * Method that prints out the reeb edge parameters
- *
- * Returns:
- *   ostream& - contains information about the reeb edges
- *
- * Parameters:
- *   ostream& out
- *   ReebEdge& e
- *
-**/
-ostream& operator<< (ostream& out, ReebEdge& e) 
-{
-#ifdef SHORT_PRINT_OUT
-    out << "E" << e.Eid;
-#endif
-
-#ifdef LONG_PRINT_OUT
-    out << "EDGE [Eid=" << e.Eid << " color=" << e.color << " cost="
-        << e.cost << " area=" << e.area << " topBoundary.size()="
-        << e.topBoundary.size() << " bottomBoundary.size()="
-        << e.bottomBoundary.size() << "]";
-#endif
-
-    return out;
-};
-
-
-/*************************************************************************
- * Operator overload: outstream operator
- *
- * Method that prints out the reeb graph parameters
+ * Method that prints out the reeb graph data
  *
  * Returns:
  *      ostream& - outstream containing information about the reeb edges
@@ -501,7 +631,7 @@ ostream& operator<< (ostream& out, ReebEdge& e)
  *
  * Parameters:
  *   ostream& out
- *   ReebEdge& e
+ *   ReebGraph& g
  *
 **/
 ostream& operator<< (ostream& out, ReebGraph& g)
@@ -566,6 +696,213 @@ ostream& operator<< (ostream& out, ReebGraph& g)
 
 
 /*************************************************************************
+ * Function 'getGraphEdges()'
+ *
+ * Method that gets the edges of a graph such that it can be returned
+ * as a vector. 
+ *
+ * Returns:
+ *   std::vector<Edge> - edges to the current graph 
+ *
+ * Parameters:
+ *   None
+ *
+**/
+std::vector<Edge> ReebGraph::getGraphEdges()
+{
+    return Epointers;
+};
+
+
+/*************************************************************************
+ * Function 'setGraphEdges()'
+ *
+ * Method that sets the edges of a graph.
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   edges - edges of the new graph
+ *
+**/
+void ReebGraph::setGraphEdges(std::vector<Edge> edges)
+{
+    vector<Edge>::iterator iter;
+    for(iter = edges.begin(); iter != edges.end(); ++iter)
+    {
+        Edge edge = (*iter);
+        Epointers.push_back(edge);
+    }
+};
+
+
+/*************************************************************************
+ * Function 'getGraphVertex()'
+ *
+ * Method that gets the edges of a graph such that it can be returned
+ * as a vector.
+ *
+ * Returns:
+ *   std::vector<Vertex> - edges to the current graph 
+ *
+ * Parameters:
+ *   None
+ *
+**/
+std::vector<Vertex> ReebGraph::getGraphVertex()
+{
+    return Vpointers;
+};
+
+
+/*************************************************************************
+ * Function 'setGraphVertices()'
+ *
+ * Method that sets the vertices of a graph.
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   vertices - Vertices to be set to
+ *
+**/
+void ReebGraph::setGraphVertices(std::vector<Vertex> vertices)
+{
+    vector<Vertex>::iterator iter;
+    for(iter = vertices.begin(); iter != vertices.end(); ++iter)
+    {
+        Vertex vertex = (*iter);
+        Vpointers.push_back(vertex);
+    }
+};
+
+
+/*************************************************************************
+ * Operator overload: outstream operator
+ *
+ * Overloading outstream operator
+ *   vertex object v
+ *   vertex coordinates x and y1/y2.
+ *
+ * BGL - boost graph library    
+ *   have to use the x,y1,y2,vid,and color conventions
+ *   for the constructor
+ *
+ * printing out the reeb vertex parameters
+ *
+**/
+ostream& operator<< (ostream& out, ReebVertex& v) 
+{
+    out << v.Vid << " [x " << v.x << ", y1 " << v.y1
+        << ", y2 " << v.y2 << "]";
+
+    return out;
+};
+
+
+/*************************************************************************
+ * Function 'printVertex()'
+ *
+ * Method that prints the vertices of a graph. Should print the x, y1, y2
+ * and vertex id information.
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
+void ReebGraph::printVertex()
+{
+    std::cout << "\n";
+    vector<Vertex>::iterator iter;
+    for(iter = Vpointers.begin(); iter != Vpointers.end(); ++iter)
+    {
+        ReebVertex vertex = getVProp(*iter);
+
+        //uses overloaded operator method to print out information
+        std::cout << vertex;
+        std::cout << " | ";  
+    }
+    std::cout << "\n";
+}
+
+
+/*************************************************************************
+ * Operator overload: outstream operator
+ *
+ * Method that prints out the reeb edge data
+ *
+ * Returns:
+ *   ostream& - contains information about the reeb edges
+ *
+ * Parameters:
+ *   ostream& out
+ *   ReebEdge& e
+ *
+**/
+ostream& operator<< (ostream& out, ReebEdge& e) 
+{
+
+#ifdef SHORT_PRINT_OUT
+    out << e.Eid;
+#endif
+
+#ifdef LONG_PRINT_OUT
+    out << "[Eid " << e.Eid << ", cost " << e.cost
+        << ", area " << e.area << ", topBoundary "
+        << e.topBoundary.size() << ", bottomBoundary "
+        << e.bottomBoundary.size() << "]";
+#endif
+
+    return out;
+};
+
+
+/*************************************************************************
+ * Function 'printEdges()'
+ *
+ * Method that prints the edges of a graph. Prints the two vertices of
+ * the edges and the edge id.  
+ *
+ * Returns:
+ *   None
+ *
+ * Parameters:
+ *   None
+ *
+**/
+void ReebGraph::printEdges()
+{
+    std::cout << "\n";
+    vector<Edge>::iterator iter;
+    for(iter = Epointers.begin(); iter != Epointers.end(); ++iter)
+    {
+        ReebEdge edge = getEProp(*iter);
+
+        Vertex v1,v2;
+        tie(v1,v2) = getEndNodes(*iter);
+
+        ReebVertex vertexOne = getVProp(v1);
+        ReebVertex vertexTwo = getVProp(v2);
+
+        Point2D first = Point2D(vertexOne.x,
+            (vertexOne.y1 + vertexOne.y2) / 2);
+        Point2D second = Point2D(vertexTwo.x,
+            (vertexTwo.y1 + vertexTwo.y2) / 2);
+
+        //uses overloaded operator method to print out information
+        std::cout << edge;
+        std::cout << " " << first << " " << second << " | ";  
+    }
+    std::cout << "\n";
+}
+
+
+/*************************************************************************
  * Function 'runExample()'
  *
  * Method that runs an example of the ReebGraph.
@@ -577,6 +914,7 @@ ostream& operator<< (ostream& out, ReebGraph& g)
  *   None
  *
 **/
+/*
 void ReebGraph::runExample() 
 {
     // Creates a new graph
@@ -692,138 +1030,4 @@ void ReebGraph::runExample()
 
     std::cout << std::endl;
 };
-
-
-
-/*************************************************************************
- * Function 'getGraphEdges()'
- *
- * Method that gets the edges of a graph such that it can be returned
- * as a vector. 
- *
- * Returns:
- *   std::vector<Edge> - edges to the current graph 
- *
- * Parameters:
- *   None
- *
-**/
-std::vector<Edge> ReebGraph::getGraphEdges()
-{
-    return Epointers;
-};
-
-
-/*************************************************************************
- * Function 'setGraphEdges()'
- *
- * Method that sets the edges of a graph.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   edges - edges of the new graph
- *
-**/
-void ReebGraph::setGraphEdges(std::vector<Edge> edges)
-{
-    Epointers = edges;
-};
-
-/*************************************************************************
- * Function 'getGraphVertex()'
- *
- * Method that gets the edges of a graph such that it can be returned
- * as a vector.
- *
- * Returns:
- *   std::vector<Vertex> - edges to the current graph 
- *
- * Parameters:
- *   None
- *
-**/
-std::vector<Vertex> ReebGraph::getGraphVertex()
-{
-    return Vpointers;
-};
-
-
-/*************************************************************************
- * Function 'setGraphVertex()'
- *
- * Method that sets the edges of a graph.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   vertex - Vertex of the new graph
- *
-**/
-void ReebGraph::setGraphVertex(std::vector<Vertex> vertex)
-{
-    Vpointers = vertex;
-};
-
-/*************************************************************************
- * Function 'printEdges()'
- *
- * Method that prints the edges of a graph.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   None
- *
-**/
-void ReebGraph::printEdges()
-{
-    vector<Edge>::iterator iter;
-    for(iter = Epointers.begin(); iter != Epointers.end(); ++iter)
-    {
-        ReebEdge edge = getEProp(*iter);
-        
-        Vertex v1,v2;
-        tie(v1,v2) = getEndNodes(*iter);
-
-        ReebVertex vertexOne = getVProp(v1);
-        ReebVertex vertexTwo = getVProp(v2);
-
-        Point2D first = Point2D(vertexOne.x,
-            (vertexOne.y1 + vertexOne.y2) / 2);
-        Point2D second = Point2D(vertexTwo.x,
-            (vertexTwo.y1 + vertexTwo.y2) / 2);
-
-        std::cout << first;
-        std::cout << " ";
-        std::cout << second;
-        std::cout << " " << edge.Eid << "\n";
-    }
-}
-
-
-/*************************************************************************
- * Function 'printVertex()'
- *
- * Method that prints the vertices of a graph.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   None
- *
-**/
-void ReebGraph::printVertex()
-{
-    vector<Vertex>::iterator iter;
-    for(iter = Vpointers.begin(); iter != Vpointers.end(); ++iter)
-    {
-        ReebVertex vertex = getVProp(*iter);
-        vertex.printV();
-    }
-}
-
+*/

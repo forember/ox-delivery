@@ -7,14 +7,9 @@
 #include <vector>
 #include <ostream>
 #include "Point2D.h"
-
 #include <boost/graph/graph_utility.hpp>
 
 using namespace boost;
-
-// TODO - This is a HEADER FILE! What's up with all the implementation?
-// --Chris McKinney
-
 
 /**
  *  Defines the object type for vertices in the Reeb graph
@@ -39,14 +34,6 @@ struct ReebVertex
     ReebVertex() :
         x(-1), y1(-1), y2(-1), color(-1), Vid(0) {};
 
-
-    // Print vertex information
-    void printV()
-    {
-       std::cout << "x " << x << ", y1 " << y1 << ", y2 " << y2
-           << ", Vid" << Vid << "\n";
-    }
-    
 };
 
 
@@ -88,12 +75,10 @@ struct ReebEdge
         }
     }
 
-
     //FIXME: <N> set travel cost
     void setTravelCost(const double tCost) {
         travelCost = tCost;
     }
-
 };
 
 
@@ -208,13 +193,12 @@ public:
     void setGraphEdges(std::vector<Edge> edges);
     std::vector<Edge> getGraphEdges();
 
-    void setGraphVertex(std::vector<Vertex> vertex);
+    void setGraphVertices(std::vector<Vertex> vertices);
     std::vector<Vertex> getGraphVertex();
 
     void printEdges();
     void printVertex();
     static void runExample();
-
 
 private:
 
