@@ -222,7 +222,7 @@ void Controller::run(const std::string& directory, const std::string& image,
     }
 
 #ifdef DEBUG
-    for (int i = 0; i < tourPoints.size(); ++i)
+    for (unsigned i = 0; i < tourPoints.size(); ++i)
     {
         cerr << "\n" << "Start Tour " << i << "\n"; 
         std::vector<Point2D> tempPoints = tourPoints.at(i);

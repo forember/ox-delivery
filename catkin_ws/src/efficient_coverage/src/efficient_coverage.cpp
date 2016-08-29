@@ -78,7 +78,7 @@ public:
 
     vector<Point2D> wayPoints;
 
-    int count;
+    unsigned count;
 
     // Tunable motion controller parameters
     const static double PROXIMITY_RANGE_M = 1.0;
@@ -250,7 +250,8 @@ void moveTo(double wayX, double wayY, double distance)
     //angle is positive spin in the positive direction
     if (angle > 0)
     {
-        while (ros::Time::now() - rotateStartTime < rotateDuration)
+        while (ros::ok()
+                && ros::Time::now() - rotateStartTime < rotateDuration)
         {
             move(0, ROTATE_SPEED_RADPS);
             ros::spinOnce();
@@ -259,7 +260,8 @@ void moveTo(double wayX, double wayY, double distance)
     //angle is negative spin in the negative direction.
     else if (angle < 0)
     {
-        while (ros::Time::now() - rotateStartTime < rotateDuration)
+        while (ros::ok()
+                && ros::Time::now() - rotateStartTime < rotateDuration)
         {
             move(0, -ROTATE_SPEED_RADPS);
             ros::spinOnce();
@@ -270,7 +272,7 @@ void moveTo(double wayX, double wayY, double distance)
     moveDuration = ros::Duration(distance / FORWARD_SPEED_MPS);
 
     //move forward - done
-    while (ros::Time::now() - moveStart < moveDuration)
+    while (ros::ok() && ros::Time::now() - moveStart < moveDuration)
     {
         move(FORWARD_SPEED_MPS, 0);
         ros::spinOnce();
@@ -297,18 +299,20 @@ void followPath()
 
     //robot is in position and ready to move around the waypoints
     if(count < wayPoints.size())
-    {           
-        nextPoint = wayPoints.at(count);    
+    {
+        nextPoint = wayPoints.at(count);
         wayX = nextPoint.xcoord();
         wayY = nextPoint.ycoord();
         distance = currentPoint.distance(nextPoint);
 
-        cerr << "Current Position: " << currentPoint.xcoord() << ", " << currentPoint.ycoord() << "\n";
-        cerr << "Next WayPoint: Count " << count << " (" << wayX << ", " << wayY << ") \n";
+        cerr << "Current Position: " << currentPoint.xcoord() << ", "
+            << currentPoint.ycoord() << "\n";
+        cerr << "Next WayPoint: Count " << count << " (" << wayX << ", "
+            << wayY << ") \n";
         cerr << "Distance" << ": " << distance << "\n";
 
         //tell the robot to move to the waypoint
-        moveTo(wayX, wayY, distance);        
+        moveTo(wayX, wayY, distance);
         count++;
     }
 };
@@ -323,13 +327,13 @@ void followPath()
  * the FSM state
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   None
  *
 **/
-void spin() 
+void spin()
 {
     sleep(10);
 
@@ -347,7 +351,7 @@ void spin()
     {
         ros::spinOnce();
         followPath();
-        rate.sleep(); 
+        rate.sleep();
     }
 
 };
@@ -362,7 +366,7 @@ void spin()
  * the FSM state. Alternate function for multiple robots. 
  *
  * Returns:
- *   None 
+ *   None
  *
  * Parameters:
  *   None
@@ -379,7 +383,7 @@ void spin_multiple()
     }
 
     // Keep spinning loop until user presses Ctrl+C
-    while (ros::ok()) 
+    while (ros::ok())
     {
         ros::spinOnce();
         followPath();
@@ -411,7 +415,8 @@ KChinesePostmen* m_kcpp;
 ChinesePostman* m_cpp;
 
 
-int parseInputArgs(int argc, char **argv, std::string& directory, std::string& image, int& k)
+int parseInputArgs(int argc, char **argv, std::string& directory,
+        std::string& image, int& k)
 {
     bool printUsage = false;
     // Parse and validate command line input arguments
@@ -447,7 +452,9 @@ int parseInputArgs(int argc, char **argv, std::string& directory, std::string& i
 
     if (printUsage)
     {
-        std::cerr << "Usage: " << argv[0] << " [IMAGE_DIRECTORY] [IMAGE_NAME] [NUMBER_OF_ROBOTS]" << std::endl;
+        std::cerr << "Usage: " << argv[0]
+            << " [IMAGE_DIRECTORY] [IMAGE_NAME] [NUMBER_OF_ROBOTS]"
+            << std::endl;
         return -1;
     }
 
@@ -505,20 +512,22 @@ void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle)
  *   None
  *
 **/
-void checkInputParams(const std::string& directory, const std::string& image, int k)
+void checkInputParams(const std::string& directory, const std::string& image,
+        int k)
 {
     std::string message = "";
 
-    if(k<1) 
+    if (k < 1)
     {
         message = "ERR:Number of robots must be positive integer!";
         throw std::invalid_argument(message);
     }
 
     /**TODO: Add also check for valid image format*/
-    if( !std::ifstream((directory + "/" + image).c_str())) 
+    if (!std::ifstream((directory + "/" + image).c_str()))
     {
-        message = "ERR:There is no image at this path:  " + directory + "/" +  image;
+        message = "ERR:There is no image at this path:  " + directory + "/"
+            + image;
         throw std::invalid_argument(message);
     }
 }
@@ -537,7 +546,7 @@ int main(int argc, char **argv)
     vector<Point2D> wayPoints;
 
 
-    if(parseInputArgs(argc, argv, directory, image, k) == -1) 
+    if (parseInputArgs(argc, argv, directory, image, k) == -1)
     {
         return EXIT_FAILURE;
     }
@@ -559,15 +568,15 @@ int main(int argc, char **argv)
     BCD bcd(directory, image, data, graph);
 
 #ifdef DEBUG
-        std::cerr << "BCD is completed\n"; 
+    std::cerr << "BCD is completed\n"; 
 #endif
-        std::cerr << "BCD is completed\n"; 
+    std::cerr << "BCD is completed\n"; 
 
         //----------------- BCD call ended ----------------------
 
     ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
     
-std::cerr << "After running cpp, checking the m_cpp var ...\n";
+    std::cerr << "After running cpp, checking the m_cpp var ...\n";
 #ifdef DEBUG
 
     std::cout << "After running cpp, checking the m_cpp var ...\n";
