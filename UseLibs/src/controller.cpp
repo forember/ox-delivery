@@ -124,7 +124,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         }
 
 #ifdef DEBUG
-        std::cout << "----------------- Coverage Edges ------------";
+        std::cout << "---------------- (K)CPP Coverage Edges ------------";
         cout<<"\n";
         cerr << "Tour " << i << ":\n";
         std::list<Edge>::iterator it;
@@ -149,7 +149,7 @@ void Controller::run(const std::string& directory, const std::string& image,
             std::cout << " " << edge.Eid << " | ";
         }
         cout << "\n";
-        std::cout << "----------------- End Coverage Edges ------------";        
+        std::cout << "---------------- End (K)CPP Coverage Edges ------------";
         cout << "\n";
 #endif
 
@@ -163,6 +163,34 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
+#ifdef DEBUG
+        std::cout << "---------------- Converted Coverage Edges ------------";
+        cout<<"\n";
+        cerr << "Tour " << i << ":\n";
+        for (EulerTour::iterator it = tmpBcCpp.begin();
+                it != tmpBcCpp.end(); ++it) 
+        {
+            Vertex v1,v2;
+            tie(v1,v2) = temporaryGraph.getEndNodes(*it);
+
+            ReebVertex vertexOne = temporaryGraph.getVProp(v1);
+            ReebVertex vertexTwo = temporaryGraph.getVProp(v2);
+
+            Point2D first = Point2D(vertexOne.x,
+                (vertexOne.y1 + vertexOne.y2) / 2);
+            Point2D second = Point2D(vertexTwo.x,
+                (vertexTwo.y1 + vertexTwo.y2) / 2);
+
+            std::cout << first;
+            std::cout << " ";
+            std::cout << second;
+            ReebEdge edge = temporaryGraph.getEProp(*it);
+            std::cout << " " << edge.Eid << " | ";
+        }
+        cout << "\n";
+        std::cout << "---------------- End Converted Coverage Edges ------------";
+        cout << "\n";
+#endif
 
         //should generate a new waypoints path for this route
         //  Done like this because the constructor automatically runs
@@ -211,9 +239,9 @@ void Controller::run(const std::string& directory, const std::string& image,
     }
 
 #ifdef DEBUG
-		std::ofstream outputFile;
-		outputFile.open("tourLines.txt");
-		for (unsigned i = 0; i < tourPoints.size(); ++i)
+    std::ofstream outputFile;
+    outputFile.open("tourLines.txt");
+    for (unsigned i = 0; i < tourPoints.size(); ++i)
     {
         outputFile << "\n" << "Start Tour " << i << "\n"; 
         std::vector<Point2D> tempPoints = tourPoints.at(i);

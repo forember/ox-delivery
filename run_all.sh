@@ -10,6 +10,7 @@ compile_lib () {
     s="$?"
     if [ "$s" -ne 0 ]; then
         echo "$0: ERROR"
+        exit $s
     fi
 }
 compile_lib Leo_libs

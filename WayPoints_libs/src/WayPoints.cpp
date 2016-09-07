@@ -305,7 +305,8 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
     ReebEdge edge, *addedReebEdge;
     Edge addedEdge;
     Vertex v_first, v_second, nvf, nvs;
-    ReebVertex rvf, rvs;
+    bool first = true;
+    ReebVertex rvf, rvs, rvs_prev;
     for (it = tour.begin(); it != tour.end(); ++it) {
         edge = *it;
         tie(v_first, v_second) = m_graph.getEndNodes(edge.Eid);
@@ -321,7 +322,22 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
 
         nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
         nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+#ifdef MAKE_CONTIN
+        if (first) {
+            addedEdge = dest.addEdge(nvs, nvf, edge.color);
+            rvs_prev = rvs;
+            first = false;
+        } else if (rvs_prev.x == rvf.x
+                    && rvs_prev.y1 == rvf.y1 && rvs_prev.y2 == rvf.y2) {
+            addedEdge = dest.addEdge(nvf, nvs, edge.color);
+            rvs_prev = rvs;
+        } else {
+            addedEdge = dest.addEdge(nvs, nvf, edge.color);
+            rvs_prev = rvf;
+        }
+#else
         addedEdge = dest.addEdge(nvf, nvs, edge.color);
+#endif
         addedReebEdge = &(dest.getEProp(addedEdge));
         addedReebEdge->topBoundary = edge.topBoundary;
         addedReebEdge->bottomBoundary = edge.bottomBoundary;
