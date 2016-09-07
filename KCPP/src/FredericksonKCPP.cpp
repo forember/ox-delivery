@@ -126,8 +126,7 @@ void FredericksonKCPP::solve()
     for(int j =1; j<=m_k; ++j) {
         std::list<Edge> tour_j;
         std::list<ReebEdge> tour_jv;
-        //double L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax;// FIXME: was j
-        double L_j = (m_optimalCost) * 1.0/double(m_k) + m_smax;// FIXME: was j
+        double L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax;
 
         double C_R_Vl_j = m_shortTravelDistances.at(v_last);
 
