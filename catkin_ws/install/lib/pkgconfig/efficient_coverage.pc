@@ -1,0 +1,8 @@
+prefix=/home/ubundr/05Sept2016/ox-delivery/catkin_ws/install
+
+Name: efficient_coverage
+Description: Description of efficient_coverage
+Version: 0.0.1
+Cflags: 
+Libs: -L/home/ubundr/05Sept2016/ox-delivery/catkin_ws/install/lib 
+Requires: message_runtime roscpp rospy std_msgs tf geometry_msgs nav_msgs visualization_msgs sensor_msgs

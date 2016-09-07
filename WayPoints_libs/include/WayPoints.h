@@ -172,7 +172,7 @@ protected:
     const static double PRUNE_PATH_STRAIGHT_LINE_MIN_COSINE_ANGLE_DEG = 170;
     const static double TURNING_ANGLE_MAX_DEG = 170;
 
-    const static double DEFAULT_UAV_FOV_DEG = 46.0;
+    const static double DEFAULT_UAV_FOV_DEG = 23.0;
     const static unsigned int
         DEFAULT_UAV_VIEW_ALL_WAYPOINTS_COVERAGE_ALTITUDE_METERS = 200;
     const static unsigned int DEFAULT_UAV_COVERAGE_ALTITUDE_METERS = 120;

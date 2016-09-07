@@ -61,8 +61,8 @@ private:
     vector<Point2D> w;
     QPaintDevice* device;
 
-    const static unsigned int WAYPOINT_NORMAL_RADIUS = 6;
-    const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 8;
+    const static unsigned int WAYPOINT_NORMAL_RADIUS = 2; // FIXME: was 6
+    const static unsigned int WAYPOINT_HIGHLIGHT_RADIUS = 4; // FIXME: was 8
 
     // Constants
     const static unsigned char BLACK = 0;

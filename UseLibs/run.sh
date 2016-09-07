@@ -7,6 +7,7 @@ cd "$(dirname "$0")"
 qmake -project
 qmake *.pro
 cat libs.txt >> "$(find -name "*.pro")"
+echo "CONFIG+=debug" >> "$(find -name "*.pro")"
 qmake -o Makefile *.pro
 
 #export LD_LIBRARY_PATH=/usr/local/lib/KCPP
