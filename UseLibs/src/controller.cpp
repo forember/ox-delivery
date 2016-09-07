@@ -59,8 +59,6 @@ void Controller::run(const std::string& directory, const std::string& image,
 #endif
 
     m_cppSolved = true;
-    if(k > 1) 
-    {
 
 #ifdef DEBUG
    //     std::cerr << "k greater \n";
@@ -68,17 +66,8 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         runkCPP(m_k, graph, eulerCycle);
         m_kcpp->printEulerianTours();
+        m_tours = m_kcpp->getKEulerianTours();
         std::cout << std::endl;
-    }
-    else
-    {
-
-#ifdef DEBUG
-  //      std::cerr << "k not greater \n";
-#endif
-
-        m_tours.push_back(eulerCycle);
-    }
 
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
@@ -123,10 +112,9 @@ void Controller::run(const std::string& directory, const std::string& image,
 
     //Coverage edges are the ones you need to use to move
     std::vector<std::vector<Point2D> > tourPoints;
-    std::vector<EulerTour> m_eulerTours = m_kcpp->getKEulerianTours();
-    for (size_t i = 0; i < m_eulerTours.size(); ++i)
+    for (size_t i = 0; i < m_tours.size(); ++i)
     {
-        EulerTour tour_i = m_eulerTours.at(i);
+        EulerTour tour_i = m_tours.at(i);
 
         std::list<ReebEdge> t1;
         for (EulerTour::iterator it = tour_i.begin();
@@ -217,7 +205,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         string img = m_image.substr(0, rmExt); 
         QString imageQS = QString(img.c_str());
         QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i));
-        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
+        m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 

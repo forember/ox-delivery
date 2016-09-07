@@ -573,12 +573,12 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels,
     }
 
     pen.setColor(green);
-    pen.setWidth(8);
+    pen.setWidth(1); // FIXME: was
     painter.setPen(pen);
     painter.setBrush(green);
     painter.drawPolyline(path);
     pen.setColor(QColor(lightGreen));
-    pen.setWidth(4);
+    pen.setWidth(1); //FIXME: N was 4
     painter.setPen(pen);
     painter.setBrush(lightGreen);
     painter.drawPolyline(path);
