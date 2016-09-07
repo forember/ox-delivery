@@ -42,7 +42,8 @@ public:
     /// Returns the greedy version starting from a random vertex
     void genPath_All(RegionData& data, ReebGraph& graph,
             std::vector<Point2D>& buffer, double altitude,
-            int start_vertex = -1, Edge firstEdge = ReebGraph::nullEdge())
+            int start_vertex = -1, Edge firstEdge = ReebGraph::nullEdge(),
+            boost::optional<std::list<Edge> > tour = boost::optional<std::list<Edge> >())
         throw (const std::string&);
 
     static std::pair<Vertex, bool> genPath_SeedSpreader(ReebGraph& g,

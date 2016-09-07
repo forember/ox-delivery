@@ -51,7 +51,9 @@ WayPoints::WayPoints(RegionData& data, ReebGraph& graph,
     cerr << "Start Genpath\n";
 #endif 
 
-    genPath_All(data, graph, wayPoints, desiredAltitudeM);
+    boost::optional<std::list<Edge> > tour(eulerCycle);
+    genPath_All(data, graph, wayPoints, desiredAltitudeM, -1,
+            ReebGraph::nullEdge(), tour);
 
 #ifdef DEBUG
     cerr << "End\n";
@@ -320,9 +322,9 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
             << "), color: " << edge.color << ")\n";
 #endif 
 
-        nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
         nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
-#ifdef MAKE_CONTIN
+        nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+#ifndef AFRL_CONTIN
         if (first) {
             addedEdge = dest.addEdge(nvs, nvf, edge.color);
             rvs_prev = rvs;
@@ -336,9 +338,15 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
             rvs_prev = rvf;
         }
 #else
-        addedEdge = dest.addEdge(nvf, nvs, edge.color);
+        if (first) {
+            addedEdge = dest.addEdge(nvs, nvf, edge.color);
+            first = false;
+        } else {
+            addedEdge = dest.addEdge(nvf, nvs, edge.color);
+        }
 #endif
         addedReebEdge = &(dest.getEProp(addedEdge));
+        addedReebEdge->Eid = edge.Eid;
         addedReebEdge->topBoundary = edge.topBoundary;
         addedReebEdge->bottomBoundary = edge.bottomBoundary;
     }
@@ -353,9 +361,12 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
 **/
 void WayPoints::genPath_All(RegionData& data, ReebGraph& graph,
         std::vector<Point2D>& buffer, double altitude, int firstVertexID,
-        Edge firstEdge)
+        Edge firstEdge, boost::optional<std::list<Edge> > tour)
     throw (const std::string&) 
 {
+    bool pickClosest = !tour;
+    std::list<Edge>::iterator itTour, itTourEnd;
+
     Point2D _lastPoint;
     Out_Edge_Iter oi, oi_end;
     Vertex _currVertex;
@@ -383,7 +394,17 @@ void WayPoints::genPath_All(RegionData& data, ReebGraph& graph,
     }
 
 
-    Edge _currEdge = (firstEdge==ReebGraph::nullEdge() ? *oi : firstEdge);
+    Edge _currEdge;
+    if (pickClosest) {
+        _currEdge = (firstEdge == ReebGraph::nullEdge() ? *oi : firstEdge);
+    } else {
+        itTour = tour->begin();
+        itTourEnd = tour->end();
+        if (itTour == itTourEnd) {
+            return;
+        }
+        _currEdge = (firstEdge==ReebGraph::nullEdge() ? *itTour++ : firstEdge);
+    }
     Edge _closestEdge = ReebGraph::nullEdge();
     Vertex _closestVertex = ReebGraph::nullVertex();
     unsigned int _numCellsCovered = 0;
@@ -422,60 +443,75 @@ void WayPoints::genPath_All(RegionData& data, ReebGraph& graph,
         _closestVertex = ReebGraph::nullVertex();
         minDistSqrd = numeric_limits<double>::max();
 
-        for(tie(ei, ei_end) = graph.getEdges(); ei != ei_end; ei++)
-        {
-            // Only want non-visited edges
-            if (graph.getEProp(*ei).color != 0) 
+        if (pickClosest) {
+
+            // OLD EDGE SELECTION
+
+            for(tie(ei, ei_end) = graph.getEdges(); ei != ei_end; ei++)
             {
-                continue;
+                // Only want non-visited edges
+                if (graph.getEProp(*ei).color != 0) 
+                {
+                    continue;
+                }
+
+                tie(_v1,_v2) = graph.getEndNodes(*ei);
+
+                if(graph.getVProp(_v1).x > graph.getVProp(_v2).x)
+                {
+                    swap(_v1,_v2);
+                }
+
+                // Scan for closest point on bottom boundary of edge
+                _c1 = _lastPoint.sdist(graph.getEProp(*ei).topBoundary.front());
+                _c2 = _lastPoint.sdist(graph.getEProp(*ei).topBoundary.back());
+
+                currDistSqrd = min(_c1,_c2);
+
+                if(currDistSqrd < minDistSqrd)
+                {
+                    _closestEdge = *ei;
+                    _closestVertex = (_c1<_c2? _v1:_v2);
+                    minDistSqrd = currDistSqrd;
+                    _upDir = false;
+                }
+
+                // Scan for closest point on top boundary of edge
+                _c1 = _lastPoint.sdist(graph.getEProp(*ei).bottomBoundary.front());
+                _c2 = _lastPoint.sdist(graph.getEProp(*ei).bottomBoundary.back());
+
+                currDistSqrd = min(_c1,_c2);
+
+                if(currDistSqrd < minDistSqrd) 
+                {
+                    _closestEdge = *ei;
+                    _closestVertex = (_c1 < _c2 ? _v1 : _v2);
+                    minDistSqrd = currDistSqrd;
+                    _upDir = true;
+                }
+
+                // Sanity check
+                if (_closestEdge == ReebGraph::nullEdge()) 
+                {
+                    throw string("genPath_All() - Closest edge in greedy algorithm"
+                            " found as a null edge");
+                }
+
+                // Update parameters
+                _currEdge = _closestEdge;
+                _currVertex = _closestVertex;
             }
 
-            tie(_v1,_v2) = graph.getEndNodes(*ei);
+        } else {
 
-            if(graph.getVProp(_v1).x > graph.getVProp(_v2).x)
-            {
-                swap(_v1,_v2);
-            }
+            // NEW EDGE SELECTION
 
-            // Scan for closest point on bottom boundary of edge
-            _c1 = _lastPoint.sdist(graph.getEProp(*ei).topBoundary.front());
-            _c2 = _lastPoint.sdist(graph.getEProp(*ei).topBoundary.back());
+            _currEdge = *itTour++;
+            tie(_v1,_v2) = graph.getEndNodes(_currEdge);
+            _currVertex = _v1;
 
-            currDistSqrd = min(_c1,_c2);
-
-            if(currDistSqrd < minDistSqrd)
-            {
-                _closestEdge = *ei;
-                _closestVertex = (_c1<_c2? _v1:_v2);
-                minDistSqrd = currDistSqrd;
-                _upDir = false;
-            }
-
-            // Scan for closest point on top boundary of edge
-            _c1 = _lastPoint.sdist(graph.getEProp(*ei).bottomBoundary.front());
-            _c2 = _lastPoint.sdist(graph.getEProp(*ei).bottomBoundary.back());
-
-            currDistSqrd = min(_c1,_c2);
-
-            if(currDistSqrd < minDistSqrd) 
-            {
-                _closestEdge = *ei;
-                _closestVertex = (_c1 < _c2 ? _v1 : _v2);
-                minDistSqrd = currDistSqrd;
-                _upDir = true;
-            }
-
-            // Sanity check
-            if (_closestEdge == ReebGraph::nullEdge()) 
-            {
-                throw string("genPath_All() - Closest edge in greedy algorithm"
-                        " found as a null edge");
-            }
-
-            // Update parameters
-            _currEdge = _closestEdge;
-            _currVertex = _closestVertex;
         }
+
     }
 
     graph.resetAllEdgeColor();

@@ -73,6 +73,12 @@ void Controller::run(const std::string& directory, const std::string& image,
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
 #ifdef DEBUG
+    cout << "==================== Original Graph ====================" << endl
+        << graph << endl
+        << "================== End Original Graph ==================" << endl;
+#endif
+
+#ifdef DEBUG
     cout << "----------------- Print Original EulerTour ------------";
     cout << "\n";
     std::list<Edge>::iterator itEC;
@@ -150,7 +156,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         }
         cout << "\n";
         std::cout << "---------------- End (K)CPP Coverage Edges ------------";
-        cout << "\n";
+        cout << "\n\n";
 #endif
 
         //temporary graph that will be used for converting
@@ -162,6 +168,12 @@ void Controller::run(const std::string& directory, const std::string& image,
         way.convertTourToReebGraph(t1, m_kcpp->m_graph, temporaryGraph); 
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
+
+#ifdef DEBUG
+    cout << "==================== Converted Graph ====================" << endl
+        << graph << endl
+        << "================== End Converted Graph ==================" << endl;
+#endif
 
 #ifdef DEBUG
         std::cout << "---------------- Converted Coverage Edges ------------";
