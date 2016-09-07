@@ -1,1 +1,15 @@
 *.pyc
+*.o
+*.so
+*.a
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+CMakeFiles/
+*.log
+*.pro
+/UseLibs/UseLibs
+/UseLibs/moc_controller.cpp
+/catkin_ws/build/
+/catkin_ws/devel/
+/catkin_ws/install/
