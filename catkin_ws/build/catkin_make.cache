@@ -1,2 +1,0 @@
-efficient_coverage
--DCATKIN_DEVEL_PREFIX=/home/ubundr/05Sept2016/ox-delivery/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubundr/05Sept2016/ox-delivery/catkin_ws/install -G Unix Makefiles
