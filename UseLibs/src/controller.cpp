@@ -1,5 +1,6 @@
 #define DEBUG
 #include "controller.h"
+#include <fstream>
 
 Controller::Controller() : m_cppSolved(false), m_k(1) {}
 
@@ -210,18 +211,20 @@ void Controller::run(const std::string& directory, const std::string& image,
     }
 
 #ifdef DEBUG
-    for (unsigned i = 0; i < tourPoints.size(); ++i)
+		std::ofstream outputFile;
+		outputFile.open("tourLines.txt");
+		for (unsigned i = 0; i < tourPoints.size(); ++i)
     {
-        cerr << "\n" << "Start Tour " << i << "\n"; 
+        outputFile << "\n" << "Start Tour " << i << "\n"; 
         std::vector<Point2D> tempPoints = tourPoints.at(i);
 
         vector<Point2D>::iterator iter;
         for(iter = tempPoints.begin(); iter != tempPoints.end(); ++iter)
         {
-            cout << (*iter) << " ";
+            outputFile << (*iter) << " ";
         }
 
-        cerr << "\n" << "End Tour " << i << "\n";
+        outputFile << "\n" << "End Tour " << i << "\n";
     }
 #endif
 
