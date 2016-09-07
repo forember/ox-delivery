@@ -32,7 +32,9 @@ showlogs clean qmake1 qmake2 qmake3
 make 2>&1 | tee .make.log
 showlogs clean qmake1 qmake2 qmake3 make
 
-echo 'Configuring linker. Requires root.'
+echo 'Installing and configuring linker. Requires root.'
+sudo cp UseLibs /usr/local/bin/afrl-oxdel 2>&1 | tee .install.log
+showlogs clean qmake1 qmake2 qmake3 make install
 sudo ldconfig 2>&1 | tee .ldconfig.log
-showlogs clean qmake1 qmake2 qmake3 make ldconfig
+showlogs clean qmake1 qmake2 qmake3 make install ldconfig
 rm -f .clean.log

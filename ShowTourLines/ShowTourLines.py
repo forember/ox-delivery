@@ -11,7 +11,7 @@ def show_tour(tour, image_filename, window_id=None):
         WID += 1
     window_name = str(window_id)
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-    pil_im = Image.open(image_filename)
+    pil_im = Image.open(image_filename).convert('RGB')
     draw = ImageDraw.Draw(pil_im)
     for i in range(1, len(tour)):
         x1, y1 = tour[i - 1]

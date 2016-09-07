@@ -49,7 +49,7 @@ int parseInputArgs(int argc, char **argv, std::string& directory,
     {
         try 
         {
-            directory = boost::lexical_cast<string>(argv[1]);
+            directory = boost::lexical_cast<string>(argv[1]) + "/";
             image = boost::lexical_cast<string>(argv[2]);
             k = boost::lexical_cast<int>(argv[3]);
 
