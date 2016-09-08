@@ -283,6 +283,10 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
 };
 
 
+bool rv_eq(ReebVertex& v, ReebVertex& w) {
+    return (v.x == w.x && v.y1 == w.y1 && v.y2 == w.y2);
+}
+
 /*************************************************************************
  * Function 'convertTourToReebGraph()'
  *
@@ -297,7 +301,8 @@ pair<Vertex, bool> WayPoints::genPath_SeedSpreader(ReebGraph& g,
  *  None
 **/
 void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
-        ReebGraph &m_graph, ReebGraph &dest) {
+        ReebGraph &m_graph, ReebGraph &dest)
+{
 
 #ifdef DEBUG
     std::cerr << "Converting tour to Reeb Graph\n";
@@ -309,7 +314,8 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
     Vertex v_first, v_second, nvf, nvs;
     bool first = true;
     ReebVertex rvf, rvs, rvs_prev;
-    for (it = tour.begin(); it != tour.end(); ++it) {
+    for (it = tour.begin(); it != tour.end(); ++it)
+    {
         edge = *it;
         tie(v_first, v_second) = m_graph.getEndNodes(edge.Eid);
         rvf = m_graph.getVProp(v_first);
@@ -322,31 +328,88 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
             << "), color: " << edge.color << ")\n";
 #endif 
 
-        nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
-        nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
-#ifndef AFRL_CONTIN
-        if (first) {
-            addedEdge = dest.addEdge(nvs, nvf, edge.color);
-            tie(nvf, nvs) = dest.getEndNodes(addedEdge);
-            rvs = dest.getVProp(nvs);
-            rvs_prev = rvs;
+        if (first && tour.size() > 1)
+        {
+            // Picking the direction of the first edge is more difficult since
+            // there is no previous correct edge to match the flow with.
+            Vertex v_next_first, v_next_second, v_next2_first, v_next2_second;
+            ReebVertex rvf_1, rvs_1, rvf_2, rvs_2;
+            std::list<ReebEdge>::const_iterator it2 = tour.begin();
+
+            ++it2;
+            tie(v_next_first, v_next_second) = m_graph.getEndNodes(it2->Eid);
+            rvf_1 = m_graph.getVProp(v_next_first);
+            rvs_1 = m_graph.getVProp(v_next_second);
+
+            if (tour.size() > 2 &&
+                    ((rv_eq(rvf, rvf_1) && rv_eq(rvs, rvs_1))
+                     || (rv_eq(rvf, rvs_1) && rv_eq(rvs, rvf_1))))
+            {
+                // The first and second edges make up a split region.
+                // Requires examining the third edge.
+                ++it2;
+                tie(v_next2_first, v_next2_second) = m_graph.getEndNodes(it2->Eid);
+                rvf_2 = m_graph.getVProp(v_next2_first);
+                rvs_2 = m_graph.getVProp(v_next2_second);
+
+                // Note: when fully ordered, rvf == rvs_1 and rvs == rvf_1.
+                // Thus, rvf is "outer" and rvs is "inner."
+                if (rv_eq(rvf, rvf_2) || rv_eq(rvf, rvs_2))
+                {
+                    // Outer vertex matches in third edge. Keep current order.
+                    nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+                    nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+                    addedEdge = dest.addEdge(nvf, nvs, edge.color);
+                    rvs_prev = rvs;
+                }
+                else
+                {
+                    // Outer vertex does not match in third edge. Swap.
+                    nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+                    nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+                    addedEdge = dest.addEdge(nvs, nvf, edge.color);
+                    rvs_prev = rvf;
+                }
+            }
+            else if (rv_eq(rvs, rvf_1) || rv_eq(rvs, rvs_1))
+            {
+                // The second vertex of the first edge matches one of the
+                // verticies of the second edge. Keep current order.
+                nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+                nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+                addedEdge = dest.addEdge(nvf, nvs, edge.color);
+                rvs_prev = rvs;
+            }
+            else
+            {
+                // The second vertex of the first edge does not match. Swap.
+                nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+                nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+                addedEdge = dest.addEdge(nvs, nvf, edge.color);
+                rvs_prev = rvf;
+            }
+
             first = false;
-        } else if (rvs_prev.x == rvf.x
-                    && rvs_prev.y1 == rvf.y1 && rvs_prev.y2 == rvf.y2) {
+
+        }
+        else if (rv_eq(rvs_prev, rvf))
+        {
+            // The chain flows. Keep current order.
+            nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
+            nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
             addedEdge = dest.addEdge(nvf, nvs, edge.color);
             rvs_prev = rvs;
-        } else {
+        }
+        else
+        {
+            // The chain does not flow. Swap.
+            nvs = dest.addVertex(rvs.x, rvs.y1, rvs.y2, rvs.color);
+            nvf = dest.addVertex(rvf.x, rvf.y1, rvf.y2, rvf.color);
             addedEdge = dest.addEdge(nvs, nvf, edge.color);
             rvs_prev = rvf;
         }
-#else
-        if (first) {
-            addedEdge = dest.addEdge(nvs, nvf, edge.color);
-            first = false;
-        } else {
-            addedEdge = dest.addEdge(nvf, nvs, edge.color);
-        }
-#endif
+
+        // Copy attributes.
         addedReebEdge = &(dest.getEProp(addedEdge));
         addedReebEdge->Eid = edge.Eid;
         addedReebEdge->topBoundary = edge.topBoundary;

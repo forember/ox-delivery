@@ -14,3 +14,6 @@ CMakeFiles/
 /catkin_ws/build/
 /catkin_ws/devel/
 /catkin_ws/install/
+/gen_tests_out/
+/*.png
+/tourLines.txt

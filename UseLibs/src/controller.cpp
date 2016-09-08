@@ -130,6 +130,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         }
 
 #ifdef DEBUG
+        std::cout << "BEGIN TOUR " << i << std::endl << std::endl;
         std::cout << "---------------- (K)CPP Coverage Edges ------------";
         cout<<"\n";
         cerr << "Tour " << i << ":\n";
@@ -169,7 +170,7 @@ void Controller::run(const std::string& directory, const std::string& image,
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
-#ifdef DEBUG
+#ifdef SUPERDEBUG
     cout << "==================== Converted Graph ====================" << endl
         << graph << endl
         << "================== End Converted Graph ==================" << endl;
@@ -228,6 +229,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         temporaryGraph.printEdges();
 
         std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
+        /*
         std::cerr << std::endl << "Graph Edges:" << std::endl;
         std::list<Edge>::iterator tbcit;
         for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
@@ -236,7 +238,10 @@ void Controller::run(const std::string& directory, const std::string& image,
             ReebEdge e = temporaryGraph.getEProp(*tbcit);
 
         }
-        std::cerr << std::endl;
+        */
+        std::cerr << std::endl << "END TOUR " << i << std::endl << std::endl;
+        std::cerr << "========================================================"
+            << "===================================" << std::endl << std::endl;
 #endif
 
         //pushes each tours waypoints to store for future use

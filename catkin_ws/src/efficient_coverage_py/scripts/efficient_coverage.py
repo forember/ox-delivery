@@ -1,6 +1,28 @@
 #!/usr/bin/env python
 
 import rospy, os
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from tf import transformations
+
+
+class EffCovRobot (object):
+    '''WARNING: Only create one instance per process!'''
+
+    def __init__(self):
+        self.x = self.y = self.yaw = None
+        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=8)
+        rospy.init_node('robot_{}_n'.format(robot_id), anonymous=True)
+        self.pose_sub = rospy.Subscriber('base_pose_ground_truth', Odometry,
+                pose_callback, queue_size=1)
+
+    def pose_callback(data):
+        self.x = data.pose.pose.position.x
+        self.y = data.pose.pose.position.y
+        self.yaw = tansformations.euler_from_quaternion(
+                data.pose.pose.orientation, 'sxyz')[2]
+        print('x: {}, y: {}, yaw: {}'.format(self.x, self.y, self.yaw))
+
 
 def parse_tours(tour_file):
     import json

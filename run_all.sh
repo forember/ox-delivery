@@ -19,4 +19,4 @@ compile_lib BCD_libs
 compile_lib CPP_libs
 compile_lib KCPP
 compile_lib UseLibs
-#compile_lib catkin_ws
+compile_lib catkin_ws
