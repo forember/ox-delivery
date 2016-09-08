@@ -1,4 +1,0 @@
-/usr/local/lib/pkgconfig/efficient_coverage.pc
-/usr/local/share/efficient_coverage/cmake/efficient_coverageConfig.cmake
-/usr/local/share/efficient_coverage/cmake/efficient_coverageConfig-version.cmake
-/usr/local/share/efficient_coverage/package.xml

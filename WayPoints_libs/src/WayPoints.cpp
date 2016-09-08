@@ -506,9 +506,11 @@ void WayPoints::genPath_All(RegionData& data, ReebGraph& graph,
 
             // NEW EDGE SELECTION
 
-            _currEdge = *itTour++;
+            _currEdge = *itTour;
             tie(_v1,_v2) = graph.getEndNodes(_currEdge);
             _currVertex = _v1;
+            _upDir = v_bool_pair.second;
+            ++itTour;
 
         }
 
@@ -651,6 +653,26 @@ void WayPoints::printWayPoints(vector<Point2D> givenPoints)
 **/
 void WayPoints::prunePathPoints(std::vector<Point2D>& buffer) 
 {
+    if (buffer.size() >= 4)
+    {
+        // Remove Go-Return-Go features
+        // Note: vector iterators are random-access
+        std::vector<Point2D>::iterator frameBack = buffer.begin() + 3;
+        while (frameBack != buffer.end())
+        {
+            if ((frameBack-3)->distance(*(frameBack-1)) <= 8
+                    && (frameBack-2)->distance(*frameBack) <= 8)
+            {
+                frameBack = buffer.erase(frameBack-1, frameBack+1);
+                --frameBack;
+            }
+            else if (frameBack != buffer.end())
+            {
+                ++frameBack;
+            }
+        }
+    }
+
     // Boundary condition: need at least 2 points in order to start dist-pruning
     if (buffer.size() <= 1)
     {
