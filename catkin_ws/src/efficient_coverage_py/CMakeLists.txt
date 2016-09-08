@@ -5,12 +5,10 @@ project(efficient_coverage_py)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  bullet
   geometry_msgs
   message_filters
   message_generation
   nav_msgs
-  opencv2
   roscpp
   rospy
   sensor_msgs

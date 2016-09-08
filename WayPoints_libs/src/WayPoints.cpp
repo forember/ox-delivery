@@ -327,6 +327,8 @@ void WayPoints::convertTourToReebGraph(std::list<ReebEdge> &tour,
 #ifndef AFRL_CONTIN
         if (first) {
             addedEdge = dest.addEdge(nvs, nvf, edge.color);
+            tie(nvf, nvs) = dest.getEndNodes(addedEdge);
+            rvs = dest.getVProp(nvs);
             rvs_prev = rvs;
             first = false;
         } else if (rvs_prev.x == rvf.x
