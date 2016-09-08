@@ -71,38 +71,6 @@ FredericksonKCPP::FredericksonKCPP(const EulerTour& tour, const ReebGraph& graph
 }
 
 /**==============================================================
- * Computes the cost of a given tour
- *
- * \param Eulerian tour
- * \return the cost of the tour
- **==============================================================*/
-double FredericksonKCPP::pathCost(EulerTour tour)
-{
-    double pathCost = 0.0;
-    double pathTravelCost = 0.0;
-    EulerTour::iterator ei = tour.begin();
-    EulerTour::iterator ei_end = tour.end();
-    std::cerr << " The area costs: \n";
-    for (; ei != ei_end; ei++){
-        ReebEdge edge = m_graph.getEProp(*ei);
-        pathCost+= edge.area;
-
-#ifdef DEBUG_FREDERICKSON
-//      std::cout << edge.Eid << " - ";
-//      pathTravelCost += edge.travelCost;
-        std::cerr << edge.area << " " ;
-#endif
-    }
-    std::cerr << "\n";
-
-#ifdef DEBUG_FREDERICKSON
-    std::cout << std::endl;
-    std::cout << pathTravelCost << std::endl;
-#endif
-    return pathCost;
-}
-
-/**==============================================================
  * The solver for k Chinese postman problem by Frederickson algorithm
  * no return value, the results are stored in the class member variables
  * m_eulerTours, without the shortest paths

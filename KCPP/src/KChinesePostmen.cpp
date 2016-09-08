@@ -229,6 +229,38 @@ kcpp::Graph KChinesePostmen::getSimpleGraph(/*ReebGraph g*/)
 }
 
 /**==============================================================
+ * Computes the cost of a given tour
+ *
+ * \param Eulerian tour
+ * \return the cost of the tour
+ **==============================================================*/
+double KChinesePostmen::pathCost(EulerTour tour)
+{
+    double pathCost = 0.0;
+    double pathTravelCost = 0.0;
+    EulerTour::iterator ei = tour.begin();
+    EulerTour::iterator ei_end = tour.end();
+    std::cerr << " The area costs: \n";
+    for (; ei != ei_end; ei++){
+        ReebEdge edge = m_graph.getEProp(*ei);
+        pathCost+= edge.area;
+
+#ifdef DEBUG_KCHINESEPOSTMAN
+//      std::cout << edge.Eid << " - ";
+//      pathTravelCost += edge.travelCost;
+        std::cerr << edge.area << " " ;
+#endif
+    }
+    std::cerr << "\n";
+
+#ifdef DEBUG_KCHINESEPOSTMAN
+    std::cout << std::endl;
+    std::cout << pathTravelCost << std::endl;
+#endif
+    return pathCost;
+}
+
+/**==============================================================
  * Builds a short path for spcified target vertex from the source
  *
  * \param v is the traget vertex

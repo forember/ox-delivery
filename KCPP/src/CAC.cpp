@@ -4,11 +4,10 @@
 
 #include <iostream>
 
-//#define DEBUG_CAC
+#define DEBUG_CAC
 
 /**==============================================================
- * K chinese postman algoritm by Frederisckon et al.
- * \ref Approximation algorithms for some routing problems
+ * \ref Greedy algorithm for clustering area 
  * 
  * Input: Undirected weighted graph, number of routs k, the optimal one route 
  * optained by Chinese postman algorithm
@@ -16,21 +15,9 @@
  * Output: k routs in the graph
  *
  * Notations:
- * 1. R- is the optimal acquired by CPP algorithm
- * 2. V_i is the i-th vertex, v_1 is the starting vertex
- * 3. S(v, u) is the shortest path between v and u vertices 
- * 4. c(v, u) is the cost of (v,u) edge 
- * 5. Smax = max{s(V_1, V_ij) + c(V_ij, V_ij_1) + s(V_ji_1, V1)}* 1/2, for all j, 2<=j<=m-1
- * 6. L_j
  *
  * Algorithm:
- * 1. Find Optimal one R route by solving chinese postman problem (*)
- * 2. For each j, 1<=j<=k find the last vertex in optimal tour, 
- * such that cost of that tour is less than L_j
- * 3. Identify which vertex to take on the last edge
- * 4. Compute the shortest path from the source vetex to the j-th route
- * and combine them to get the complete tour
- *
+ * 1. Sort cells by x and y axis
  *
  * \author Nare Karapetyan
  **==============================================================*/
@@ -38,6 +25,25 @@
 CAC::CAC(const EulerTour& tour, const ReebGraph& graph, int k)
     : KChinesePostmen()
 {
+    Edge_Iter ei, ei_end;
+    ReebEdge eprop;
+    Edge currEdge;
+    Out_Edge_Iter oi, oi_end;
+
+    for (tie(ei, ei_end) = g.getEdges(); ei != ei_end; ei++) {
+        currEdge = *ei;
+        eprop = g.getEProp(currEdge);
+        m_sortedGraphEdges.push_back(eprop);
+    }
+    m_sortedGraphEdges.sort(compareByYCoords);
+    m_sortedGraphEdges.sort(compareByXCoords);
+
+#ifdef DEBUG_CAC
+        tie(v_first, v_second) = g.getEndNodes(*ei);
+        std::cout << eprop << ", attached to vertices: " << g.getVProp(v_first).Vid
+            << " & " << g.getVProp(v_second).Vid << ", is null? "
+            << (currEdge == ReebGraph::nullEdge()) << endl;
+#endif
 }
 
 /**==============================================================
@@ -48,9 +54,10 @@ CAC::CAC(const EulerTour& tour, const ReebGraph& graph, int k)
  * \param none
  * \return none
  **==============================================================*/
-void FredericksonKCPP::solve()
+void CAC::solve()
 {
-    double c_subR_last = 0.0, c_subR = 0.0;
+    
+/*    double c_subR_last = 0.0, c_subR = 0.0;
     double c_R_last = 0.0, c_R = 0.0;
     kcpp::Vertex v_last = m_sourceVertex;
     Edge e_last;
@@ -62,11 +69,12 @@ void FredericksonKCPP::solve()
         std::list<ReebEdge> tour_jv;
         double L_j = (m_optimalCost-2*m_smax) * double(j)/double(m_k) + m_smax;
 
-        double C_R_Vl_j = m_shortTravelDistances.at(v_last);
+        double C_R_Vl_j = m_shortTravelDistances.at(v_last);*/
 
         /***********************************************
          * Finding the last vertex on the optimal tour 
          *  such that the cost of the tour is <= L_j   */
+    /*
         while(ei!=m_optimalPath.end()) {
             Vertex v_first, v_second;
             tie(v_first, v_second) = m_graph.getEndNodes(*ei);
@@ -113,101 +121,46 @@ void FredericksonKCPP::solve()
 
             //std::cout << "edge -> " << m_graph.getEProp(*ei).Eid;
             v_last = getVertex(v_second);
-        }
+        }*/
         /***********************************************/
-
+/*
         if(!tour_j.empty()) {
 
             m_eulerTours.push_back(tour_j);
         }
-    }
+    }*/
 }
 
 /**==============================================================
- * Computing S_max value:
- * the cost of the fathest node in the Eulerian tour
+ * Returns sorted by X and Y axis adjacent list of edges attached to
+ * a specific v vertex
  *
- * \param Eulerian tour
+ * \param Vertex
  * \return double cost
  **==============================================================*/
-double FredericksonKCPP::computeSMax(EulerTour tour)
+std::list<ReebEdge> CAC::getAdjacentList(Vertex v)
 {
-    double smax = 0.0;
+    ReebVertex vprop;
+    ReebEdge eprop;
+    Out_Edge_Iter oi, oi_end;
+    unsigned int currDegree;
 
-    for (EulerTour::iterator ei=tour.begin(); ei != tour.end(); ++ei) {
-        // FIXME should be changed to m_shorTravelDistance
-        //double S_V1_Vij = m_shortCoverDistance->at(m_optimalPath.at(i).startNode);
-        //double S_Vij_1_V1 = m_shortCoverDistance->at(m_optimalPath.at(i).endNode);
-        Vertex v_first, v_second;
-        tie(v_first, v_second) = m_graph.getEndNodes(*ei);
+    assert(v != ReebGraph::nullVertex() && "the vertex v is null in getAsjacentList");
 
-        kcpp::Vertex v1 = getVertex(v_first);
-        kcpp::Vertex v2 = getVertex(v_second);
+    vprop = g.getVProp(currVertex);
+    currDegree = g.degree(v);
 
-        ReebEdge edge = m_graph.getEProp(*ei);
-
-        double S_V1_Vij = m_shortTravelDistances.at(v1);
-        double S_Vij_1_V1 = m_shortTravelDistances.at(v2);
-        smax = std::max(S_V1_Vij+S_Vij_1_V1+edge.area, smax);
+    if (currDegree > 0) 
+    {
+        for (tie(oi, oi_end) = g.getEdges(currVertex); oi != oi_end; oi++)
+        {
+            eprop = g.getEProp(*oi);
+            adjacentList.push_back(eprop);
+        }
     }
-    smax = smax/2;
-    return smax;
+    return adjacentList;
 }
 
-/*
-std::vector<double> FredericksonKCPP::solve(int k)
-{
-    m_results.clear();
-    m_k = k;
-    countSMax();
-    m_lastVertices.clear();
-
-    int lastPathIndex = 0;
-    int currIndex=0;
-    kcpp::Vertex lastVertex = m_sourceVertex;
-    for(int j =1; j<=m_k; ++j) {
-        double L_j = (m_optimalCost-2*m_smax) * double(j)/double(m_k) + m_smax;
-
-
-        double C_R_Vl_j = m_shortTravelDistance->at(lastVertex);
-
-        //FIXME remember that we have to go back to previous step
-        // when condition holds true
-        double cRV = 0;
-        double crvlj = cRV;
-        while( (L_j >= (C_R_Vl_j +cRV)) && size_t(currIndex)<m_optimalPath.size()-1) {
-            lastPathIndex = currIndex;
-            crvlj = cRV;
-            cRV += m_optimalPath.at(currIndex).area;
-            std::cout << lastPathIndex << std::endl;
-            currIndex++;
-            //int o;
-            //std::cin >> o;
-        }
-        currIndex =lastPathIndex;
-        lastVertex = m_optimalPath.at(lastPathIndex).startNode;
-        double r_j = L_j - (C_R_Vl_j + crvlj - m_optimalPath.at(lastPathIndex).weight);
-        // FIXME should be changed to m_shorTravelDistance
-        //if(2*r_j + m_shortCoverDistance->at(lastVertex)
-        if(2*r_j + m_shortTravelDistance->at(lastVertex)
-                <= m_optimalPath.at(lastPathIndex).weight
-                + m_shortTravelDistance->at(m_optimalPath.at(lastPathIndex).endNode)) {
-                //+ m_shortCoverDistance->at(m_optimalPath.at(lastPathIndex).endNode)) {
-            lastVertex = lastVertex;
-        } else {
-            lastVertex = m_optimalPath.at(lastPathIndex).endNode;
-            if(lastPathIndex<m_optimalPath.size()-1) {
-                currIndex++;
-            } else if(currIndex>=m_optimalPath.size()-1) {
-                std::cout << currIndex << " blbla ";
-                break;
-            }
-        }
-        m_lastVertices.push_back(lastVertex);
-        m_results.push_back(C_R_Vl_j+cRV);
-    }
-    return m_results;
-}*/
 
 /*
 void FredericksonKCPP::printKTours()

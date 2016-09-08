@@ -22,7 +22,6 @@ public:
 private:
     //private functions
     double computeSMax(EulerTour tour);
-    double pathCost(EulerTour tour);
 
 private:
 
