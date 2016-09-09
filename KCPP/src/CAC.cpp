@@ -6,8 +6,57 @@
 
 #define DEBUG_CAC
 
+/* helper predicates for list sort algorithm */
+/* Comparison by X axis*/
+bool compareByXCoords (const ReebEdge& e1, const ReebEdge& e2) { 
+	unsigned int numPoints;
+	double midX1 = 0.0;
+	double midX2 = 0.0;
+	if (numPoints == 0)
+	{
+		return false;
+	}
+	else if (numPoints == 1) 
+	{
+		midX1 = e1.topBoundary[0].xcoord();
+		midX2 = e2.topBoundary[0].xcoord();
+	}
+	else
+	{
+		midX1 = e1.topBoundary[numPoints/2-1].xcoord();
+		midX2 = e2.topBoundary[numPoints/2-1].xcoord();
+	}
+	return midX1 < midX2;
+}
+
+/* Comparison by Y axis*/
+bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) { 
+	unsigned int numPoints;
+	double midY1 = 0.0;
+	double midY2 = 0.0;
+	if (numPoints == 0)
+	{
+		return false;
+	}
+	else if (numPoints == 1) 
+	{
+		midY1 = (e1.topBoundary[0].ycoord()
+				+ e1.bottomBoundary[0].ycoord()) / 2;
+		midY2 = (e2.topBoundary[0].ycoord()
+				+ e2.bottomBoundary[0].ycoord()) / 2;
+	}
+	else
+	{
+		midY1 = (e1.topBoundary[numPoints/2-1].ycoord()
+				+ e1.bottomBoundary[numPoints/2-1].ycoord()) / 2;
+		midY2 = (e2.topBoundary[numPoints/2-1].ycoord()
+				+ e2.bottomBoundary[numPoints/2-1].ycoord()) / 2;
+	}
+	return midY1 < midY2;
+}
+
 /**==============================================================
- * \ref Greedy algorithm for clustering area 
+ * \ref Coverage with Area Clustering algorithm
  * 
  * Input: Undirected weighted graph, number of routs k, the optimal one route 
  * optained by Chinese postman algorithm
@@ -22,26 +71,28 @@
  * \author Nare Karapetyan
  **==============================================================*/
 
-CAC::CAC(const EulerTour& tour, const ReebGraph& graph, int k)
-    : KChinesePostmen()
+CAC::CAC(const EulerTour& tour, ReebGraph graph, int k)
+    : KChinesePostmen(), m_optimalPath(tour)
 {
+	m_graph = graph;
     Edge_Iter ei, ei_end;
+    Vertex v_first, v_second;
     ReebEdge eprop;
     Edge currEdge;
     Out_Edge_Iter oi, oi_end;
 
-    for (tie(ei, ei_end) = g.getEdges(); ei != ei_end; ei++) {
+    for (tie(ei, ei_end) = graph.getEdges(); ei != ei_end; ei++) {
         currEdge = *ei;
-        eprop = g.getEProp(currEdge);
+        eprop = graph.getEProp(currEdge);
         m_sortedGraphEdges.push_back(eprop);
     }
     m_sortedGraphEdges.sort(compareByYCoords);
     m_sortedGraphEdges.sort(compareByXCoords);
 
 #ifdef DEBUG_CAC
-        tie(v_first, v_second) = g.getEndNodes(*ei);
-        std::cout << eprop << ", attached to vertices: " << g.getVProp(v_first).Vid
-            << " & " << g.getVProp(v_second).Vid << ", is null? "
+        tie(v_first, v_second) = graph.getEndNodes(*ei);
+        std::cout << eprop << ", attached to vertices: " << graph.getVProp(v_first).Vid
+            << " & " << graph.getVProp(v_second).Vid << ", is null? "
             << (currEdge == ReebGraph::nullEdge()) << endl;
 #endif
 }
@@ -144,20 +195,23 @@ std::list<ReebEdge> CAC::getAdjacentList(Vertex v)
     ReebEdge eprop;
     Out_Edge_Iter oi, oi_end;
     unsigned int currDegree;
+		std::list<ReebEdge> adjacentList;
 
     assert(v != ReebGraph::nullVertex() && "the vertex v is null in getAsjacentList");
 
-    vprop = g.getVProp(currVertex);
-    currDegree = g.degree(v);
+    vprop = m_graph.getVProp(v);
+    currDegree = m_graph.degree(v);
 
     if (currDegree > 0) 
     {
-        for (tie(oi, oi_end) = g.getEdges(currVertex); oi != oi_end; oi++)
+        for (tie(oi, oi_end) = m_graph.getEdges(v); oi != oi_end; oi++)
         {
-            eprop = g.getEProp(*oi);
+            eprop = m_graph.getEProp(*oi);
             adjacentList.push_back(eprop);
         }
     }
+    adjacentList.sort(compareByYCoords);
+    adjacentList.sort(compareByXCoords);
     return adjacentList;
 }
 
@@ -178,3 +232,4 @@ void FredericksonKCPP::printKTours()
    }
    std::cout << std::endl;
 }*/
+

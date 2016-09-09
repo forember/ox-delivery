@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <KCPP/KChinesePostmen.h>
 #include <KCPP/FredericksonKCPP.h>
+#include <KCPP/CAC.h>
 
 /*class IncorrectInput : public excpetion 
 {
@@ -31,9 +32,11 @@ class Controller : public QObject
 
 public:
     Controller();
+		enum KCPP_MODE{ CRC_MODE, CAC_MODE };
 
     //Runs k rout finding solver on the image
-    void run(const std::string& directory, const std::string& image, int k);
+    void run(const std::string& directory, const std::string& image, int k, KCPP_MODE mod);
+
 
 private:
     /** Chinese postman problem solvers **
@@ -41,11 +44,16 @@ private:
     //ChinesePostman* runCPP(const ReebGraph& graph, const RegionData& data);
 
     /** and k > 1 **/
-    void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle);
+    void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, KCPP_MODE mod);
 
     //Used to verify the input arguments
     void checkInputParams(const std::string& directory,
             const std::string& image, int k);
+		
+		// Waypoints generating function and the test results outputing one
+		void generateWaypoints(RegionData& data, ReebGraph& graph,
+				std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints, KCPP_MODE mod);
+
 
 
 public:

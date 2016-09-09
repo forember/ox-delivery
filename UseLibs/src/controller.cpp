@@ -1,24 +1,29 @@
+/**==============================================================
+ * \file Controller.cpp
+ *
+ * Contorller for initializing algorithms and running appropriate 
+ * solvers for each one from one interface
+ *
+ * \author    Nare Karapetyan
+ **==============================================================*/
+
 #define DEBUG
 #include "controller.h"
 #include <fstream>
+#include <KCPP/CAC.h>
 
 Controller::Controller() : m_cppSolved(false), m_k(1) {}
 
-/*************************************************************************
- * Function 'run()'
+/**==============================================================
+ *!Runs BCD, CPP and if k is > 1 also KCPP algorithms 
  *
- * Runs BCD, CPP and if k is > 1 also KCPP algorithms 
- *
- * Returns:
- *   None 
- *
- * Parameters:
- *   None
- *
-**/
+ * \param
+ * \return void
+ **==============================================================*/
 void Controller::run(const std::string& directory, const std::string& image,
-        int k)
+        int k, KCPP_MODE mod)
 {
+
     RegionData data;
     ReebGraph graph;
     std::list<Edge> eulerCycle;
@@ -51,25 +56,90 @@ void Controller::run(const std::string& directory, const std::string& image,
     ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
 
 #ifdef DEBUG
-    //std::cout << "After running cpp, checking the m_cpp var ...\n";
-    //std::cout << eulerCycle;
-    //std::cout << graph;
-    //std::cout << std::endl;
-    //std::cout << "Checking is passed!\n";
-    //m_cppSolved = true;
+    /*std::cout << "After running cpp, checking the m_cpp var ...\n";
+    std::cout << eulerCycle;
+    std::cout << graph;
+    std::cout << std::endl;
+    std::cout << "Checking is passed!\n";*/
 #endif
 
     m_cppSolved = true;
 
+    runkCPP(m_k, graph, eulerCycle, mod);
 #ifdef DEBUG
-   //     std::cerr << "k greater \n";
+    m_kcpp->printEulerianTours();
+    //std::cout << std::endl;
 #endif
+    m_tours = m_kcpp->getKEulerianTours();
+    generateWaypoints(data, graph, eulerCycle, wayPoints, mod);
+}
 
-        runkCPP(m_k, graph, eulerCycle);
-        m_kcpp->printEulerianTours();
-        m_tours = m_kcpp->getKEulerianTours();
-        std::cout << std::endl;
 
+/**==============================================================
+ *!Runs the kcpp algorithm.
+ *
+ * \param
+ * \return void
+ **==============================================================*/
+void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, KCPP_MODE mod)
+{
+    assert(m_cppSolved && "runCPP must be called before runkCPP");
+
+    try
+    {
+        if(mod == CRC_MODE) {
+            m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
+        } else {
+            m_kcpp = new CAC(eulerCycle, graph, k);
+        }
+        m_kcpp->solve();
+    }
+
+    catch (const std::string& err) 
+    {
+        std::cout << "runkCPP error";
+    }
+}
+
+/**==============================================================
+ *!Checks the input parameters.
+ *
+ * \param
+ * \return void
+ **==============================================================*/
+void Controller::checkInputParams(const std::string& directory,
+        const std::string& image, int k)
+{
+    std::string message = "";
+
+    if(k<1) 
+    {
+        message = "ERR:Number of robots must be positive integer!";
+        throw std::invalid_argument(message);
+    }
+
+    /**TODO: Add also check for valid image format*/
+    if( !std::ifstream((directory + image).c_str())) 
+    {
+        message = "ERR:There is no image at this path:  " + directory + image;
+        throw std::invalid_argument(message);
+    }
+}
+
+/**==============================================================
+ *! Function for generating the waypoints from the generated tours
+ *
+ * TODO: must be divided further:
+ * the waypoints creation and drawing must be separated,
+ * also it actually doesn't have to recieve KCPP_MODE
+ * \param 
+ * \return void
+ *
+ * \Author Chris McKinney
+ **==============================================================*/
+void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
+                std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints, KCPP_MODE mod)
+{
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
 #ifdef DEBUG
@@ -117,10 +187,10 @@ void Controller::run(const std::string& directory, const std::string& image,
     {
         EulerTour tour_i = m_tours.at(i);
 
-        std::list<ReebEdge> t1;
+        std::list<ReebEdge> ti;
         for (EulerTour::iterator it = tour_i.begin();
                 it != tour_i.end(); ++it) {
-            t1.push_back((m_kcpp->m_graph).getEProp(*it));
+            ti.push_back((m_kcpp->m_graph).getEProp(*it));
         }
 
 #ifdef DEBUG
@@ -159,7 +229,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         std::vector<Point2D> tempWayPoints;
 
         //only used in modifying temporaryGraph. Nothing else. 
-        way.convertTourToReebGraph(t1, m_kcpp->m_graph, temporaryGraph); 
+        way.convertTourToReebGraph(ti, m_kcpp->m_graph, temporaryGraph); 
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
@@ -233,8 +303,13 @@ void Controller::run(const std::string& directory, const std::string& image,
         int rmExt = m_image.find_last_of("."); 
         string img = m_image.substr(0, rmExt); 
         QString imageQS = QString(img.c_str());
-        QString fileName = QString("%1.WayGraph.%2.png").arg(imageQS, QString::number(i));
-        m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
+        QString fileName;
+        if(mod == CRC_MODE) {
+            fileName = QString("%1.WayGraph.CRC.%2.png").arg(imageQS, QString::number(i));
+        } else {
+            fileName = QString("%1.WayGraph.CAC.%2.png").arg(imageQS, QString::number(i));
+        }
+        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
     }
 
@@ -255,69 +330,4 @@ void Controller::run(const std::string& directory, const std::string& image,
         outputFile << "\n" << "End Tour " << i << "\n";
     }
 #endif
-
 }
-
-
-/*************************************************************************
- * Function 'runkCPP'
- *
- * Runs the kcpp algorithm.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   None
- *
-**/
- //void Controller::runkCPP(int k, ReebGraph graph, std::list<Edge> eulerCycle)
-void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle)
-{
-    assert(m_cppSolved && "runCPP must be called before runkCPP");
-
-    try
-    {
-        m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
-        m_kcpp->solve();
-    }
-
-    catch (const std::string& err) 
-    {
-        std::cout << "runkCPP error";
-    }
-
-}
-
-
-/*************************************************************************
- * Function 'checkInputParams()'
- *
- * Checks the input parameters.
- *
- * Returns:
- *   None
- *
- * Parameters:
- *   None
- *
-**/
-void Controller::checkInputParams(const std::string& directory,
-        const std::string& image, int k)
-{
-    std::string message = "";
-
-    if(k<1) 
-    {
-        message = "ERR:Number of robots must be positive integer!";
-        throw std::invalid_argument(message);
-    }
-
-    /**TODO: Add also check for valid image format*/
-    if( !std::ifstream((directory + image).c_str())) 
-    {
-        message = "ERR:There is no image at this path:  " + directory + image;
-        throw std::invalid_argument(message);
-    }
-}
-

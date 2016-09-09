@@ -1,8 +1,3 @@
-#include "KChinesePostmen.h"
-
-#include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/graph_traits.hpp>
 //#define DEBUG_KCHINESEPOSTMAN
 /**==============================================================
  * \file KChinesePostmen.cpp
@@ -15,6 +10,12 @@
  * \warning   don't use record_shortest_path_edge and m_vertices_
  *
  **==============================================================*/
+
+#include "KChinesePostmen.h"
+
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/graph_traits.hpp>
 
 /**==============================================================
  *! Shortest edge recorder

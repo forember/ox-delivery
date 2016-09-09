@@ -28,6 +28,7 @@
 
 #include <KCPP/KChinesePostmen.h>
 #include <KCPP/FredericksonKCPP.h>
+#include <KCPP/CAC.h>
 
 #include <fstream>
 #include "controller.h"

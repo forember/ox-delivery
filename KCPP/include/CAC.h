@@ -9,70 +9,18 @@
 class CAC : public KChinesePostmen
 {
 
-public:
-    CAC(const EulerTour& tour, const ReebGraph& g, int k);
+	public:
+		CAC(const EulerTour& tour, ReebGraph g, int k); //NOTE: maybe we do not need tour in CAC
 
-    void solve();
+		void solve();
 
-//  void solve(EulerTour tour, int k);
+	private:
+		std::list<ReebEdge> getAdjacentList(Vertex v);
 
-//  std::vector<double> solve(int k);
-//  void printKTours();
 
-private:
-		std::list<ReebEdge> CAC::getAdjacentList(Vertex v)
+	private:
 
-		/* helper predicates for list sort algorithm */
-		/* Comparison by X axis*/
-		bool compareByXCoords (ReebEdge e1, ReebEdge e2) { 
-			unsigned int numPoints;
-			double midX1 = 0.0;
-			double midX2 = 0.0;
-			if (numPoints == 0)
-			{
-				continue;
-			}
-			else if (numPoints == 1) 
-			{
-				midX1 = e1->topBoundary[0].xcoord();
-				midX2 = e2->topBoundary[0].xcoord();
-			}
-			else
-			{
-				midX1 = e1->topBoundary[numPoints/2-1].xcoord();
-				midX2 = e2->topBoundary[numPoints/2-1].xcoord();
-			}
-			return midX1 < midX2;
-		}
-
-		/* Comparison by Y axis*/
-		bool compareByXCoords (ReebEdge e1, ReebEdge e2) { 
-			unsigned int numPoints;
-			double midY1 = 0.0;
-			double midY2 = 0.0;
-			if (numPoints == 0)
-			{
-				continue;
-			}
-			else if (numPoints == 1) 
-			{
-				midY1 = (e1->topBoundary[0].ycoord()
-						+ e1->bottomBoundary[0].ycoord()) / 2;
-				midY2 = (e2->topBoundary[0].ycoord()
-						+ e2->bottomBoundary[0].ycoord()) / 2;
-			}
-			else
-			{
-				midY1 = (e1->topBoundary[numPoints/2-1].ycoord()
-						+ e1->bottomBoundary[numPoints/2-1].ycoord()) / 2;
-				midY2 = (e2->topBoundary[numPoints/2-1].ycoord()
-						+ e2->bottomBoundary[numPoints/2-1].ycoord()) / 2;
-			}
-			return midX1 < midX2;
-		}
-
-private:
-
+		EulerTour m_optimalPath; // R = (V1, Ei1, Vi2, ..., Vim, Eim, V1)
 		double m_optimalCost;
 		std::list<ReebEdge> m_sortedGraphEdges; // Graph edges sorted by X and then by Y axis of corresponding cell
 };
