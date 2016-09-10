@@ -1,0 +1,86 @@
+define block model
+(
+    size [ 0.5 0.5 0.5 ]
+    gui_nose 0
+)
+
+define topurg ranger
+(
+    sensor
+    (
+        range [ 0.0 30.0 ]
+        fov 270.25
+        samples 1081
+    )
+
+    # generic model properties
+    color "black"
+    size [ 0.05 0.05 0.1 ]
+)
+
+define erratic position
+(
+    size [ 0.35 0.35 0.25 ]
+    origin [ -0.05 0 0 0 ]
+    gui_nose 1
+    drive "diff"
+    localization "gps"
+    topurg(pose [ 0.05 0.0 0.0 0.0 ])
+    velocity_bounds [-4 4 -4 4 -4 4 -180 180 ]
+)
+
+
+define floorplan model
+(
+    # sombre, sensible, artistic
+    color "gray30"
+
+    # most maps will need a bounding box
+    boundary 1
+
+    gui_nose 0
+    gui_grid 0
+
+    gui_outline 0
+    gripper_return 0
+    fiducial_return 0
+    ranger_return 1
+)
+
+name "OxDelivery Compare_1 World"
+
+# set the resolution of the underlying raytrace model in meters
+resolution 0.02
+
+interval_sim 100  # simulation timestep in milliseconds
+
+speedup 1
+
+window
+(
+  size [ 1047.0 720.0 ]  # in pixels
+  scale 10.0  # pixels per meter
+  center [ 50.0 36.0 ]
+  rotate [ 0.0 0.0 ]
+
+  # GUI Options
+  show_clock 0
+  show_trailfast 1
+)
+
+# load an environment bitmap
+floorplan
+(
+    name "Compare_1"
+    bitmap "bitmaps/bordered/Compare_1.png"
+    size [ 104.7 72.0 0.5 ]
+    pose [ 52.35 36.0 0.0 0.0 ]
+)
+
+
+# robots
+erratic( pose [ 2.0 36.0 0.0 0.0 ] name "robot0" color "cyan" )
+erratic( pose [ -1.0 0.0 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ -2.0 0.0 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ -3.0 0.0 0.0 0.0 ] name "robot3" color "black" )
+

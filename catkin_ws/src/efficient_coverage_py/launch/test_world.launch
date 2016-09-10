@@ -1,0 +1,24 @@
+<launch>
+
+<!-- Launch file arguments -->
+<arg name="world_dir" default="$(find efficient_coverage_py)/world" />
+<arg name="world_name" default="img2.world" />
+<arg name="map_dir" default="$(find efficient_coverage_py)/maps" />
+<arg name="map_name" default="img2.yaml" />
+<arg name="image_dir" default="$(find efficient_coverage_py)/inputs" />
+<arg name="image_name" default="img2.png" />
+<!-- Overrides world_dir and world_name -->
+<arg name="world" default="$(arg world_dir)/$(arg world_name)" />
+<arg name="map" default="$(arg map_dir)/$(arg map_name)" />
+
+<!-- K for this launch file -->
+<arg name="robot_count" value="1" />
+
+<param name="/use_sim_time" value="true" />
+
+<!-- Start stage -->
+<node name="stageros" pkg="stage_ros" type="stageros" args="$(arg world)">
+    <param name="base_watchdog_timeout" value="0" />
+</node>
+
+</launch>
