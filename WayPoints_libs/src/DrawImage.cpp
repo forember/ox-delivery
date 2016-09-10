@@ -198,7 +198,7 @@ void DrawImage::clearDevice()
  *
 **/
 void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
-        unsigned int highlightCount)
+        unsigned int highlightCount, QColor color)
 {
     QColor lightGreen = QColor(128, 255, 128);
     QColor green = Qt::green;
@@ -211,9 +211,10 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
 
     QPen pen;
     pen.setColor(green);
+    pen.setColor(color);
     pen.setWidth(3);
     painter.setPen(pen);
-    painter.setBrush(green);
+    painter.setBrush(color);
 
     // Draw all waypoints
     double currXPixel, currYPixel;
@@ -263,14 +264,17 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
     }
 
     pen.setColor(green);
+    pen.setColor(color);
     pen.setWidth(8);
     painter.setPen(pen);
-    painter.setBrush(green);
+//    painter.setBrush(green);
+    painter.setBrush(color);
     painter.drawPolyline(path);
     pen.setColor(QColor(lightGreen));
     pen.setWidth(4);
     painter.setPen(pen);
     painter.setBrush(lightGreen);
+    painter.setBrush(color);
     painter.drawPolyline(path);
 
     //Looping through passed in points

@@ -44,7 +44,7 @@ private:
     //ChinesePostman* runCPP(const ReebGraph& graph, const RegionData& data);
 
     /** and k > 1 **/
-    void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, KCPP_MODE mod);
+    void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod);
 
     //Used to verify the input arguments
     void checkInputParams(const std::string& directory,
@@ -77,6 +77,7 @@ private:
 
     KChinesePostmen* m_kcpp;
     ChinesePostman* m_cpp;
+    RegionData m_data;
 };
 
 #endif // CONTROLLER_H

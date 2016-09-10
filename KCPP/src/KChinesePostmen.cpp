@@ -330,7 +330,7 @@ void KChinesePostmen::printEulerianTours()
     std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
     for(size_t i = 0; i < m_eulerTours.size(); ++i) {
         std::cout << "Route no " <<  i+1 << "  -->  ";
-        EulerTour tour_i = m_eulerTours.at(i);
+				EulerTour tour_i = m_eulerTours.at(i);
             Vertex v_first, v_second;
 
     std::cerr << "1/4 \n";

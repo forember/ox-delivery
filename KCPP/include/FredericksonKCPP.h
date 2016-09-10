@@ -12,7 +12,8 @@ public:
     //FIXME: const was removed 
     FredericksonKCPP(const EulerTour& tour, const ReebGraph& g, int k);
 
-    void solve();
+		// mod flag indicates if we want to run solve with modified version of cluster computing 
+    void solve(bool mod = false);
 
 //    void solve(EulerTour tour, int k);
 

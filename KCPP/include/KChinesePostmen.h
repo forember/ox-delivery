@@ -54,7 +54,7 @@ class KChinesePostmen
 		//FIXME: const was deleted, see more in scr/KChinesePostman.cpp 
 		KChinesePostmen();
 		KChinesePostmen(ReebGraph graph, int k = 1);
-		virtual void solve() = 0;
+    virtual void solve(bool mod = false) = 0;
 
 		/** Function that returns the created routes */
 		std::vector<EulerTour> getKEulerianTours(){

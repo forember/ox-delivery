@@ -20,6 +20,7 @@
 #include <QString>
 #include <QPaintDevice>
 #include <QPainter>
+#include <QColor>
 
 #include "Leo/ReebGraph.h"
 #include "Leo/RegionData.h"
@@ -43,7 +44,7 @@ public:
     void clearDevice();
 
     void drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
-            unsigned int highlightCount);
+            unsigned int highlightCount, QColor col = Qt::green);
 
     void saveImageBuffer(QString fileName);
 

@@ -508,7 +508,7 @@ void DrawImage::drawEulerTour()
  *
 **/
 void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels,
-        int highlightID, unsigned int highlightCount)
+        int highlightID, unsigned int highlightCount, QColor color)
 {
     QColor lightGreen = QColor(128, 255, 128);
     QColor green = Qt::green;
@@ -521,9 +521,10 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels,
 
     QPen pen;
     pen.setColor(green);
+    pen.setColor(color);
     pen.setWidth(3);
     painter.setPen(pen);
-    painter.setBrush(green);
+    painter.setBrush(color);
 
     // Draw all waypoints
     double currXPixel, currYPixel;
@@ -553,8 +554,10 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels,
         painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2,
                 WAYPOINT_NORMAL_RADIUS+2);
         pen.setColor(green);
+        pen.setColor(color);
         painter.setPen(pen);
         painter.setBrush(green);
+        painter.setBrush(color);
 
 
         //Don't actually see this codes effect anywhere?
@@ -573,14 +576,18 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels,
     }
 
     pen.setColor(green);
-    pen.setWidth(1); // FIXME: was
+    pen.setColor(color);
+    pen.setWidth(3); // FIXME: was
     painter.setPen(pen);
     painter.setBrush(green);
+    painter.setBrush(color);
     painter.drawPolyline(path);
     pen.setColor(QColor(lightGreen));
-    pen.setWidth(1); //FIXME: N was 4
+    pen.setColor(color);
+    pen.setWidth(3); //FIXME: N was 4
     painter.setPen(pen);
     painter.setBrush(lightGreen);
+    painter.setBrush(color);
     painter.drawPolyline(path);
 
     //Looping through passed in points

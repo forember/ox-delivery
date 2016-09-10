@@ -1,15 +1,5 @@
 #include "main.h"
 
-/*****************************************************************************
- * @author: Kelly Benson
- * @date: May 31, 2015
- * @email: bensonke@email.sc.edu
- *
- * Main function for the world load program 
- *
-**/
-
-
 int parseInputArgs(int argc, char **argv, std::string& directory,
         std::string& image, int& k, Controller::KCPP_MODE& mod);
 
@@ -76,7 +66,7 @@ int parseInputArgs(int argc, char **argv, std::string& directory,
     if (printUsage)
     {
         std::cerr << "Usage: " << argv[0] << " [IMAGE_DIRECTORY] [IMAGE_NAME]"
-            << " [NUMBER_OF_ROBOTS]" << "[KCPP_ALGORITHM_MODE]" << std::endl;
+            << " [NUMBER_OF_ROBOTS]" << "[KCPP_ALGORITHM_MODE \n -> 0 FHK algorithm \n -> 1 CAC algorithm]" << std::endl;
         return -1;
     }
 

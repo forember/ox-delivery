@@ -6,7 +6,6 @@
  *
  * \author    Nare Karapetyan
  **==============================================================*/
-
 #define DEBUG
 #include "controller.h"
 #include <fstream>
@@ -24,8 +23,8 @@ void Controller::run(const std::string& directory, const std::string& image,
         int k, KCPP_MODE mod)
 {
 
-    RegionData data;
     ReebGraph graph;
+    RegionData data;
     std::list<Edge> eulerCycle;
     vector<Point2D> wayPoints;
 
@@ -65,7 +64,7 @@ void Controller::run(const std::string& directory, const std::string& image,
 
     m_cppSolved = true;
 
-    runkCPP(m_k, graph, eulerCycle, mod);
+    runkCPP(m_k, graph, eulerCycle, data,  mod);
 #ifdef DEBUG
     m_kcpp->printEulerianTours();
     //std::cout << std::endl;
@@ -81,7 +80,7 @@ void Controller::run(const std::string& directory, const std::string& image,
  * \param
  * \return void
  **==============================================================*/
-void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, KCPP_MODE mod)
+void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod)
 {
     assert(m_cppSolved && "runCPP must be called before runkCPP");
 
@@ -90,9 +89,9 @@ void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, K
         if(mod == CRC_MODE) {
             m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
         } else {
-            m_kcpp = new CAC(eulerCycle, graph, k);
+            m_kcpp = new CAC(eulerCycle, data, graph, k);
         }
-        m_kcpp->solve();
+        m_kcpp->solve(true);
     }
 
     catch (const std::string& err) 
@@ -183,6 +182,14 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
     //Coverage edges are the ones you need to use to move
     std::vector<std::vector<Point2D> > tourPoints;
+
+		int rmExt = m_image.find_last_of("."); 
+		string img = m_image.substr(0, rmExt); 
+		QString imageQS = QString(img.c_str());
+		QString fileName = QString("%1.WayGraph.png").arg(imageQS);
+		QImage qimage (QString((m_directory +"/"+ m_image).c_str()));
+		srand(time(NULL));
+
     for (size_t i = 0; i < m_tours.size(); ++i)
     {
         EulerTour tour_i = m_tours.at(i);
@@ -234,7 +241,7 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
 #ifdef DEBUG
-        std::cout << "---------------- Converted Coverage Edges ------------";
+      std::cout << "---------------- Converted Coverage Edges ------------";
         cout<<"\n";
         cerr << "Tour " << i << ":\n";
         for (EulerTour::iterator it = tmpBcCpp.begin();
@@ -300,17 +307,15 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         //pushes each tours waypoints to store for future use
         tourPoints.push_back(tempWayPoints);
 
-        int rmExt = m_image.find_last_of("."); 
-        string img = m_image.substr(0, rmExt); 
-        QString imageQS = QString(img.c_str());
-        QString fileName;
-        if(mod == CRC_MODE) {
-            fileName = QString("%1.WayGraph.CRC.%2.png").arg(imageQS, QString::number(i));
-        } else {
-            fileName = QString("%1.WayGraph.CAC.%2.png").arg(imageQS, QString::number(i));
-        }
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
-        tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
+        //tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
+
+        QColor color(rand()%256, rand()%256, rand()%256); 
+        DrawImage placeHolder(graph, data, tmpBcCpp, tempWayPoints);
+        placeHolder.setImageBuffer(qimage);
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, color);
+        qimage = placeHolder.getImageBuffer(); 
+        placeHolder.saveImageBuffer(fileName);
     }
 
 #ifdef DEBUG
