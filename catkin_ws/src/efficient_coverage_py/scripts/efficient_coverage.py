@@ -8,8 +8,7 @@ from nav2d_navigator.msg import MoveToPosition2DActionResult
 from tf import transformations
 from PIL import Image
 
-SCALE_FACTOR = 0.1
-WALL_WIDTH_METERS = 1
+WALL_WIDTH_PIXELS = 10
 WAYPOINT_RADIUS = 1
 
 _WP_R_SQ = WAYPOINT_RADIUS*WAYPOINT_RADIUS
@@ -33,10 +32,11 @@ def get_yaw_quaternion(yaw):
 class EffCovRobot (object):
     '''WARNING: Only create one instance per process!'''
 
-    def __init__(self, robot_id, tour, top_wall_y):
+    def __init__(self, robot_id, tour, top_wall_y, scale_factor):
         self.robot_id = robot_id
         self.tour = tour
         self.top_wall_y = top_wall_y
+        self.scale_factor = scale_factor
         # Init pose members
         self.x = self.y = self.yaw = None
         self.goal_x = self.goal_y = -65535
@@ -106,9 +106,13 @@ class EffCovRobot (object):
         if i + 1 < len(tour):
             if tour[i + 1][0] > tour[i][0]:
                 self.going = RIGHT
+                print('Going RIGHT')
             elif tour[i + 1][0] < tour[i][0]:
                 self.going = LEFT
-        self.send_goal(wp[0]/10 + 1, self.top_wall_y - wp[1]/10, self.going)
+                print('Going LEFT')
+        self.send_goal((wp[0] + WALL_WIDTH_PIXELS)*self.scale_factor,
+                self.top_wall_y - (wp[1] + WALL_WIDTH_PIXELS)*self.scale_factor,
+                self.going)
 
     def send_next_waypoint(self):
         self.current_waypoint += 1
@@ -168,19 +172,26 @@ def generate_tours(input_dir, input_name, robot_count=1):
 def main():
     # Get arguments without ROS's extra args
     argv = rospy.myargv()
-    if len(argv) != 5:
+    if len(argv) != 6:
         print(('Usage: {} <input dir> <input name> <total robot #>'
-            ' <this robot #>').format(argv[0]))
+            ' <this robot #> <map file>').format(argv[0]))
         return 1
     # Parse arguments
     robot_id = int(argv[4])
     image_path = os.path.join(argv[1], argv[2])
-    top_wall_y = Image.open(image_path).size[1]/10 + 1
+    scale_factor = 0.1
+    with open(argv[5]) as map_file:
+        for line in map_file:
+            line = line.strip()
+            if line.startswith('resolution:'):
+                scale_factor = float(line[11:].strip())
+    top_wall_y = scale_factor*(Image.open(image_path).size[1]
+            + WALL_WIDTH_PIXELS) + 0.5
     # Call afrl-oxdel and parse tour
     tour = generate_tours(*argv[1:4])[robot_id]
     print('{}: TOUR:\n  {}'.format(argv[0], tour))
     # Create ROS node
-    ecr = EffCovRobot(robot_id, tour, top_wall_y)
+    ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor)
     # Go! Main loop.
     ecr.spin()
 

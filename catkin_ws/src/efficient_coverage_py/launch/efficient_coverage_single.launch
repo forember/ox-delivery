@@ -63,7 +63,7 @@
     <!-- Start coverage node -->
     <node name="ECRobot_0"
             pkg="efficient_coverage_py" type="efficient_coverage.py"
-            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 0"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 0 $(arg map)"
             launch-prefix="xterm -hold -e" />
 </group>
 

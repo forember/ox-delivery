@@ -10,7 +10,7 @@ safety_decay: 0.5
 
 # The importance weights of the 3 action values
 distance_weight: 2
-safety_weight: 4
-conformance_weight: 16
+safety_weight: 8
+conformance_weight: 4
 continue_weight: 1
 
