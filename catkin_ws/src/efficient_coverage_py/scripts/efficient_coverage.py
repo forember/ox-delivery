@@ -157,7 +157,7 @@ def generate_tours(input_dir, input_name, robot_count=1):
     try:
         # Call afrl-oxdel in the temp directory
         cmd_spec = ['/usr/bin/env', 'afrl-oxdel',
-            os.path.realpath(input_dir), input_name, robot_count]
+            os.path.realpath(input_dir), input_name, robot_count, '0']
         print('Calling {}\n  in {}:'.format(cmd_spec, tmpdir))
         subprocess.call(cmd_spec, cwd=tmpdir)
         # Parse the tour lines file

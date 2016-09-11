@@ -1,8 +1,3 @@
-#include "KChinesePostmen.h"
-
-#include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/graph_traits.hpp>
 //#define DEBUG_KCHINESEPOSTMAN
 /**==============================================================
  * \file KChinesePostmen.cpp
@@ -15,6 +10,12 @@
  * \warning   don't use record_shortest_path_edge and m_vertices_
  *
  **==============================================================*/
+
+#include "KChinesePostmen.h"
+
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/graph_utility.hpp>
+#include <boost/graph/graph_traits.hpp>
 
 /**==============================================================
  *! Shortest edge recorder
@@ -229,6 +230,38 @@ kcpp::Graph KChinesePostmen::getSimpleGraph(/*ReebGraph g*/)
 }
 
 /**==============================================================
+ * Computes the cost of a given tour
+ *
+ * \param Eulerian tour
+ * \return the cost of the tour
+ **==============================================================*/
+double KChinesePostmen::pathCost(EulerTour tour)
+{
+    double pathCost = 0.0;
+    double pathTravelCost = 0.0;
+    EulerTour::iterator ei = tour.begin();
+    EulerTour::iterator ei_end = tour.end();
+    std::cerr << " The area costs: \n";
+    for (; ei != ei_end; ei++){
+        ReebEdge edge = m_graph.getEProp(*ei);
+        pathCost+= edge.area;
+
+#ifdef DEBUG_KCHINESEPOSTMAN
+//      std::cout << edge.Eid << " - ";
+//      pathTravelCost += edge.travelCost;
+        std::cerr << edge.area << " " ;
+#endif
+    }
+    std::cerr << "\n";
+
+#ifdef DEBUG_KCHINESEPOSTMAN
+    std::cout << std::endl;
+    std::cout << pathTravelCost << std::endl;
+#endif
+    return pathCost;
+}
+
+/**==============================================================
  * Builds a short path for spcified target vertex from the source
  *
  * \param v is the traget vertex
@@ -297,7 +330,7 @@ void KChinesePostmen::printEulerianTours()
     std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
     for(size_t i = 0; i < m_eulerTours.size(); ++i) {
         std::cout << "Route no " <<  i+1 << "  -->  ";
-        EulerTour tour_i = m_eulerTours.at(i);
+				EulerTour tour_i = m_eulerTours.at(i);
             Vertex v_first, v_second;
 
     std::cerr << "1/4 \n";

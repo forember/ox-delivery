@@ -34,12 +34,14 @@ ENDIF ()
 SET ( SOURCES
   ##${CMAKE_SOURCE_DIR}/src/controller.cpp
   ${CMAKE_SOURCE_DIR}/src/FredericksonKCPP.cpp
+  ${CMAKE_SOURCE_DIR}/src/CAC.cpp
   ${CMAKE_SOURCE_DIR}/src/KChinesePostmen.cpp
 )
 
 SET ( INCLUDE_FILES
   ##${CMAKE_SOURCE_DIR}/include/controller.h
   ${CMAKE_SOURCE_DIR}/include/FredericksonKCPP.h
+  ${CMAKE_SOURCE_DIR}/include/CAC.h
   ${CMAKE_SOURCE_DIR}/include/KChinesePostmen.h
 )
 

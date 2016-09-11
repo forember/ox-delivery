@@ -15,9 +15,9 @@ gen_tests_for_image () {
         mkdir -p "$k"
         cd "$k"
         echo "IN $(readlink -e .)" > oxdel.log
-        echo "  CALL: " afrl-oxdel "$1" "$4" "$k" >> oxdel.log
-        echo afrl-oxdel "$1" "$4" "$k"
-        afrl-oxdel "$1" "$4" "$k" &>> oxdel.log
+        echo "  CALL: " afrl-oxdel "$1" "$4" "$k" 0 >> oxdel.log
+        echo afrl-oxdel "$1" "$4" "$k" 0
+        afrl-oxdel "$1" "$4" "$k" 0 &>> oxdel.log
         cd "$d"
     done
     cd "$caller_cwd"

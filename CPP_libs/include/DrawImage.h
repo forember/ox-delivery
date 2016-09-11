@@ -45,8 +45,8 @@ public:
     void drawBCDRegions();
     void drawReebGraph();
     void drawEulerTour();
-    void drawWaypoints(std::vector<Point2D> wpPixels,
-            int highlightID, unsigned int highlightCount);
+		void drawWaypoints(std::vector<Point2D> wpPixels,
+				int highlightID, unsigned int highlightCount, QColor color = Qt::green);
 
     void saveImageBuffer(QString fileName);
 

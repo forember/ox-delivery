@@ -71,38 +71,6 @@ FredericksonKCPP::FredericksonKCPP(const EulerTour& tour, const ReebGraph& graph
 }
 
 /**==============================================================
- * Computes the cost of a given tour
- *
- * \param Eulerian tour
- * \return the cost of the tour
- **==============================================================*/
-double FredericksonKCPP::pathCost(EulerTour tour)
-{
-    double pathCost = 0.0;
-    double pathTravelCost = 0.0;
-    EulerTour::iterator ei = tour.begin();
-    EulerTour::iterator ei_end = tour.end();
-    std::cerr << " The area costs: \n";
-    for (; ei != ei_end; ei++){
-        ReebEdge edge = m_graph.getEProp(*ei);
-        pathCost+= edge.area;
-
-#ifdef DEBUG_FREDERICKSON
-//      std::cout << edge.Eid << " - ";
-//      pathTravelCost += edge.travelCost;
-        std::cerr << edge.area << " " ;
-#endif
-    }
-    std::cerr << "\n";
-
-#ifdef DEBUG_FREDERICKSON
-    std::cout << std::endl;
-    std::cout << pathTravelCost << std::endl;
-#endif
-    return pathCost;
-}
-
-/**==============================================================
  * The solver for k Chinese postman problem by Frederickson algorithm
  * no return value, the results are stored in the class member variables
  * m_eulerTours, without the shortest paths
@@ -110,25 +78,34 @@ double FredericksonKCPP::pathCost(EulerTour tour)
  * \param none
  * \return none
  **==============================================================*/
-void FredericksonKCPP::solve()
+void FredericksonKCPP::solve(bool mod)
 {
 	if(m_k ==1) {
-            m_eulerTours.push_back(m_optimalPath);
-						return;
+		m_eulerTours.push_back(m_optimalPath);
+		return;
 	}
     double c_subR_last = 0.0, c_subR = 0.0;
+    c_subR_last++;
     double c_R_last = 0.0, c_R = 0.0;
+    double sub_S = 0.0;
     kcpp::Vertex v_last = m_sourceVertex;
     Edge e_last;
 
     EulerTour::iterator ei= m_optimalPath.begin();
 
+    int k = m_k; // FIXME: added
     for(int j =1; j<=m_k; ++j) {
         std::list<Edge> tour_j;
         std::list<ReebEdge> tour_jv;
-        double L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax;
+        double L_j;
+        if(mod) {
+        L_j = (m_optimalCost)/double(k) + m_smax; //FIXME: was original
+        k--;//FIXME:
+        } else {
+        L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax; //FIXME: was original
+        }
 
-        double C_R_Vl_j = m_shortTravelDistances.at(v_last);
+        //double C_R_Vl_j = m_shortTravelDistances.at(v_last);
 
         /***********************************************
          * Finding the last vertex on the optimal tour 
@@ -159,11 +136,14 @@ void FredericksonKCPP::solve()
                 if(sum_1 <= sum_2) {
                     --ei;
                     tour_j.pop_back();
-                    tour_jv.pop_back();
-                }
-                ++ei;
-                break;
-            }
+										tour_jv.pop_back();
+										sub_S = c_subR; // FIXME: added
+										sub_S -= edge.area; //FIXME
+								}
+								++ei;
+								c_subR = 0; // FIXME: was at the beginning of statement
+								break;
+						}
 
             //c_subR_last = c_subR;
             c_R_last = c_R;
@@ -185,6 +165,10 @@ void FredericksonKCPP::solve()
         if(!tour_j.empty()) {
 
             m_eulerTours.push_back(tour_j);
+        }
+        if(mod){
+        m_optimalCost-=sub_S;
+        sub_S=0.0;
         }
     }
 }
