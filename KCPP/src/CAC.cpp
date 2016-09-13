@@ -153,16 +153,26 @@ void CAC::solve(bool t)
     /**************************************************************************/
 
     int k = 0;
+        int ij = 1;
 
     double smax = computeSMax(m_optimalPath);
     ReebEdge firstEdge = m_graph.getEProp(m_optimalPath.front()); //FIXME: some assertions must be added
-        q.push(firstEdge);
+    q.push(firstEdge);
     for(int j = 1; j <=m_k; ++j) {
 
         std::list<ReebEdge> cluster_j;
         double currClusterLimit = (coverArea) * 1.0/double(m_k - k) + smax; // m_smax must be defined
         double currClusterSize = 0;
 
+        if(j==m_k) {
+            for (tie(ei, ei_end) = m_graph.getEdges(); ei != ei_end; ei++) 
+            {
+                ReebEdge e = m_graph.getEProp(*ei);
+                if(!visitedEdges[e]) {
+                    cluster_j.push_back(e);
+                }
+            }
+        } else {
         //BFS
         while(!q.empty()) {
 
@@ -174,13 +184,18 @@ void CAC::solve(bool t)
             tie(v1,v2) = m_graph.getEndNodes(m_graph.getEdge(currEdge.Eid));
             Vertex nextVertex = (v1 == currVertex ? v2 : v1);
 
-            for(it=adjEdges.begin(); it!=adjEdges.end(); ++it) {
-                if(!visitedEdges[*it]) {
-                    q.push(*it);
+            if(!visitedVertices[m_graph.getVProp(currVertex)]) {
+                for(it=adjEdges.begin(); it!=adjEdges.end(); ++it) {
+                    if(!visitedEdges[*it]) {
+                        q.push(*it);
+                    }
                 }
                 visitedVertices[m_graph.getVProp(currVertex)] = true; // don't really need this but anyway
             }
 
+            if(visitedEdges[currEdge]) {
+                q.pop();
+            } 
             if(!visitedEdges[currEdge] && ((currClusterSize + (currEdge).area) <=currClusterLimit) ) {
                 currClusterSize += (currEdge).area;
                 cluster_j.push_back(currEdge);
@@ -189,24 +204,35 @@ void CAC::solve(bool t)
                 q.pop();
             } else if ((currClusterSize + (currEdge).area) >currClusterLimit) {
                 break;
-            }
-
-            if(visitedEdges[currEdge])
-                q.pop();
+            } 
 
             currVertex = nextVertex;
         }
-            int ij = 1;
-            if(!cluster_j.empty()) {
-                //here cluster_j must be converted to the graph and CPP must be applied to get optimal euler tour
-                EulerTour tour = findEulerTour(cluster_j, ij);
-                ij++;
-                m_eulerTours.push_back(tour);
-            }
+    }
+        if(!cluster_j.empty()) {
+#ifdef DEBUG_CAC
+            std::cout << "--- BEFORE findEulerTour is called --- " << cluster_j.size() << std::endl;
+#endif
+            //here cluster_j must be converted to the graph and CPP must be applied to get optimal euler tour
+            EulerTour tour = findEulerTour(cluster_j, ij);
+#ifdef DEBUG_CAC
+            std::cout << "--- AFTER findEulerTour is called\n";
+            std::cout << "in solve checking the size of the cluster -> "<<cluster_j.size() << std::endl;
+#endif
+
+            ij++;
+            m_eulerTours.push_back(tour);
+#ifdef DEBUG_CAC
+            std::cout << "-- Pushing the tour into m_eulerTours --\n";
+#endif
+        }
         coverArea -=currClusterSize;
 
         k++;
     }
+#ifdef DEBUG_CAC
+            std::cout << "in solve checking the NUMBER of the clusters -> "<< m_eulerTours.size() << std::endl;
+#endif
 }
 
 /**==============================================================
@@ -267,11 +293,14 @@ EulerTour CAC::findEulerTour(kcpp::EulerTour cluster, int i)
 
     ChinesePostman cpp(m_data, temporaryGraph, eulerCycle, wayPoints);
 
-        QString imageQS = QString("test");
-        QString fileName;
-            fileName = QString("%1.WayGraph.CRC.In.%2.png").arg(imageQS, QString::number(i));
-        //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
-        tourWayPoints.viewWaypoints(fileName, m_data, temporaryGraph, tmpBcCpp, tempWayPoints);
+    QString imageQS = QString("test");
+    QString fileName;
+    fileName = QString("%1.WayGraph.CRC.In.%2.png").arg(imageQS, QString::number(i));
+#ifdef DEBUG_CAC
+    std::cout << "findEulerTour is called: " << i << std::endl;
+#endif
+    //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
+    tourWayPoints.viewWaypoints(fileName, m_data, temporaryGraph, tmpBcCpp, tempWayPoints);
 
 
     return eulerCycle;

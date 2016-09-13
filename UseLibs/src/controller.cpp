@@ -326,11 +326,12 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         //tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
+        QColor colours[7] = {QColor("cyan"), QColor("magenta"), QColor("darkRed"), QColor("green"), QColor("darkGreen"), QColor("yellow"),
+            QColor("blue")};
 
-        QColor color(rand()%256, rand()%256, rand()%256); 
         DrawImage placeHolder(graph, data, tmpBcCpp, tempWayPoints);
         placeHolder.setImageBuffer(qimage);
-        placeHolder.drawWaypoints(tempWayPoints, 0, 0, color);
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[rand()%7]);
         qimage = placeHolder.getImageBuffer(); 
         placeHolder.saveImageBuffer(fileName);
     }
