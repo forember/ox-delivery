@@ -15,7 +15,7 @@ CMakeFiles/
 /catkin_ws/devel/
 /catkin_ws/install/
 /gen_tests_out/
-/*.WayGraph.*.png
+/*.WayGraph*.png
 /tourLines.txt
 /frames.gv
 /frames.pdf

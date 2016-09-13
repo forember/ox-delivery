@@ -4,7 +4,7 @@ caller_cwd="$(readlink -e .)"
 script_dir="$(readlink -e "$(dirname "$0")")"
 input_dir="$script_dir/UseLibs/inputs"
 output_dir="$script_dir/gen_tests_out"
-test_k_list=(1 2 4 8 16 32)
+test_k_list=(1 2 4 5 6 7 8 16 32)
 
 gen_tests_for_image () {
     echo "Generating tests for $4"
@@ -28,6 +28,7 @@ gtfi_default () {
 }
 
 gtfi_default bad_world.png
+gtfi_default cave.png
 gtfi_default Compare_1.png
 gtfi_default greg_cottage_map.png
 gtfi_default img0.png
@@ -36,3 +37,4 @@ gtfi_default img2.png
 gtfi_default img3.png
 gtfi_default img4.png
 gtfi_default img5.png
+gtfi_default world1.png
