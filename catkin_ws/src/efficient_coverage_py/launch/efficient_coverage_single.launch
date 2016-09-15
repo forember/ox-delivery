@@ -1,7 +1,7 @@
 <launch>
 
 <!-- Launch file arguments -->
-<arg name="name" default="img2" />
+<arg name="name" default="Compare_1" />
 <arg name="world_dir" default="$(find efficient_coverage_py)/world" />
 <arg name="world_name" default="$(arg name).world" />
 <arg name="map_dir" default="$(find efficient_coverage_py)/maps" />

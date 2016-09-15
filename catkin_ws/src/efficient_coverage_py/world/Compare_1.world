@@ -79,8 +79,8 @@ floorplan
 
 
 # robots
-erratic( pose [ 2.0 18.0 0.0 0.0 ] name "robot0" color "cyan" )
-erratic( pose [ -1.0 0.0 0.0 0.0 ] name "robot1" color "magenta" )
-erratic( pose [ -2.0 0.0 0.0 0.0 ] name "robot2" color "yellow" )
-erratic( pose [ -3.0 0.0 0.0 0.0 ] name "robot3" color "black" )
+erratic( pose [ 1.0 18.025 0.0 0.0 ] name "robot0" color "cyan" )
+erratic( pose [ 39.85 28.9 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ 12.65 20.8 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ 14.65 1.05 0.0 0.0 ] name "robot3" color "black" )
 
