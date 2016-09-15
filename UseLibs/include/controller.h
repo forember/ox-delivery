@@ -78,6 +78,7 @@ private:
     KChinesePostmen* m_kcpp;
     ChinesePostman* m_cpp;
     RegionData m_data;
+		int m_cnt;
 };
 
 #endif // CONTROLLER_H

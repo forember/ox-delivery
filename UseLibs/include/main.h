@@ -10,6 +10,8 @@
 #include <string>
 #include <sstream>
 #include <set>
+#include <QtGui/QApplication>
+#include <QLabel>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/thread/thread.hpp>

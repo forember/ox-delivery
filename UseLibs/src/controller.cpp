@@ -23,6 +23,7 @@ void Controller::run(const std::string& directory, const std::string& image,
         int k, KCPP_MODE mod)
 {
 
+    m_cnt = 0;
     ReebGraph graph;
     RegionData data;
     std::list<Edge> eulerCycle;
@@ -91,7 +92,9 @@ void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, R
         } else {
             m_kcpp = new CAC(eulerCycle, data, graph, k);
         }
-        m_kcpp->solve(true);
+        m_kcpp->set(m_directory, m_image);
+        m_kcpp->test();
+        m_kcpp->solve(false);
     }
 
     catch (const std::string& err) 
@@ -193,7 +196,13 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 		string img = m_image.substr(0, rmExt); 
 		QString imageQS = QString(img.c_str());
 		QString fileName = QString("%1.WayGraph.png").arg(imageQS);
-		QImage qimage (QString((m_directory +"/"+ m_image).c_str()));
+		QImage qimage(QString((m_directory +"/"+ m_image).c_str()));
+#ifdef DEBUG
+        std::cout <<"**********************IN CONTROLLER**************************\n";
+        std::cout << (m_directory +"/"+ m_image).c_str() << std::endl;
+        std::cout <<"************************************************\n";
+#endif
+		assert(!qimage.isNull() && "the image is NULL"); //DEBUG
 		srand(time(NULL));
 
     for (size_t i = 0; i < m_tours.size(); ++i)
@@ -326,12 +335,19 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         //tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
-        QColor colours[7] = {QColor("cyan"), QColor("magenta"), QColor("darkRed"), QColor("green"), QColor("darkGreen"), QColor("yellow"),
-            QColor("blue")};
-
+    QColor colours[12] = {QColor(152,251,152), QColor(240,230,140),
+        QColor(31, 178, 170)/*light see geen*/, 
+        QColor(255, 228,181) /*moccasin*/, 
+        QColor(230, 230, 250) /*levender*/, 
+        QColor(102, 205, 170) /*medium aqua green*/, 
+        QColor(127, 176, 5), QColor(253, 184, 99), QColor(75, 0, 40), QColor(50, 30, 0), QColor(50, 15, 100), QColor(0, 65, 80)};
+        
         DrawImage placeHolder(graph, data, tmpBcCpp, tempWayPoints);
         placeHolder.setImageBuffer(qimage);
-        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[rand()%7]);
+        if(m_cnt>7 || m_cnt <0)
+            m_cnt =0;
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[rand()%12]);
+        m_cnt++;
         qimage = placeHolder.getImageBuffer(); 
         placeHolder.saveImageBuffer(fileName);
     }

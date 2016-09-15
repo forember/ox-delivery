@@ -5,6 +5,7 @@ int parseInputArgs(int argc, char **argv, std::string& directory,
 
 int main(int argc, char **argv) 
 {
+
     std::string image;
     std::string directory;
     int k = 1;
@@ -22,7 +23,6 @@ int main(int argc, char **argv)
     catch (std::invalid_argument ia) {
         std::cerr << ia.what() << "\n";
     }
-    return 0;
 
 };
 

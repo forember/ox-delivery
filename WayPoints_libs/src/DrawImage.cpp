@@ -234,15 +234,15 @@ void DrawImage::drawWaypoints(std::vector<Point2D> wpPixels, int highlightID,
         painter.setBrush(yellow);
 
         //drawing the yellow circles for the waypoints
-        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS,
-                WAYPOINT_NORMAL_RADIUS);
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS/2,
+                WAYPOINT_NORMAL_RADIUS/2);
         pen.setColor(orange);
         painter.setPen(pen);
         painter.setBrush(orange);
 
         //drawing the orange outlines to those circles
-        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+2,
-                WAYPOINT_NORMAL_RADIUS+2);
+        painter.drawEllipse(currPoint, WAYPOINT_NORMAL_RADIUS+1,
+                WAYPOINT_NORMAL_RADIUS+1);
         pen.setColor(green);
         painter.setPen(pen);
         painter.setBrush(green);

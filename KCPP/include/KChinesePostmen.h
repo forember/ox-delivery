@@ -76,6 +76,19 @@ class KChinesePostmen
 		//number of robots
 		int m_k;
 
+		/*FIXME: must be removed, tmp solution*/
+		void set(std::string dir, std::string img) 
+		{m_directory = dir; m_image=img;	
+			std::cout << "__________********SET_FUNCTION**********____________________\n";
+			std::cout << m_directory + "/" + m_image << std::endl;
+			std::cout << "__________********SET_FUNCTION**********____________________\n";
+		}
+		void test() {
+			std::cout << "__________********SET_FUNCTION**********____________________\n";
+			std::cout << m_directory + "/" + m_image << std::endl;
+			std::cout << "__________********SET_FUNCTION**********____________________\n";
+		}
+
 	protected:
 		/** Computes shortest Distances based on the non multigraph */
 		void computeShortestDistances(kcpp::Graph graph);
@@ -114,6 +127,10 @@ class KChinesePostmen
 		//Output: storage for all founded Euler tours
 		std::vector<EulerTour> m_eulerTours;
 		std::vector<double> m_tourCosts;
+
+		/*FIXME: must be removed, just a tmp solution*/
+    std::string m_image; 
+    std::string m_directory;
 
 	private:
 		/** internal container to get the kcpp vertex descriptor by the Vertex desc of CPP

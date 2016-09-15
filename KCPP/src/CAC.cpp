@@ -5,8 +5,15 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPixmapItem>
+#include <QLabel>
 
 #define DEBUG_CAC
+
+/*Global var that must be eliminated after*/
+bool prev_gl[12] = {false};
 
 /* helper predicate for map with ReebEdge */
 struct edgeReebCompare
@@ -36,16 +43,17 @@ bool compareByXCoords (const ReebEdge& e1, const ReebEdge& e2) {
     {
         return false;
     }
-    else if (numPoints1 == 1 && numPoints2 == 1) 
+    if (numPoints1 == 1)  
     {
         midX1 = e1.topBoundary[0].xcoord();
-        midX2 = e2.topBoundary[0].xcoord();
-    }
-    else
-    {
+    } else {
         midX1 = e1.topBoundary[numPoints1/2-1].xcoord();
+		}
+		if(numPoints2 == 1) {
+        midX2 = e2.topBoundary[0].xcoord();
+    } else {
         midX2 = e2.topBoundary[numPoints2/2-1].xcoord();
-    }
+		}
     return midX1 < midX2;
 }
 
@@ -60,17 +68,18 @@ bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) {
     {
         return false;
     }
-    else if (numPoints1 == 1 && numPoints2 == 1) 
-    {
-        midY1 = (e1.topBoundary[0].ycoord()
-                + e1.bottomBoundary[0].ycoord()) / 2;
+		if (numPoints1 == 1) 
+		{
+			midY1 = (e1.topBoundary[0].ycoord()
+					+ e1.bottomBoundary[0].ycoord()) / 2;
+		} else {
+			midY1 = (e1.topBoundary[numPoints1/2-1].ycoord()
+					+ e1.bottomBoundary[numPoints1/2-1].ycoord()) / 2;
+		}
+		if (numPoints2 == 1) {
         midY2 = (e2.topBoundary[0].ycoord()
                 + e2.bottomBoundary[0].ycoord()) / 2;
-    }
-    else
-    {
-        midY1 = (e1.topBoundary[numPoints1/2-1].ycoord()
-                + e1.bottomBoundary[numPoints1/2-1].ycoord()) / 2;
+		} else {
         midY2 = (e2.topBoundary[numPoints2/2-1].ycoord()
                 + e2.bottomBoundary[numPoints2/2-1].ycoord()) / 2;
     }
@@ -93,8 +102,8 @@ bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) {
  * \author Nare Karapetyan
  **==============================================================*/
 
-CAC::CAC(const EulerTour& tour, RegionData data, ReebGraph graph, int k) 
-	: KChinesePostmen(), m_optimalPath(tour)
+    CAC::CAC(const EulerTour& tour, RegionData data, ReebGraph graph, int k) 
+: KChinesePostmen(), m_optimalPath(tour), m_qimage(QImage())
 {
 
     m_k = k;
@@ -108,14 +117,6 @@ CAC::CAC(const EulerTour& tour, RegionData data, ReebGraph graph, int k)
     Edge currEdge;
     Out_Edge_Iter oi, oi_end;
     m_optimalCost = pathCost(m_optimalPath);
-
-
-#ifdef DEBUG_CAC
-/*    tie(v_first, v_second) = graph.getEndNodes(*ei);
-    std::cout << eprop << ", attached to vertices: " << graph.getVProp(v_first).Vid
-        << " & " << graph.getVProp(v_second).Vid << ", is null? "
-        << (currEdge == ReebGraph::nullEdge()) << endl;*/
-#endif
 }
 
 /**==============================================================
@@ -153,18 +154,34 @@ void CAC::solve(bool t)
     /**************************************************************************/
 
     int k = 0;
-        int ij = 1;
+    int ij = 1;
 
-    double smax = computeSMax(m_optimalPath);
-    ReebEdge firstEdge = m_graph.getEProp(m_optimalPath.front()); //FIXME: some assertions must be added
-    q.push(firstEdge);
-    for(int j = 1; j <=m_k; ++j) {
+		/*******************************/
+		int rmExt = m_image.find_last_of("."); 
+		string img = m_image.substr(0, rmExt); 
+		QString imageQS = QString(img.c_str());
+		m_fileName = QString("%1.WayGraph.CAC.png").arg(imageQS);
+		QImage im(QString((m_directory +"/"+ m_image).c_str()));
+		m_qimage = im;
+		/*******************************/
 
-        std::list<ReebEdge> cluster_j;
-        double currClusterLimit = (coverArea) * 1.0/double(m_k - k) + smax; // m_smax must be defined
-        double currClusterSize = 0;
+#ifdef DEBUG_CAC
+		std::cout << "-------------------$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-------------------------------------\n";
+		std::cout << m_directory + "/" + m_image << std::endl;
+		std::cout << "-------------------$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-------------------------------------\n";
+		assert(!im.isNull() && "the image is NULL");//DEBUG
+#endif
 
-        if(j==m_k) {
+		double smax = computeSMax(m_optimalPath);
+		ReebEdge firstEdge = m_graph.getEProp(m_optimalPath.front()); //FIXME: some assertions must be added
+		q.push(firstEdge);
+		for(int j = 1; j <=m_k; ++j) {
+
+			std::list<ReebEdge> cluster_j;
+			double currClusterLimit = (coverArea) * 1.0/double(m_k - k) + smax; // m_smax must be defined
+			double currClusterSize = 0;
+
+			if(j==m_k) {
             for (tie(ei, ei_end) = m_graph.getEdges(); ei != ei_end; ei++) 
             {
                 ReebEdge e = m_graph.getEProp(*ei);
@@ -173,55 +190,58 @@ void CAC::solve(bool t)
                 }
             }
         } else {
-        //BFS
-        while(!q.empty()) {
+            //BFS
+            while(!q.empty()) {
 
-            std::list<ReebEdge> adjEdges = getAdjacentList(currVertex); //FIXME: must be checked if there are adjacent edges at all
-            std::list<ReebEdge>::iterator it;
+                std::list<ReebEdge> adjEdges = getAdjacentList(currVertex); //FIXME: must be checked if there are adjacent edges at all
+                std::list<ReebEdge>::iterator it;
 
-            ReebEdge currEdge = q.front();
-            Vertex v1, v2;
-            tie(v1,v2) = m_graph.getEndNodes(m_graph.getEdge(currEdge.Eid));
-            Vertex nextVertex = (v1 == currVertex ? v2 : v1);
+                ReebEdge currEdge = q.front();
+                Vertex v1, v2;
+                tie(v1,v2) = m_graph.getEndNodes(m_graph.getEdge(currEdge.Eid));
+                Vertex nextVertex = (v1 == currVertex ? v2 : v1);
 
-            if(!visitedVertices[m_graph.getVProp(currVertex)]) {
-                for(it=adjEdges.begin(); it!=adjEdges.end(); ++it) {
-                    if(!visitedEdges[*it]) {
-                        q.push(*it);
+                if(!visitedVertices[m_graph.getVProp(currVertex)]) {
+                    for(it=adjEdges.begin(); it!=adjEdges.end(); ++it) {
+                        if(!visitedEdges[*it]) {
+                            q.push(*it);
+                        }
                     }
+                    visitedVertices[m_graph.getVProp(currVertex)] = true; // don't really need this but anyway
                 }
-                visitedVertices[m_graph.getVProp(currVertex)] = true; // don't really need this but anyway
+
+                if(visitedEdges[currEdge]) {
+                    q.pop();
+                } 
+                if(!visitedEdges[currEdge] && ((currClusterSize + (currEdge).area) <=currClusterLimit) ) {
+                    currClusterSize += (currEdge).area;
+                    cluster_j.push_back(currEdge);
+                    visitedEdges[currEdge] = true;
+                    q_h.pop();
+                    q.pop();
+                } else if ((currClusterSize + (currEdge).area) >currClusterLimit) {
+                    break;
+                } 
+
+                currVertex = nextVertex;
             }
-
-            if(visitedEdges[currEdge]) {
-                q.pop();
-            } 
-            if(!visitedEdges[currEdge] && ((currClusterSize + (currEdge).area) <=currClusterLimit) ) {
-                currClusterSize += (currEdge).area;
-                cluster_j.push_back(currEdge);
-                visitedEdges[currEdge] = true;
-                q_h.pop();
-                q.pop();
-            } else if ((currClusterSize + (currEdge).area) >currClusterLimit) {
-                break;
-            } 
-
-            currVertex = nextVertex;
         }
-    }
         if(!cluster_j.empty()) {
 #ifdef DEBUG_CAC
             std::cout << "--- BEFORE findEulerTour is called --- " << cluster_j.size() << std::endl;
 #endif
             //here cluster_j must be converted to the graph and CPP must be applied to get optimal euler tour
+
             EulerTour tour = findEulerTour(cluster_j, ij);
+						srand(time(NULL));
+
 #ifdef DEBUG_CAC
             std::cout << "--- AFTER findEulerTour is called\n";
             std::cout << "in solve checking the size of the cluster -> "<<cluster_j.size() << std::endl;
 #endif
 
             ij++;
-            m_eulerTours.push_back(tour);
+                        m_eulerTours.push_back(tour);
 #ifdef DEBUG_CAC
             std::cout << "-- Pushing the tour into m_eulerTours --\n";
 #endif
@@ -231,7 +251,7 @@ void CAC::solve(bool t)
         k++;
     }
 #ifdef DEBUG_CAC
-            std::cout << "in solve checking the NUMBER of the clusters -> "<< m_eulerTours.size() << std::endl;
+    std::cout << "in solve checking the NUMBER of the clusters -> "<< m_eulerTours.size() << std::endl;
 #endif
 }
 
@@ -293,15 +313,44 @@ EulerTour CAC::findEulerTour(kcpp::EulerTour cluster, int i)
 
     ChinesePostman cpp(m_data, temporaryGraph, eulerCycle, wayPoints);
 
-    QString imageQS = QString("test");
-    QString fileName;
-    fileName = QString("%1.WayGraph.CRC.In.%2.png").arg(imageQS, QString::number(i));
+    /*QString imageQS = QString("test");
+      QString fileName;
+      fileName = QString("%1.WayGraph.CAC.In.%2.png").arg(imageQS, QString::number(i));*/
+      
 #ifdef DEBUG_CAC
     std::cout << "findEulerTour is called: " << i << std::endl;
 #endif
     //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
-    tourWayPoints.viewWaypoints(fileName, m_data, temporaryGraph, tmpBcCpp, tempWayPoints);
+    //tourWayPoints.viewWaypoints(fileName, m_data, temporaryGraph, tmpBcCpp, tempWayPoints);
+    //tourWayPoints.viewWaypoints(fileName, m_data, m_graph, tmpBcCpp, tempWayPoints);
 
+    QColor colours[12] = {QColor(152,251,152), QColor(240,230,140),
+        QColor(31, 178, 170)/*light see geen*/, 
+        QColor(255, 228,181) /*moccasin*/, 
+        QColor(230, 230, 250) /*levender*/, 
+        QColor(102, 205, 170) /*medium aqua green*/, 
+        QColor(127, 176, 5), QColor(253, 184, 99), QColor(75, 0, 40), QColor(50, 30, 0), QColor(50, 15, 100), QColor(0, 65, 80)};
+    if(temporaryGraph.empty() == true)
+    {
+        std::cout << "graph is empty";
+    }
+
+    else if(eulerCycle.empty() == true)
+    {
+        std::cout << "euler is empty";
+    } else {
+
+        DrawImage placeHolder(m_graph, m_data, tmpBcCpp, tempWayPoints);
+        placeHolder.setImageBuffer(m_qimage);
+        int curr = rand()%12;
+        while(prev_gl[curr]) {
+            curr = rand()%12;
+        }
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[curr]);
+        prev_gl[curr]=true;
+        m_qimage = placeHolder.getImageBuffer(); 
+        placeHolder.saveImageBuffer(m_fileName);
+    }
 
     return eulerCycle;
 }
@@ -334,24 +383,6 @@ double CAC::computeSMax(EulerTour tour)
     return smax;
 }
 
-
-/*
-   void FredericksonKCPP::printKTours()
-   {
-   std::cout << "distances " << std::endl;
-   boost::graph_traits < UndirectedGraph >::vertex_iterator vi, vend;
-   for (boost::tie(vi, vend) = boost::vertices(*m_coverageGraph); vi != vend; ++vi) {
-   std::cout << "distance(" << *vi << ") = " << m_shortCoverDistance->at(*vi) << ", " << std::endl;
-   }
-
-   std::cout << std::endl;
-
-   for(int j =0; j < m_lastVertices.size(); ++j) {
-   std::cout << "--> " << m_lastVertices.at(j);
-   }
-   std::cout << std::endl;
-   }*/
-
 /* bunch of things that might be usefull: Playground 
  *
  * ReebGraph g;
@@ -361,11 +392,11 @@ double CAC::computeSMax(EulerTour tour)
  for (EulerTour::iterator it = tour_i.begin();
  it != tour_i.end(); ++it) 
 
-    for (tie(ei, ei_end) = graph.getEdges(); ei != ei_end; ei++) {
-        currEdge = *ei;
-        eprop = graph.getEProp(currEdge);
-        m_sortedGraphEdges.push_back(eprop);
-    }
-    m_sortedGraphEdges.sort(compareByYCoords);
-    m_sortedGraphEdges.sort(compareByXCoords);
+ for (tie(ei, ei_end) = graph.getEdges(); ei != ei_end; ei++) {
+ currEdge = *ei;
+ eprop = graph.getEProp(currEdge);
+ m_sortedGraphEdges.push_back(eprop);
+ }
+ m_sortedGraphEdges.sort(compareByYCoords);
+ m_sortedGraphEdges.sort(compareByXCoords);
  */

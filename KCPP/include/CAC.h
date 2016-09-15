@@ -29,6 +29,10 @@ class CAC : public KChinesePostmen
 		double m_optimalCost;
 		std::list<Edge> m_sortedGraphEdges; // Graph edges sorted by X and then by Y axis of corresponding cell
 		RegionData m_data;
+
+		/*FIXME: must be removed, tmp solution*/
+		QImage m_qimage;
+		QString m_fileName;
 };
 
 #endif // CAC_H
