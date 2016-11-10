@@ -65,13 +65,31 @@ void Controller::run(const std::string& directory, const std::string& image,
 
     m_cppSolved = true;
 
+    int vec[] = {1, 2, 4, 8, 16, 20, 32};
+    std::vector<int> k_vec (vec, vec+sizeof(vec)/sizeof(int)); //possible k robot values
+
+    std::ofstream testOutFile; // The kcpp results are recorded here
+    std::string testFileName = "CAC_test_results.txt";
+    if(mod == CRC_MODE){
+        testFileName = "CRC_test_results.txt";
+    }
+    testOutFile.open(testFileName.c_str(), std::ofstream::app); //appends from the end
+
+    testOutFile << "Tests are running on image ------ " << m_image << "\n";
+    testOutFile << "Number of tests per image are --- " << k_vec.size() <<"\n";
+    testOutFile.close();
+
+    //test(k_vec, graph, eulerCycle, data, mod, testFileName);
     runkCPP(m_k, graph, eulerCycle, data,  mod);
+
 #ifdef DEBUG
-    m_kcpp->printEulerianTours();
+    //m_kcpp->printEulerianTours();
     //std::cout << std::endl;
 #endif
+        if(mod == CRC_MODE) {
     m_tours = m_kcpp->getKEulerianTours();
     generateWaypoints(data, graph, eulerCycle, wayPoints, mod);
+        } 
 }
 
 
@@ -93,7 +111,6 @@ void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, R
             m_kcpp = new CAC(eulerCycle, data, graph, k);
         }
         m_kcpp->set(m_directory, m_image);
-        m_kcpp->test();
         m_kcpp->solve(false);
     }
 
@@ -335,18 +352,18 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         //tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
-    QColor colours[12] = {QColor(152,251,152), QColor(240,230,140),
-        QColor(31, 178, 170)/*light see geen*/, 
-        QColor(255, 228,181) /*moccasin*/, 
-        QColor(230, 230, 250) /*levender*/, 
-        QColor(102, 205, 170) /*medium aqua green*/, 
-        QColor(127, 176, 5), QColor(253, 184, 99), QColor(75, 0, 40), QColor(50, 30, 0), QColor(50, 15, 100), QColor(0, 65, 80)};
-        
+    QColor colours[6] = {QColor(240,230,140),
+        QColor(0, 192, 255),
+        QColor(0, 128, 0),
+        QColor(255, 127, 80),
+        QColor(60, 179, 113),
+        QColor(255,215, 0)
+    };
         DrawImage placeHolder(graph, data, tmpBcCpp, tempWayPoints);
         placeHolder.setImageBuffer(qimage);
         if(m_cnt>7 || m_cnt <0)
             m_cnt =0;
-        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[rand()%12]);
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[m_cnt]);
         m_cnt++;
         qimage = placeHolder.getImageBuffer(); 
         placeHolder.saveImageBuffer(fileName);
@@ -369,4 +386,23 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         outputFile << "\n" << "End Tour " << i << "\n";
     }
 #endif
+}
+
+void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod, std::string fileName)
+{
+    std::ofstream testOutFile;
+    testOutFile.open(fileName.c_str(), std::ofstream::app); //appends from the end
+
+    for(int i = 0; i < k_vec.size(); i++)
+    {
+        runkCPP(k_vec.at(i), graph, eulerCycle, data,  mod);
+        if(k_vec.at(i) == 1) {
+            testOutFile << "----- # of Robots------ size of max coverage -------\n";
+            testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost() << "\n";
+
+        } else {
+            testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost() << "\n";
+        }
+    }
+    testOutFile.close();
 }

@@ -241,7 +241,18 @@ double KChinesePostmen::pathCost(EulerTour tour)
     double pathTravelCost = 0.0;
     EulerTour::iterator ei = tour.begin();
     EulerTour::iterator ei_end = tour.end();
-    std::cerr << " The area costs: \n";
+		std::cerr << " The area costs: \n";
+
+/*		Vertex v_b_first, v_b_second; // beginning edge
+		Vertex v_e_first, v_e_second; // ending edge
+
+		tie(v_b_first, v_b_second) = m_graph.getEndNodes(*ei);
+		tie(v_e_first, v_e_second) = m_graph.getEndNodes(*ei_end);
+
+		kcpp::Vertex v_b = getVertex(v_b_first);
+		kcpp::Vertex v_e = getVertex(v_e_second);
+
+		pathTravelCost += (m_shortTravelDistances.at(v_b) + m_shortTravelDistances.at(v_e));*/
     for (; ei != ei_end; ei++){
         ReebEdge edge = m_graph.getEProp(*ei);
         pathCost+= edge.area;
@@ -256,7 +267,8 @@ double KChinesePostmen::pathCost(EulerTour tour)
 
 #ifdef DEBUG_KCHINESEPOSTMAN
     std::cout << std::endl;
-    std::cout << pathTravelCost << std::endl;
+    std::cout << "without travel cost: " <<pathCost << std::endl;
+ //   std::cout << "with travel cost   : " <<pathCost + pathTravelCost << std::endl;
 #endif
     return pathCost;
 }

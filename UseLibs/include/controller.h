@@ -46,6 +46,9 @@ private:
     /** and k > 1 **/
     void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod);
 
+		/** testing for possible k_vec values and writing the results in fileName*/
+		void test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod, std::string fileName);
+
     //Used to verify the input arguments
     void checkInputParams(const std::string& directory,
             const std::string& image, int k);
@@ -79,6 +82,7 @@ private:
     ChinesePostman* m_cpp;
     RegionData m_data;
 		int m_cnt;
+		double m_maxCoverageCost;
 };
 
 #endif // CONTROLLER_H

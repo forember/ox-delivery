@@ -58,6 +58,7 @@ FredericksonKCPP::FredericksonKCPP(const EulerTour& tour, const ReebGraph& graph
     computeShortestDistances(m_g);
     m_optimalCost = pathCost(m_optimalPath);
     m_smax = computeSMax(m_optimalPath);
+		m_maxCoverageCost = m_optimalCost;
 
 #ifdef DEBUG_FREDERICKSON
 //    boost::print_graph(m_g, boost::get(&ReebEdge::Eid,m_g));
@@ -89,21 +90,23 @@ void FredericksonKCPP::solve(bool mod)
     double c_R_last = 0.0, c_R = 0.0;
     double sub_S = 0.0;
     kcpp::Vertex v_last = m_sourceVertex;
+    kcpp::Vertex v_first = m_sourceVertex;
     Edge e_last;
 
     EulerTour::iterator ei= m_optimalPath.begin();
 
     int k = m_k; // FIXME: added
-    for(int j =1; j<=m_k; ++j) {
-        std::list<Edge> tour_j;
-        std::list<ReebEdge> tour_jv;
-        double L_j;
-        if(mod) {
-        L_j = (m_optimalCost)/double(k) + m_smax; //FIXME: was original
-        k--;//FIXME:
-        } else {
-        L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax; //FIXME: was original
-        }
+		double maxCostTmp = 0;
+        for(int j =1; j<=m_k; ++j) {
+            std::list<Edge> tour_j;
+            std::list<ReebEdge> tour_jv;
+            double L_j;
+            if(mod) {
+                L_j = (m_optimalCost)/double(k) + m_smax; 
+                k--;//FIXME:
+            } else {
+                L_j = (m_optimalCost-2.0*m_smax) * double(j)/double(m_k) + m_smax; 
+            }
 
         //double C_R_Vl_j = m_shortTravelDistances.at(v_last);
 
@@ -125,9 +128,8 @@ void FredericksonKCPP::solve(bool mod)
             tour_j.push_back(*ei);
 
             if(c_R>L_j) {
-                //--ei;
                 c_subR = 0;
-                    c_R = 0;
+                c_R = 0;
 
                 // Determine which vertex of the edge to take: first or second one
                 double r_j = L_j - c_R_last;
@@ -136,20 +138,21 @@ void FredericksonKCPP::solve(bool mod)
                 if(sum_1 <= sum_2) {
                     --ei;
                     tour_j.pop_back();
-										tour_jv.pop_back();
-										sub_S = c_subR; // FIXME: added
-										sub_S -= edge.area; //FIXME
-								}
-								++ei;
-								c_subR = 0; // FIXME: was at the beginning of statement
-								break;
-						}
+                    tour_jv.pop_back();
+                    sub_S = c_subR; // FIXME: added
+                    sub_S -= edge.area; //FIXME
+                }
+                //  ++ei;
+                c_subR = 0; // FIXME: was at the beginning of statement
+                break;
+            }
 
             //c_subR_last = c_subR;
             c_R_last = c_R;
 
             ++ei;
         }
+        v_first = v_last;
 
         if(ei!=m_optimalPath.end()) {
 
@@ -166,10 +169,18 @@ void FredericksonKCPP::solve(bool mod)
 
             m_eulerTours.push_back(tour_j);
         }
-        if(mod){
+				double tmp = pathCost(tour_j) + m_shortTravelDistances.at(v_last) + m_shortTravelDistances.at(v_first);
+				if(tmp> maxCostTmp) {
+            maxCostTmp = tmp;
+        }
+
+    }
+    if(m_k!=1){
+        m_maxCoverageCost = maxCostTmp;
+    }
+    if(mod){
         m_optimalCost-=sub_S;
         sub_S=0.0;
-        }
     }
 }
 

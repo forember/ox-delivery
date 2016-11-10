@@ -79,14 +79,12 @@ class KChinesePostmen
 		/*FIXME: must be removed, tmp solution*/
 		void set(std::string dir, std::string img) 
 		{m_directory = dir; m_image=img;	
-			std::cout << "__________********SET_FUNCTION**********____________________\n";
 			std::cout << m_directory + "/" + m_image << std::endl;
-			std::cout << "__________********SET_FUNCTION**********____________________\n";
 		}
-		void test() {
-			std::cout << "__________********SET_FUNCTION**********____________________\n";
-			std::cout << m_directory + "/" + m_image << std::endl;
-			std::cout << "__________********SET_FUNCTION**********____________________\n";
+
+	  double getMaxCoverageCost()
+		{
+			return m_maxCoverageCost;
 		}
 
 	protected:
@@ -131,6 +129,8 @@ class KChinesePostmen
 		/*FIXME: must be removed, just a tmp solution*/
     std::string m_image; 
     std::string m_directory;
+
+    double m_maxCoverageCost;
 
 	private:
 		/** internal container to get the kcpp vertex descriptor by the Vertex desc of CPP

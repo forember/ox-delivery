@@ -13,7 +13,7 @@
 #define DEBUG_CAC
 
 /*Global var that must be eliminated after*/
-bool prev_gl[12] = {false};
+int i_glob = 0;
 
 /* helper predicate for map with ReebEdge */
 struct edgeReebCompare
@@ -117,6 +117,7 @@ bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) {
     Edge currEdge;
     Out_Edge_Iter oi, oi_end;
     m_optimalCost = pathCost(m_optimalPath);
+    m_maxCoverageCost = m_optimalCost;
 }
 
 /**==============================================================
@@ -130,10 +131,10 @@ bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) {
 void CAC::solve(bool t)
 {
     //perform BFS over graph but taking into account neighborhood distances
-    std::queue<Edge> q_h; //helper queue (must be replaced)
     std::queue<ReebEdge> q;
 
     Vertex  currVertex = m_graph.getFirstVertex();
+    Vertex  prevVertex = currVertex;
 
     double coverArea = m_optimalCost;
 
@@ -175,6 +176,7 @@ void CAC::solve(bool t)
 		double smax = computeSMax(m_optimalPath);
 		ReebEdge firstEdge = m_graph.getEProp(m_optimalPath.front()); //FIXME: some assertions must be added
 		q.push(firstEdge);
+		double maxCostTmp = 0;
 		for(int j = 1; j <=m_k; ++j) {
 
 			std::list<ReebEdge> cluster_j;
@@ -217,12 +219,12 @@ void CAC::solve(bool t)
                     currClusterSize += (currEdge).area;
                     cluster_j.push_back(currEdge);
                     visitedEdges[currEdge] = true;
-                    q_h.pop();
                     q.pop();
                 } else if ((currClusterSize + (currEdge).area) >currClusterLimit) {
                     break;
                 } 
 
+                prevVertex = currVertex;
                 currVertex = nextVertex;
             }
         }
@@ -233,6 +235,7 @@ void CAC::solve(bool t)
             //here cluster_j must be converted to the graph and CPP must be applied to get optimal euler tour
 
             EulerTour tour = findEulerTour(cluster_j, ij);
+
 						srand(time(NULL));
 
 #ifdef DEBUG_CAC
@@ -247,9 +250,21 @@ void CAC::solve(bool t)
 #endif
         }
         coverArea -=currClusterSize;
+        kcpp::Vertex v = getVertex(prevVertex);
+        if(currClusterSize + 2*m_shortTravelDistances.at(v) > maxCostTmp) {
+            maxCostTmp = currClusterSize + 2*m_shortTravelDistances.at(v);
+        }
 
         k++;
     }
+		if(m_k!=1){
+			m_maxCoverageCost = maxCostTmp;
+#ifdef DEBUG_CAC
+			std::cout << "_--_------_____ m_k " <<  m_k << "------______-------_________-----____\n";
+			std::cout << maxCostTmp << std::endl;
+			std::cout << "_--_------_____------______-------_________-----____\n";
+#endif
+        }
 #ifdef DEBUG_CAC
     std::cout << "in solve checking the NUMBER of the clusters -> "<< m_eulerTours.size() << std::endl;
 #endif
@@ -316,6 +331,7 @@ EulerTour CAC::findEulerTour(kcpp::EulerTour cluster, int i)
     /*QString imageQS = QString("test");
       QString fileName;
       fileName = QString("%1.WayGraph.CAC.In.%2.png").arg(imageQS, QString::number(i));*/
+        tourPoints.push_back(tempWayPoints);
       
 #ifdef DEBUG_CAC
     std::cout << "findEulerTour is called: " << i << std::endl;
@@ -323,13 +339,13 @@ EulerTour CAC::findEulerTour(kcpp::EulerTour cluster, int i)
     //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
     //tourWayPoints.viewWaypoints(fileName, m_data, temporaryGraph, tmpBcCpp, tempWayPoints);
     //tourWayPoints.viewWaypoints(fileName, m_data, m_graph, tmpBcCpp, tempWayPoints);
-
-    QColor colours[12] = {QColor(152,251,152), QColor(240,230,140),
-        QColor(31, 178, 170)/*light see geen*/, 
-        QColor(255, 228,181) /*moccasin*/, 
-        QColor(230, 230, 250) /*levender*/, 
-        QColor(102, 205, 170) /*medium aqua green*/, 
-        QColor(127, 176, 5), QColor(253, 184, 99), QColor(75, 0, 40), QColor(50, 30, 0), QColor(50, 15, 100), QColor(0, 65, 80)};
+    QColor colours[6] = {QColor(240,230,140),
+        QColor(0, 192, 255),
+        QColor(0, 128, 0),
+        QColor(255, 127, 80),
+        QColor(60, 179, 113),
+        QColor(255,215, 0)
+    };
     if(temporaryGraph.empty() == true)
     {
         std::cout << "graph is empty";
@@ -342,15 +358,30 @@ EulerTour CAC::findEulerTour(kcpp::EulerTour cluster, int i)
 
         DrawImage placeHolder(m_graph, m_data, tmpBcCpp, tempWayPoints);
         placeHolder.setImageBuffer(m_qimage);
-        int curr = rand()%12;
-        while(prev_gl[curr]) {
-            curr = rand()%12;
-        }
-        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[curr]);
-        prev_gl[curr]=true;
+        if(i_glob >=5 || i_glob<0)
+            i_glob=0;
+        placeHolder.drawWaypoints(tempWayPoints, 0, 0, colours[i_glob]);
+        i_glob++;
         m_qimage = placeHolder.getImageBuffer(); 
         placeHolder.saveImageBuffer(m_fileName);
     }
+
+    std::ofstream outputFile;
+    outputFile.open("CAC_tourLines.txt", std::ios::app);
+    for (unsigned j = 0; j < tourPoints.size(); ++j)
+    {
+        outputFile << "\n" << "Start Tour " << i << "\n"; 
+        std::vector<Point2D> tempPoints = tourPoints.at(j);
+
+        vector<Point2D>::iterator iter;
+        for(iter = tempPoints.begin(); iter != tempPoints.end(); ++iter)
+        {
+            outputFile << (*iter) << " ";
+        }
+
+        outputFile << "\n" << "End Tour " << i << "\n";
+    }
+    outputFile.close();
 
     return eulerCycle;
 }
