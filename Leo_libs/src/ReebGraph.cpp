@@ -1,5 +1,5 @@
 #define SHORT_PRINT_OUT
-//#define LONG_PRINT_OUT
+#define LONG_PRINT_OUT
 #include "ReebGraph.h"
 
 /*****************************************************************************

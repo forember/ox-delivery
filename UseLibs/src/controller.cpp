@@ -256,8 +256,8 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
-#ifdef SUPERDEBUG
-    cout << "==================== Converted Graph ====================" << endl
+#ifdef DEBUG
+    cout << "!==================== Converted Graph ====================" << endl
         << graph << endl
         << "================== End Converted Graph ==================" << endl;
 #endif
@@ -309,10 +309,12 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         cout << "\n";
         std::cout << "----------------- End Coverage WayPoints ------------";
 
+	std::cout << "CHECKSTART\n";
         std::cerr << "\n\nVerticies:\n";
         temporaryGraph.printVertex();
         std::cerr << "\nEdges:\n";
         temporaryGraph.printEdges();
+	std::cout << "CHECKEND\n";
 
         std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
         /*

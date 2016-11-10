@@ -126,4 +126,4 @@ install(DIRECTORY include/ DESTINATION /usr/local/include/ChinesePostman FILES_M
 
 install(FILES "ChinesePostmanConfig.cmake" DESTINATION /usr/lib/cmake/ChinesePostman)
 
-install(FILES "BensonKE_ChinesePostman.conf" DESTINATION /etc/ld.so.conf.d)
+install(FILES "ChinesePostman.conf" DESTINATION /etc/ld.so.conf.d)
