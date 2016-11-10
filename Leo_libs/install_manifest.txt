@@ -3,4 +3,4 @@
 /usr/local/include/Leo/Point2D.h
 /usr/local/include/Leo/RegionData.h
 /usr/lib/cmake/Leo/LeoConfig.cmake
-/etc/ld.so.conf.d/BensonKE_Leo.conf
+/etc/ld.so.conf.d/Leo.conf

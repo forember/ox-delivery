@@ -1,1 +1,54 @@
 Edit ./Leo_libs/src/ReebGraph.cpp, methods printEdges and printVertex.
+
+Latest Version as of: 15/Sept/2016
+
+=====================================================================================
+INTRODUCTION
+------------
+Chinese Postman, Boustrophedon Decomposition, multiple chinese postman algorithms
+
+Structure:
+	UseLibs/
+	LeoLibs/
+	KCPP/
+	CPP/
+	WayPoints/
+	catkin_ws/
+	
+=====================================================================================
+DEPENDENCIES
+------------
+Boost
+=====================================================================================
+INSTALLATION
+------------
+./run_all.sh
+=====================================================================================
+USAGE
+-----
+
+** Command line usage of cpp kcpp algorithms
+
+$INSTALL_DIR/UseLibs/UseLibs $IMG_DIR $IMAGE_NAME [number_of_robots] [algorithm_mode]
+
+[number_of_robots] if 1 Chinese Postman problem will be called
+
+[algorithms_mode] is for selecting the multiple chinese postman algorithm
+
+1 is for CAC algorithm
+0 is for CRC algorithm
+
+example:
+./UseLibs/UseLibs UseLibs/inputs/ Compare_1.png 2 1
+
+
+** Stage simulation usage
+
+=====================================================================================
+API
+---
+
+=====================================================================================
+License
+-------
+=====================================================================================

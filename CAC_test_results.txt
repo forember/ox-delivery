@@ -1,2 +1,10 @@
 Tests are running on image ------ Compare_1.png
 Number of tests per image are --- 7
+Tests are running on image ------ img1.png
+Number of tests per image are --- 7
+Tests are running on image ------ img1.png
+Number of tests per image are --- 7
+Tests are running on image ------ img1.png
+Number of tests per image are --- 7
+Tests are running on image ------ img2.png
+Number of tests per image are --- 7

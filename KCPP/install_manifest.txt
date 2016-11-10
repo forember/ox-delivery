@@ -3,4 +3,4 @@
 /usr/local/include/KCPP/FredericksonKCPP.h
 /usr/local/include/KCPP/KChinesePostmen.h
 /usr/lib/cmake/KCPP/KCPPConfig.cmake
-/etc/ld.so.conf.d/BensonKE_KCPP.conf
+/etc/ld.so.conf.d/KCPP.conf

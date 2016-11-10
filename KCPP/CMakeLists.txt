@@ -138,4 +138,4 @@ install(DIRECTORY include/ DESTINATION /usr/local/include/KCPP FILES_MATCHING PA
 
 install(FILES "KCPPConfig.cmake" DESTINATION /usr/lib/cmake/KCPP)
 
-install(FILES "BensonKE_KCPP.conf" DESTINATION /etc/ld.so.conf.d)
+install(FILES "KCPP.conf" DESTINATION /etc/ld.so.conf.d)

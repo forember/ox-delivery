@@ -2,4 +2,4 @@
 /usr/local/include/ChinesePostman/DrawImage.h
 /usr/local/include/ChinesePostman/ChinesePostman.h
 /usr/lib/cmake/ChinesePostman/ChinesePostmanConfig.cmake
-/etc/ld.so.conf.d/BensonKE_ChinesePostman.conf
+/etc/ld.so.conf.d/ChinesePostman.conf

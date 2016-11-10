@@ -3,4 +3,4 @@
 /usr/local/include/Boustrophedon/BCD.h
 /usr/local/include/Boustrophedon/OpenImage.h
 /usr/lib/cmake/Boustrophedon/BoustrophedonConfig.cmake
-/etc/ld.so.conf.d/BensonKE_Boustrophedon.conf
+/etc/ld.so.conf.d/Boustrophedon.conf

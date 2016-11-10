@@ -105,4 +105,4 @@ install(DIRECTORY include/ DESTINATION /usr/local/include/WayPoints FILES_MATCHI
 
 install(FILES "WayPointsConfig.cmake" DESTINATION /usr/lib/cmake/WayPoints)
 
-install(FILES "BensonKE_WayPoints.conf" DESTINATION /etc/ld.so.conf.d)
+install(FILES "WayPoints.conf" DESTINATION /etc/ld.so.conf.d)

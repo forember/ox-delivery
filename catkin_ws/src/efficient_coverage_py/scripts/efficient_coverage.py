@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy, os, math
+import rospy, os, math, collections
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import Odometry
@@ -9,9 +9,11 @@ from tf import transformations
 from PIL import Image
 
 WALL_WIDTH_PIXELS = 10
-WAYPOINT_RADIUS = 1
+WAYPOINT_RADIUS = 1.5
+ROBOT_BERTH_RADIUS = 1
 
 _WP_R_SQ = WAYPOINT_RADIUS*WAYPOINT_RADIUS
+_RB_R_SQ = ROBOT_BERTH_RADIUS*ROBOT_BERTH_RADIUS
 
 LEFT = math.pi
 RIGHT = 0
@@ -29,6 +31,19 @@ def get_yaw_quaternion(yaw):
     ros_q.w = numpy_q[3]
     return ros_q
 
+
+PoseTuple = collections.namedtuple('PoseTuple', ['x', 'y', 'yaw'])
+
+
+class PoseCallback (object):
+    def __init__(self, i, _pose_callback):
+        self.i = i
+        self._pose_callback = _pose_callback
+
+    def pose_callback(self, msg):
+        self._pose_callback(self.i, msg)
+
+
 class EffCovRobot (object):
     '''WARNING: Only create one instance per process!'''
 
@@ -38,7 +53,12 @@ class EffCovRobot (object):
         self.top_wall_y = top_wall_y
         self.scale_factor = scale_factor
         # Init pose members
-        self.x = self.y = self.yaw = None
+        self.x = (tour[0][0] + WALL_WIDTH_PIXELS)*self.scale_factor
+        self.y = self.top_wall_y - (tour[0][1]
+                + WALL_WIDTH_PIXELS)*self.scale_factor
+        self.yaw = 0
+        self.poses = [PoseTuple(-8, -8, 0)] * 4
+        self.too_close = False
         self.goal_x = self.goal_y = -65535
         self.going = RIGHT
         self.current_waypoint = -1
@@ -52,14 +72,45 @@ class EffCovRobot (object):
                 MoveToPosition2DActionResult, self.result_callback)
         # Subscribe to pose of stage robot
         self.pose_counter = 0
-        self.pose_sub = rospy.Subscriber('base_pose_ground_truth', Odometry,
-                self.pose_callback, queue_size=1)
+        self.pose_subs = []
+        for i in range(4):
+            print('/robot_{}/base_pose_ground_truth'.format(i))
+            pc_obj = PoseCallback(i, self.pose_callback)
+            self.pose_subs.append(rospy.Subscriber(
+                    '/robot_{}/base_pose_ground_truth'.format(i),
+                    Odometry, pc_obj.pose_callback, queue_size=1))
+        print('My ID is {}.'.format(self.robot_id))
 
     def result_callback(self, msg):
         print('Got Result!')
         #self.send_next_waypoint()
 
-    def pose_callback(self, msg):
+    def pose_callback(self, i, msg):
+        x = msg.pose.pose.position.x
+        y = msg.pose.pose.position.y
+        yaw = get_quaternion_yaw(msg.pose.pose.orientation)
+        self.poses[i] = PoseTuple(x, y, yaw)
+        if i == self.robot_id:
+            if self.my_pose_callback(msg):
+                for i in range(4):
+                    if i == self.robot_id:
+                        continue
+                    dx = self.x - self.poses[i].x
+                    dy = self.y - self.poses[i].y
+                    if dx*dx + dy*dy < _RB_R_SQ:
+                        if not self.too_close:
+                            print('Oh noes get away!')
+                            self.current_waypoint -= 1
+                            if self.current_waypoint >= 0:
+                                self.send_goal_waypoint(self.current_waypoint)
+                        self.too_close = 16
+                    elif self.too_close:
+                            self.too_close -= 1
+                            if not self.too_close:
+                                print('Resuming normal navigation.')
+                                self.send_next_waypoint()
+
+    def my_pose_callback(self, msg):
         # Collect pose from message
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
@@ -85,6 +136,8 @@ class EffCovRobot (object):
         if dx*dx + dy*dy < _WP_R_SQ:
             print('Good enough for government work!')
             self.send_next_waypoint()
+            return False
+        return True
 
     def send_goal(self, gx, gy, gyaw):
         self.goal_x = gx
@@ -111,7 +164,8 @@ class EffCovRobot (object):
                 self.going = LEFT
                 print('Going LEFT')
         self.send_goal((wp[0] + WALL_WIDTH_PIXELS)*self.scale_factor,
-                self.top_wall_y - (wp[1] + WALL_WIDTH_PIXELS)*self.scale_factor,
+                self.top_wall_y - (wp[1]
+                    + WALL_WIDTH_PIXELS)*self.scale_factor,
                 self.going)
 
     def send_next_waypoint(self):
@@ -189,6 +243,8 @@ def main():
             + WALL_WIDTH_PIXELS) + 0.5
     # Call afrl-oxdel and parse tour
     tour = generate_tours(*argv[1:4])[robot_id]
+    if argv[2] == 'Compare_1' and robot_id == 0:
+        tour.append([750, 136])
     print('{}: TOUR:\n  {}'.format(argv[0], tour))
     # Create ROS node
     ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor)
