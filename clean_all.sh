@@ -20,3 +20,4 @@ echo rm -f frames.gv frames.pdf
 rm -f frames.gv frames.pdf
 echo rm -f *.WayGraph.*.png tourLines.txt
 rm -f *.WayGraph.*.png tourLines.txt
+#./remove_gedit_files.sh

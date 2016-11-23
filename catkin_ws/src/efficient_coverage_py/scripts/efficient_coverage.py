@@ -226,9 +226,9 @@ def generate_tours(input_dir, input_name, robot_count=1):
 def main():
     # Get arguments without ROS's extra args
     argv = rospy.myargv()
-    if len(argv) != 6:
+    if len(argv) != 6 and len(argv) != 7:
         print(('Usage: {} <input dir> <input name> <total robot #>'
-            ' <this robot #> <map file>').format(argv[0]))
+            ' <this robot #> <map file> [tour lines file]').format(argv[0]))
         return 1
     # Parse arguments
     robot_id = int(argv[4])
@@ -242,9 +242,11 @@ def main():
     top_wall_y = scale_factor*(Image.open(image_path).size[1]
             + WALL_WIDTH_PIXELS) + 0.5
     # Call afrl-oxdel and parse tour
-    tour = generate_tours(*argv[1:4])[robot_id]
-    if argv[2] == 'Compare_1' and robot_id == 0:
-        tour.append([750, 136])
+    if len(argv) == 6:
+        tour = generate_tours(*argv[1:4])[robot_id]
+    else:
+        with open(argv[6]) as tour_file:
+            tour = parse_tours(tour_file)[robot_id]
     print('{}: TOUR:\n  {}'.format(argv[0], tour))
     # Create ROS node
     ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor)
