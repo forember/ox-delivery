@@ -15,6 +15,7 @@ clean_lib CPP_libs
 clean_lib KCPP
 clean_lib UseLibs
 clean_lib catkin_ws
+clean_lib catkin_ws
 cd "$base"
 echo rm -f frames.gv frames.pdf
 rm -f frames.gv frames.pdf
