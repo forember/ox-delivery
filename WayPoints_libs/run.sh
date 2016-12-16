@@ -15,7 +15,11 @@ showlogs () {
     fi
 }
 
-./clean.sh 2>&1 | tee .clean.log
+if [ "$1" != 'build' ]; then
+    ./clean.sh 2>&1 | tee .clean.log
+else
+    echo 'NO CLEAN PERFORMED' | tee .clean.log
+fi
 
 cmake . 2>&1 | tee .cmake.log
 showlogs clean cmake

@@ -21,7 +21,11 @@ showlogs () {
     fi
 }
 
-./clean.sh 2>&1 | tee .clean.log
+if [ "$1" != 'build' ]; then
+    ./clean.sh 2>&1 | tee .clean.log
+else
+    echo 'NO CLEAN PERFORMED' | tee .clean.log
+fi
 
 $QMAKE -project 2>&1 | tee .qmake1.log
 showlogs clean qmake1
