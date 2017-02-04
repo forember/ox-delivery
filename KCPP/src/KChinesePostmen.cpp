@@ -297,20 +297,20 @@ std::list<ReebEdge> KChinesePostmen::getShortPath(Vertex v, kcpp::Graph g)
     if(vPath.size() <= 1){
         return ePath;
     }
-    for ( rit=vPath.rbegin(), next = rit + 1; next!=vPath.rend(); ++next) 
-    {
-        
-        std::pair<kcpp::Edge, bool> edgeDesc = boost::edge(*rit, *next, g);
+	for ( rit=vPath.rbegin(), next = rit + 1; next!=vPath.rend(); ++next) 
+	{
+
+		std::pair<kcpp::Edge, bool> edgeDesc = boost::edge(*rit, *next, g);
 #ifdef DEBUG_KCHINESEPOSTMAN
-            std::cout << g[*rit].Vid << " - "  << g[*next].Vid << std::endl;
+		std::cout << g[*rit].Vid << " - "  << g[*next].Vid << std::endl;
 #endif
-        if(edgeDesc.second == true) {
-            ReebEdge edge = g[edgeDesc.first];
-            ePath.push_back(edge);
-        }
-        rit = next;
-    }
-    return ePath;
+		if(edgeDesc.second == true) {
+			ReebEdge edge = g[edgeDesc.first];
+			ePath.push_back(edge);
+		}
+		rit = next;
+	}
+	return ePath;
 }
 
 /**==============================================================
@@ -322,21 +322,6 @@ std::list<ReebEdge> KChinesePostmen::getShortPath(Vertex v, kcpp::Graph g)
  **==============================================================*/
 void KChinesePostmen::printEulerianTours()
 {
-            /*Vertex v_first, v_second;
-
-            Edge e = tour_j.front();
-            tie(v_first, v_second) = m_graph.getEndNodes(e);
-            std::list<ReebEdge> t1 = getShortPath(v_first, m_g);
-            tour_jv.splice(tour_jv.begin(), t1);
-
-            e = tour_j.back();
-            tie(v_first, v_second) = m_graph.getEndNodes(e);
-            t1 = getShortPath(v_second, m_g);
-            tour_jv.splice(tour_jv.end(), t1);
-            */
-
-    //std::cerr << "start \n";
-    
     std::cout << "----------------------Eulerian Tours-----------------------------\n";
     std::cout << "The number of robots is: " << m_k << "\n";
     std::cout << "The number of routes is: " << m_eulerTours.size() << "\n";
@@ -429,5 +414,3 @@ void KChinesePostmen::printShortestPaths(kcpp::Graph graph)
     std::cout << "----------------------------------------------------------------\n";
 
 }
-
-

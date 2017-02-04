@@ -16,16 +16,6 @@
 #include <KCPP/FredericksonKCPP.h>
 #include <KCPP/CAC.h>
 
-/*class IncorrectInput : public excpetion 
-  {
-  virtual const char* what() const throw()
-  {
-  return "The input to the algorithm is incorrect\n";
-  }
-  } incorrectInput;
- */
-
-
 class Controller : public QObject
 {
 	Q_OBJECT
@@ -47,7 +37,7 @@ class Controller : public QObject
 		void runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod);
 
         /** testing for possible k_vec values and writing the results in fileName*/
-        void test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod, std::string fileName);
+        void test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod);
 
         //Used to verify the input arguments
         void checkInputParams(const std::string& directory,
@@ -58,10 +48,6 @@ class Controller : public QObject
                 std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints, KCPP_MODE mod);
 
 
-
-	public:
-		/** bulk testing **/
-		// void runTests(int n, std::string filePrefix);
 
 	private:
 		bool m_cppSolved;

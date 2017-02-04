@@ -30,7 +30,7 @@ void Controller::run(const std::string& directory, const std::string& image,
     vector<Point2D> wayPoints;
 
 #ifdef DEBUG
-//    std::cout << "Controller's run executed\n";
+    //    std::cout << "Controller's run executed\n";
 #endif
 
     checkInputParams(directory, image, k);
@@ -39,57 +39,48 @@ void Controller::run(const std::string& directory, const std::string& image,
     m_image = image;
     m_k = k;
 
-    //-------------------- BCD call -------------------------
-
-#ifdef DEBUG
-//    std::cerr << "BCD is starting...\n";
+    //-------------------- BCD call -------------------------//
+#ifdef DEBUG_BCD
+    std::cerr << "BCD is starting...\n";
+    std::cerr << "----------------\n";
 #endif
 
     BCD bcd(directory, image, data, graph);
 
-#ifdef DEBUG
- //   std::cerr << "BCD is completed\n"; 
+#ifdef DEBUG_BCD
+    std::cerr << "----------------\n";
+    std::cerr << "BCD is completed\n"; 
 #endif
-
-    //----------------- BCD call ended ----------------------
+    //----------------- BCD call ended ----------------------//
 
     ChinesePostman m_cpp(data, graph, eulerCycle, wayPoints);
 
 #ifdef DEBUG
     /*std::cout << "After running cpp, checking the m_cpp var ...\n";
-    std::cout << eulerCycle;
-    std::cout << graph;
-    std::cout << std::endl;
-    std::cout << "Checking is passed!\n";*/
+      std::cout << eulerCycle;
+      std::cout << graph;
+      std::cout << std::endl;
+      std::cout << "Checking is passed!\n";*/
 #endif
 
     m_cppSolved = true;
 
-    int vec[] = {1, 2, 4, 8, 16, 20, 32};
-    std::vector<int> k_vec (vec, vec+sizeof(vec)/sizeof(int)); //possible k robot values
 
-    std::ofstream testOutFile; // The kcpp results are recorded here
-    std::string testFileName = "CAC_test_results.txt";
-    if(mod == CRC_MODE){
-        testFileName = "CRC_test_results.txt";
-    }
-    testOutFile.open(testFileName.c_str(), std::ofstream::app); //appends from the end
-
-    testOutFile << "Tests are running on image ------ " << m_image << "\n";
-    testOutFile << "Number of tests per image are --- " << k_vec.size() <<"\n";
-    testOutFile.close();
-
-    //test(k_vec, graph, eulerCycle, data, mod, testFileName);
+    /* testing the algorithms by storing the max tour cost*/
+    
+       int vec[] = {1, 2, 4, 8, 16, 20, 32};
+       std::vector<int> k_vec (vec, vec+sizeof(vec)/sizeof(int)); //possible k robot values
+       test(k_vec, graph, eulerCycle, data, mod);
     runkCPP(m_k, graph, eulerCycle, data,  mod);
 
 #ifdef DEBUG
     //m_kcpp->printEulerianTours();
     //std::cout << std::endl;
 #endif
-        if(mod == CRC_MODE) {
-    m_tours = m_kcpp->getKEulerianTours();
-    generateWaypoints(data, graph, eulerCycle, wayPoints, mod);
-        } 
+    if(mod == CRC_MODE) {
+        m_tours = m_kcpp->getKEulerianTours();
+        generateWaypoints(data, graph, eulerCycle, wayPoints, mod);
+    } 
 }
 
 
@@ -133,14 +124,14 @@ void Controller::checkInputParams(const std::string& directory,
 
     if(k<1) 
     {
-        message = "ERR:Number of robots must be positive integer!";
+        message = "ERR: Number of robots must be positive integer!";
         throw std::invalid_argument(message);
     }
 
     /**TODO: Add also check for valid image format*/
     if( !std::ifstream((directory + image).c_str())) 
     {
-        message = "ERR:There is no image at this path:  " + directory + image;
+        message = "ERR: There is no image at this path:  " + directory + image;
         throw std::invalid_argument(message);
     }
 }
@@ -157,7 +148,7 @@ void Controller::checkInputParams(const std::string& directory,
  * \Author Chris McKinney
  **==============================================================*/
 void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
-                std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints, KCPP_MODE mod)
+        std::list<Edge>& eulerCycle, vector<Point2D>& wayPoints, KCPP_MODE mod)
 {
     WayPoints way(data, graph, eulerCycle, wayPoints);
 
@@ -181,9 +172,9 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         ReebVertex vertexTwo = graph.getVProp(v2);
 
         Point2D first = Point2D(vertexOne.x,
-            (vertexOne.y1 + vertexOne.y2) / 2);
+                (vertexOne.y1 + vertexOne.y2) / 2);
         Point2D second = Point2D(vertexTwo.x,
-            (vertexTwo.y1 + vertexTwo.y2) / 2);
+                (vertexTwo.y1 + vertexTwo.y2) / 2);
 
         std::cout << first;
         std::cout << " ";
@@ -209,18 +200,22 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
     //Coverage edges are the ones you need to use to move
     std::vector<std::vector<Point2D> > tourPoints;
 
-		int rmExt = m_image.find_last_of("."); 
-		string img = m_image.substr(0, rmExt); 
-		QString imageQS = QString(img.c_str());
-		QString fileName = QString("%1.WayGraph.png").arg(imageQS);
-		QImage qimage(QString((m_directory +"/"+ m_image).c_str()));
+    int rmExt = m_image.find_last_of("."); 
+    string img = m_image.substr(0, rmExt); 
+    QString imageQS = QString(img.c_str());
+	QString mode_label = "CRC_";
+    if(mod == CAC_MODE){
+		mode_label = "CAC_";
+	}
+    QString fileName = QString(mode_label + QString::number(m_k) + "Robots_" +"%1.WayGraph.png").arg(imageQS);
+    QImage qimage(QString((m_directory +"/"+ m_image).c_str()));
 #ifdef DEBUG
-        std::cout <<"**********************IN CONTROLLER**************************\n";
-        std::cout << (m_directory +"/"+ m_image).c_str() << std::endl;
-        std::cout <<"************************************************\n";
+    std::cout <<"**********************IN CONTROLLER**************************\n";
+    std::cout << (m_directory +"/"+ m_image).c_str() << std::endl;
+    std::cout <<"************************************************\n";
 #endif
-		assert(!qimage.isNull() && "the image is NULL"); //DEBUG
-		srand(time(NULL));
+    assert(!qimage.isNull() && "the image is NULL"); //DEBUG
+    srand(time(NULL));
 
     for (size_t i = 0; i < m_tours.size(); ++i)
     {
@@ -248,9 +243,9 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
             ReebVertex vertexTwo = (m_kcpp->m_graph).getVProp(v2);
 
             Point2D first = Point2D(vertexOne.x,
-                (vertexOne.y1 + vertexOne.y2) / 2);
+                    (vertexOne.y1 + vertexOne.y2) / 2);
             Point2D second = Point2D(vertexTwo.x,
-                (vertexTwo.y1 + vertexTwo.y2) / 2);
+                    (vertexTwo.y1 + vertexTwo.y2) / 2);
 
             std::cout << first;
             std::cout << " ";
@@ -274,13 +269,13 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         std::list<Edge> tmpBcCpp = temporaryGraph.getEdgeList();
 
 #ifdef DEBUG
-    cout << "!==================== Converted Graph ====================" << endl
-        << graph << endl
-        << "================== End Converted Graph ==================" << endl;
+        cout << "!==================== Converted Graph ====================" << endl
+            << graph << endl
+            << "================== End Converted Graph ==================" << endl;
 #endif
 
 #ifdef DEBUG
-      std::cout << "---------------- Converted Coverage Edges ------------";
+        std::cout << "---------------- Converted Coverage Edges ------------";
         cout<<"\n";
         cerr << "Tour " << i << ":\n";
         for (EulerTour::iterator it = tmpBcCpp.begin();
@@ -293,9 +288,9 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
             ReebVertex vertexTwo = temporaryGraph.getVProp(v2);
 
             Point2D first = Point2D(vertexOne.x,
-                (vertexOne.y1 + vertexOne.y2) / 2);
+                    (vertexOne.y1 + vertexOne.y2) / 2);
             Point2D second = Point2D(vertexTwo.x,
-                (vertexTwo.y1 + vertexTwo.y2) / 2);
+                    (vertexTwo.y1 + vertexTwo.y2) / 2);
 
             std::cout << first;
             std::cout << " ";
@@ -326,24 +321,24 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         cout << "\n";
         std::cout << "----------------- End Coverage WayPoints ------------";
 
-	std::cout << "CHECKSTART\n";
+        std::cout << "CHECKSTART\n";
         std::cerr << "\n\nVerticies:\n";
         temporaryGraph.printVertex();
         std::cerr << "\nEdges:\n";
         temporaryGraph.printEdges();
-	std::cout << "CHECKEND\n";
+        std::cout << "CHECKEND\n";
 
         std::cerr << "\nEdge count: " << tmpBcCpp.size() << "\n";
         /*
-        std::cerr << std::endl << "Graph Edges:" << std::endl;
-        std::list<Edge>::iterator tbcit;
-        for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
-        {
-            std::cerr << " Edge:" << std::endl;
-            ReebEdge e = temporaryGraph.getEProp(*tbcit);
+           std::cerr << std::endl << "Graph Edges:" << std::endl;
+           std::list<Edge>::iterator tbcit;
+           for (tbcit = tmpBcCpp.begin(); tbcit != tmpBcCpp.end(); ++tbcit)
+           {
+           std::cerr << " Edge:" << std::endl;
+           ReebEdge e = temporaryGraph.getEProp(*tbcit);
 
-        }
-        */
+           }
+           */
         std::cerr << std::endl << "END TOUR " << i << std::endl << std::endl;
         std::cerr << "========================================================"
             << "===================================" << std::endl << std::endl;
@@ -354,13 +349,13 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 
         //m_cpp.viewEulerGraph(fileName, data, graph, eulerCycle, wayPoints);
         //tourWayPoints.viewWaypoints(fileName, data, temporaryGraph, tmpBcCpp, tempWayPoints);
-    QColor colours[6] = {QColor(240,230,140),
-        QColor(0, 192, 255),
-        QColor(0, 128, 0),
-        QColor(255, 127, 80),
-        QColor(60, 179, 113),
-        QColor(255,215, 0)
-    };
+        QColor colours[6] = {QColor(240,230,140),
+            QColor(0, 192, 255),
+            QColor(0, 128, 0),
+            QColor(255, 127, 80),
+            QColor(60, 179, 113),
+            QColor(255,215, 0)
+        };
         DrawImage placeHolder(graph, data, tmpBcCpp, tempWayPoints);
         placeHolder.setImageBuffer(qimage);
         if(m_cnt>7 || m_cnt <0)
@@ -390,21 +385,29 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 #endif
 }
 
-void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod, std::string fileName)
+void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>& eulerCycle, RegionData data, KCPP_MODE mod)
 {
-    std::ofstream testOutFile;
-    testOutFile.open(fileName.c_str(), std::ofstream::app); //appends from the end
+    time_t rawtime;
+    time (&rawtime);
+    std::string timestamp = ctime(&rawtime);
+    std::ofstream testOutFile; // The kcpp results are recorded here
+    std::string testFileName = timestamp + "_" + m_image + "_CAC_test_results.txt";
+    std::cout << "--------------------------------------%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << testFileName << "\n";
+    if(mod == CRC_MODE){
+        testFileName = timestamp  + "_" + m_image + "_CRC_test_results.txt";
+    }
+    testOutFile.open(testFileName.c_str(), std::ofstream::app); //appends from the end
+
+    testOutFile << "Tests are running on image ------ " << m_image << "\n";
+    testOutFile << "Number of tests per image are --- " << k_vec.size() <<"\n";
 
     for(int i = 0; i < k_vec.size(); i++)
     {
         runkCPP(k_vec.at(i), graph, eulerCycle, data,  mod);
         if(k_vec.at(i) == 1) {
             testOutFile << "----- # of Robots------ size of max coverage -------\n";
-            testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost() << "\n";
-
-        } else {
-            testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost() << "\n";
         }
+        testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost()  << "  - #of routs  ->  #TODO " << "\n";
     }
     testOutFile.close();
 }
