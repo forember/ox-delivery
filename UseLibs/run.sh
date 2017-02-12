@@ -21,7 +21,7 @@ showlogs () {
     fi
 }
 
-if [ "$1" != 'build' ]; then
+if [ "$1" = 'init' -o "$1" = 'initins' ]; then
     ./clean.sh 2>&1 | tee .clean.log
 else
     echo 'NO CLEAN PERFORMED' | tee .clean.log
@@ -43,9 +43,13 @@ sed -i 's|^INCPATH.*$|\0 -Iinclude|' Makefile
 make 2>&1 | tee .make.log
 showlogs clean qmake1 qmake2 qmake3 make
 
-echo 'Installing and configuring linker. Requires root.'
-sudo cp UseLibs /usr/local/bin/afrl-oxdel 2>&1 | tee .install.log
-showlogs clean qmake1 qmake2 qmake3 make install
-sudo ldconfig 2>&1 | tee .ldconfig.log
-showlogs clean qmake1 qmake2 qmake3 make install ldconfig
+if [ "$1" = 'install' -o "$1" = 'initins' ]; then
+    echo 'Installing and configuring linker. Requires root.'
+    sudo cp UseLibs /usr/local/bin/afrl-oxdel 2>&1 | tee .install.log
+    showlogs clean qmake1 qmake2 qmake3 make install
+    sudo ldconfig 2>&1 | tee .ldconfig.log
+    showlogs clean qmake1 qmake2 qmake3 make install ldconfig
+else
+    echo 'NO INSTALL PERFORMED' | tee .install.log
+fi
 rm -f .clean.log

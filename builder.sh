@@ -28,12 +28,16 @@ remove_lib () {
     libs=( "${new_libs[@]}" )
 }
 print_usage () {
-    echo "usage: $me <clean | init | build> <none | defaults | all> [<+|-><lib> ...]"
+    echo "usage: $me <clean | init | build | install | initins>"
+    echo '          <none | defaults | all> [<+|-><lib> ...]'
     echo
     echo '  Commands:'
     echo '      clean:  clean each provided library, and also remove frames, images, and tours'
     echo '      init:   clean and then build each provided library'
     echo '      build:  build each provided library'
+    echo '      install: build and install each provided library'
+    echo '      initins: clean and then build and install each provided library;'
+    echo '              This is the behavior of the old `run_all.sh` script.'
     echo
     echo '  Groups:'
     echo '      none:   just operate on manually added libraries'
@@ -79,13 +83,11 @@ if [ "$cmd" = 'clean' ]; then
     rm -f frames.gv frames.pdf
     echo rm -f *.WayGraph.*.png tourLines.txt
     rm -f *.WayGraph.*.png tourLines.txt
-elif [ "$cmd" = 'init' -o "$cmd" = 'build' ]; then
+elif [ "$cmd" = 'init' -o "$cmd" = 'build' -o "$cmd" = 'install' -o "$cmd" = 'initins' ]; then
     echo BUILDER: "$cmd:" "${libs[@]}"
     for lib in "${libs[@]}"; do
         compile_lib "$lib" "$cmd"
     done
-elif [ "$cmd" = 'build' ]; then
-    echo BUILD: "${libs[@]}"
 else
     echo "Invalid command '$cmd'"
     print_usage
