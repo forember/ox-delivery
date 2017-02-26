@@ -60,6 +60,10 @@ class KChinesePostmen
         std::vector<EulerTour> getKEulerianTours(){
             return m_eulerTours;
         };
+		/** This resturns the actual size of created clusters*/
+        int getNumberOfTours(){
+            return m_eulerTours.size();
+        };
 
         virtual void printEulerianTours();
 
@@ -86,6 +90,16 @@ class KChinesePostmen
         {
             return m_maxCoverageCost;
         }
+
+		void getLogInfo() {
+			std::cout << "---------- Log info on results ----------------\n";
+			//std::cout << "Cost of single optimal tour:         " << m_ 
+			std::cout << "Number of robots is:                 " << m_k <<"\n"; 
+			std::cout << "Number of Cells are:                 " << m_graph.numEdges() <<"\n";
+			std::cout << "Actual number of routs generated is: " << m_eulerTours.size() << "\n";
+			std::cout << "The maximum cost of routs:           " << m_maxCoverageCost << "\n";
+			std::cout << "------------------------------------------------\n";
+		}
 
     protected:
         /** Computes shortest Distances based on the non multigraph */

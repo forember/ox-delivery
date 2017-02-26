@@ -852,8 +852,8 @@ ostream& operator<< (ostream& out, ReebEdge& e)
 #endif
 
 #ifdef LONG_PRINT_OUT
-    out << "[Eid " << e.Eid << ", cost " << e.cost
-        << ", area " << e.area << ", topBoundary "
+    out << "[Eid " << e.Eid << ", travelCost " << e.travelCost
+        << ", areaCost " << e.area << ", topBoundary "
         << e.topBoundary.size() << ", bottomBoundary "
         << e.bottomBoundary.size() << "]";
 #endif

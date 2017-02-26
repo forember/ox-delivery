@@ -15,6 +15,7 @@
 #include <KCPP/KChinesePostmen.h>
 #include <KCPP/FredericksonKCPP.h>
 #include <KCPP/CAC.h>
+#include <KCPP/NRC.h>
 
 class Controller : public QObject
 {
@@ -22,7 +23,7 @@ class Controller : public QObject
 
 	public:
 		Controller();
-		enum KCPP_MODE{ CRC_MODE, CAC_MODE };
+		enum KCPP_MODE{ CRC_MODE, CAC_MODE , NRC_MODE};
 
 		//Runs k rout finding solver on the image
 		void run(const std::string& directory, const std::string& image, int k, KCPP_MODE mod);

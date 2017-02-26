@@ -1,25 +1,19 @@
-#ifndef FREDERICKSONKCPP_H
-#define FREDERICKSONKCPP_H
+#ifndef NRC_H
+#define NRC_H
 
 #include <vector>
 
 #include "KChinesePostmen.h"
 
-class FredericksonKCPP : public KChinesePostmen
+class NRC : public KChinesePostmen
 {
 
 public:
     //FIXME: const was removed 
-    FredericksonKCPP(const EulerTour& tour, const ReebGraph& g, int k);
+    NRC(const EulerTour& tour, const ReebGraph& g, int k);
 
-		// mod flag indicates if we want to run solve with modified version of cluster computing 
+    // mod flag indicates if we want to run solve with modified version of cluster computing 
     void solve(bool mod = false);
-	void solve_old(bool mod = false);
-
-//    void solve(EulerTour tour, int k);
-
-//    std::vector<double> solve(int k);
-//    void printKTours();
 
 private:
     //private functions
@@ -38,4 +32,4 @@ private:
     std::vector<double> m_results;
 };
 
-#endif // FREDERICKSONKCPP_H
+#endif // NRC_H
