@@ -39,6 +39,7 @@
     <!-- Start the Operator to control the simulated robot -->
     <node name="Operator" pkg="nav2d_operator" type="operator">
         <remap from="scan" to="base_scan"/>
+        <remap from="cmd_vel" to="op_cmd_vel"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_0.yaml"
                 ns="local_map" />
@@ -76,6 +77,7 @@
     <!-- Start the Operator to control the simulated robot -->
     <node name="Operator" pkg="nav2d_operator" type="operator">
         <remap from="scan" to="base_scan"/>
+        <remap from="cmd_vel" to="op_cmd_vel"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_1.yaml"
                 ns="local_map" />
@@ -113,6 +115,7 @@
     <!-- Start the Operator to control the simulated robot -->
     <node name="Operator" pkg="nav2d_operator" type="operator">
         <remap from="scan" to="base_scan"/>
+        <remap from="cmd_vel" to="op_cmd_vel"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_2.yaml"
                 ns="local_map" />
@@ -150,6 +153,7 @@
     <!-- Start the Operator to control the simulated robot -->
     <node name="Operator" pkg="nav2d_operator" type="operator">
         <remap from="scan" to="base_scan"/>
+        <remap from="cmd_vel" to="op_cmd_vel"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_3.yaml"
                 ns="local_map" />

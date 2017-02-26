@@ -2,21 +2,24 @@
 
 import rospy, os, math, collections
 from std_msgs.msg import Header
-from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, Twist
 from nav_msgs.msg import Odometry
 from nav2d_navigator.msg import MoveToPosition2DActionResult
 from tf import transformations
 from PIL import Image
+from scipy import ndimage
 
 WALL_WIDTH_PIXELS = 10
-WAYPOINT_RADIUS = 1.5
-ROBOT_BERTH_RADIUS = 1
+WAYPOINT_RADIUS = 1.25
+ROBOT_BERTH_RADIUS = 3
 
 _WP_R_SQ = WAYPOINT_RADIUS*WAYPOINT_RADIUS
 _RB_R_SQ = ROBOT_BERTH_RADIUS*ROBOT_BERTH_RADIUS
 
 LEFT = math.pi
 RIGHT = 0
+
+DO_DETAIL_TOUR = True
 
 def get_quaternion_yaw(ros_q):
     numpy_q = (ros_q.x, ros_q.y, ros_q.z, ros_q.w)
@@ -47,11 +50,13 @@ class PoseCallback (object):
 class EffCovRobot (object):
     '''WARNING: Only create one instance per process!'''
 
-    def __init__(self, robot_id, tour, top_wall_y, scale_factor):
+    def __init__(self, robot_id, tour, top_wall_y, scale_factor, image_path):
         self.robot_id = robot_id
         self.tour = tour
         self.top_wall_y = top_wall_y
         self.scale_factor = scale_factor
+        self.image = ndimage.imread(image_path, mode='L')
+        self.gauss_image = ndimage.gaussian_filter(self.image, 64, truncate=4)
         # Init pose members
         self.x = (tour[0][0] + WALL_WIDTH_PIXELS)*self.scale_factor
         self.y = self.top_wall_y - (tour[0][1]
@@ -63,10 +68,15 @@ class EffCovRobot (object):
         self.going = RIGHT
         self.current_waypoint = -1
         self.done = False
+        self.op_coupled = not DO_DETAIL_TOUR
         # Publish to command the stage robot
         self.goal_pub = rospy.Publisher('goal', PoseStamped, queue_size=1)
+        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         # Initialize node
         rospy.init_node('ECRobot_{}'.format(robot_id))
+        # Subscribe to the operator output
+        self.op_cmd_vel_sub = rospy.Subscriber('op_cmd_vel', Twist,
+                self.op_cmd_vel_callback)
         # Subscribe to movement results
         self.result_sub = rospy.Subscriber('MoveTo/result',
                 MoveToPosition2DActionResult, self.result_callback)
@@ -80,6 +90,10 @@ class EffCovRobot (object):
                     '/robot_{}/base_pose_ground_truth'.format(i),
                     Odometry, pc_obj.pose_callback, queue_size=1))
         print('My ID is {}.'.format(self.robot_id))
+
+    def op_cmd_vel_callback(self, msg):
+        if self.op_coupled:
+            self.cmd_vel_pub.publish(msg)
 
     def result_callback(self, msg):
         print('Got Result!')
@@ -115,7 +129,7 @@ class EffCovRobot (object):
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         yaw = get_quaternion_yaw(msg.pose.pose.orientation)
-        if x == self.x and y == self.y and yaw == self.yaw:
+        if self.op_coupled and x == self.x and y == self.y and yaw == self.yaw:
             self.stay_counter += 1
         else:
             self.stay_counter = 0
@@ -127,17 +141,43 @@ class EffCovRobot (object):
         self.yaw = yaw
         if self.done or self.stay_counter >= 16:
             self.stay_counter = 1
-            return
+            return False
         self.pose_counter = (self.pose_counter + 1) % 128
         if self.pose_counter == 0:
             print('x: {}, y: {}, yaw: {}'.format(self.x, self.y, self.yaw))
-        dx = self.x - self.goal_x
-        dy = self.y - self.goal_y
+        dx = self.goal_x - self.x
+        dy = self.goal_y - self.y
         if dx*dx + dy*dy < _WP_R_SQ:
             print('Good enough for government work!')
             self.send_next_waypoint()
-            return False
-        return True
+            en_route = False
+        else:
+            en_route = True
+        if not self.op_coupled:
+            dx = self.goal_x - self.x
+            dy = self.goal_y - self.y
+            dyaw = math.atan2(dy, dx) - self.yaw
+            dyaw = math.atan2(math.sin(dyaw), math.cos(dyaw))
+            if math.fabs(dyaw) > math.pi / 16:
+                self.send_cmd_vel(0, 0, math.copysign(1, dyaw))
+            else:
+                dm = math.sqrt(dx*dx + dy*dy)
+                self.send_cmd_vel(dx/dm, dy/dm, 0)
+        return en_route
+
+    def send_cmd_vel(self, vx, vy, vyaw):
+        msg = Twist()
+        msg.linear.x = vx
+        msg.linear.y = vy
+        msg.angular.z = vyaw
+        self.cmd_vel_pub.publish(msg)
+
+    def is_goal_line_clear(self):
+        irx = self.x/self.scale_factor - WALL_WIDTH_PIXELS
+        iry = (self.top_wall_y - self.y)/self.scale_factor - WALL_WIDTH_PIXELS
+        igx = self.goal_x/self.scale_factor - WALL_WIDTH_PIXELS
+        igy = ((self.top_wall_y - self.goal_y)/self.scale_factor
+                - WALL_WIDTH_PIXELS)
 
     def send_goal(self, gx, gy, gyaw):
         self.goal_x = gx
@@ -163,10 +203,13 @@ class EffCovRobot (object):
             elif tour[i + 1][0] < tour[i][0]:
                 self.going = LEFT
                 print('Going LEFT')
-        self.send_goal((wp[0] + WALL_WIDTH_PIXELS)*self.scale_factor,
-                self.top_wall_y - (wp[1]
-                    + WALL_WIDTH_PIXELS)*self.scale_factor,
-                self.going)
+        gx = (wp[0] + WALL_WIDTH_PIXELS)*self.scale_factor
+        gy = self.top_wall_y - (wp[1] + WALL_WIDTH_PIXELS)*self.scale_factor
+        if DO_DETAIL_TOUR and i != 0:
+            self.send_goal(gx, gy, math.atan2(-(wp[1] - tour[i - 1][1]),
+                wp[0] - tour[i - 1][0]))
+        else:
+            self.send_goal(gx, gy, self.going)
 
     def send_next_waypoint(self):
         self.current_waypoint += 1
@@ -223,6 +266,61 @@ def generate_tours(input_dir, input_name, robot_count=1):
         shutil.rmtree(tmpdir)
     return tours
 
+def detail_tour(tour, image_path, granularity=32):
+    new_tour = []
+    im = Image.open(image_path).convert('1', dither=Image.NONE)
+    for i in xrange(1, len(tour)):
+        start = tour[i - 1]
+        end = tour[i]
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        distance = math.sqrt(dx*dx + dy*dy)
+        if distance == 0:
+            continue
+        ux = dx / distance
+        uy = dy / distance
+        mag_list = range(0, int(distance), granularity)
+        if mag_list[-1] != int(distance):
+            mag_list.append(int(distance))
+        for mag in mag_list:
+            x = start[0] + mag*ux
+            y = start[1] + mag*uy
+            (nx, ny) = (int(x), int(y))
+            #print start, end, mag, distance, (nx, ny), (ux, uy)
+            theta_ctr = 0
+            pixel = im.getpixel((nx, ny))
+            while pixel == 0:
+                theta = (theta_ctr%16) * math.pi/8
+                r = 1 + theta_ctr//16
+                nx = int(x + r*math.cos(theta))
+                ny = int(y + r*math.sin(theta))
+                try:
+                    pixel = im.getpixel((nx, ny))
+                except IndexError:
+                    pixel = 0
+                theta_ctr += 1
+            if theta_ctr == 0:
+                while pixel != 0 and theta_ctr < 256:
+                    theta = (theta_ctr%16) * math.pi/8
+                    r = 1 + theta_ctr//16
+                    nx = int(x + r*math.cos(theta))
+                    ny = int(y + r*math.sin(theta))
+                    try:
+                        pixel = im.getpixel((nx, ny))
+                    except IndexError:
+                        pixel = 0
+                    theta_ctr += 1
+                r = -r
+            if theta_ctr < 256: r += 4
+            nx = int(x + r*math.cos(theta))
+            ny = int(y + r*math.sin(theta))
+            if nx < 4: nx = 4
+            if nx >= im.size[0] - 4: nx = im.size[0] - 4
+            if ny < 4: ny = 4
+            if ny >= im.size[1] - 4: ny = im.size[1] - 4
+            new_tour.append([nx, ny])
+    return new_tour
+
 def main():
     # Get arguments without ROS's extra args
     argv = rospy.myargv()
@@ -247,9 +345,11 @@ def main():
     else:
         with open(argv[6]) as tour_file:
             tour = parse_tours(tour_file)[robot_id]
+    if DO_DETAIL_TOUR:
+        tour = detail_tour(tour, image_path)
     print('{}: TOUR:\n  {}'.format(argv[0], tour))
     # Create ROS node
-    ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor)
+    ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor, image_path)
     # Go! Main loop.
     ecr.spin()
 
