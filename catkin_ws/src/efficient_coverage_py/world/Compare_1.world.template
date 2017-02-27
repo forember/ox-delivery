@@ -54,9 +54,9 @@ name "OxDelivery Compare_1 World"
 # set the resolution of the underlying raytrace model in meters
 resolution 0.02
 
-interval_sim 100  # simulation timestep in milliseconds
+interval_sim 10  # simulation timestep in milliseconds
 
-speedup 0.5
+speedup 0.75
 
 % scale = float(_GET['scale'])
 

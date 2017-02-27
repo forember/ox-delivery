@@ -168,7 +168,7 @@ class PassThruOperator(object):
                 self.move(LINEAR_VEL_MPS*msg.Velocity,
                           -math.copysign(min(near_up, near_down), msg.Turn))
             else:
-                self.move(LINEAR_VEL_MPS*msg.Velocity, 0)
+                self.move(LINEAR_VEL_MPS*msg.Velocity, -ANGULAR_VEL_RADPS*msg.Turn)
 
     def goal_callback(self, msg):
         position = msg.pose.position

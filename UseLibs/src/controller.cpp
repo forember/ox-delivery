@@ -8,7 +8,7 @@
  **==============================================================*/
 //#define DEBUG
 #define LOG_TOURS
-#define RUN_TEST_CASES
+//#define RUN_TEST_CASES
 #include "controller.h"
 #include <fstream>
 #include <KCPP/CAC.h>
@@ -374,6 +374,9 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
     }
 
 #ifdef LOG_TOURS
+#ifdef DEBUG
+    std::cout << "\nOUTPUT tourLines.txt\n";
+#endif
     std::ofstream outputFile;
     outputFile.open("tourLines.txt");
     for (unsigned i = 0; i < tourPoints.size(); ++i)

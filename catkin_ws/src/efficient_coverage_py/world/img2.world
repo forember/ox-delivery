@@ -54,7 +54,7 @@ name "OxDelivery img2 World"
 # set the resolution of the underlying raytrace model in meters
 resolution 0.02
 
-interval_sim 100  # simulation timestep in milliseconds
+interval_sim 10  # simulation timestep in milliseconds
 
 speedup 1
 
@@ -83,8 +83,8 @@ floorplan
 
 # robots
 erratic( pose [ 4.0 50.0 0.0 0.0 ] name "robot0" color "cyan" )
-erratic( pose [ 14.0 66.0 0.0 0.0 ] name "robot1" color "magenta" )
-erratic( pose [ 60.0 38.0 0.0 0.0 ] name "robot2" color "yellow" )
-erratic( pose [ 66.0 64.0 0.0 0.0 ] name "robot3" color "black" )
+erratic( pose [ 60.0 38.0 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ 98.0 4.0 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ 46.0 4.0 0.0 0.0 ] name "robot3" color "black" )
 
 
