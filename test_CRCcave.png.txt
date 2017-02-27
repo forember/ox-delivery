@@ -6,3 +6,11 @@ Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ]
 Maximum tour cost      : [ 584812, 301710, 171940, 113390, 70143, 70143, 70143,  ] 
 Actual number of tours : [ 1, 2, 4, 8, 15, 19, 22, ]
 
+Tests are running on image        :cave.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 37
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 584812, 301710, 171940, 113390, 70143, 70143, 70143,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 15, 19, 22, ]
+

@@ -7,6 +7,22 @@ Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ]
 Maximum tour cost      : [ 555047, 287182, 164908, 112412, 73271.5, 73271.5, 73271.5,  ] 
 Actual number of tours : [ 1, 2, 4, 8, 14, 18, 21, ]
 
+Tests are running on image        :greg_cottage.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 34
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 555047, 287182, 164908, 112412, 73271.5, 73271.5, 73271.5,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 14, 18, 21, ]
+
+Tests are running on image        :multicell.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 48
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 586826, 294272, 167081, 96581.9, 83906.3, 83906.3, 72917.5,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 15, 19, 28, ]
+
 Tests are running on image        :multicell.png
 Number of tests per image are     : 7
 Number of cells in the area are   : 48
@@ -22,6 +38,22 @@ Number of cells in the area are   : 35
 Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
 Maximum tour cost      : [ 223337, 119387, 61290.1, 34554.6, 22726.1, 21008.1, 18498.7,  ] 
 Actual number of tours : [ 1, 2, 4, 8, 16, 18, 24, ]
+
+Tests are running on image        :office.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 35
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 223337, 119387, 61290.1, 34554.6, 22726.1, 21008.1, 18498.7,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 16, 18, 24, ]
+
+Tests are running on image        :cave.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 37
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 584812, 301710, 171940, 113390, 70143, 70143, 70143,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 15, 19, 22, ]
 
 Tests are running on image        :cave.png
 Number of tests per image are     : 7

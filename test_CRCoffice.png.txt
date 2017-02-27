@@ -6,3 +6,11 @@ Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ]
 Maximum tour cost      : [ 223337, 119387, 61290.1, 34554.6, 22726.1, 21008.1, 18498.7,  ] 
 Actual number of tours : [ 1, 2, 4, 8, 16, 18, 24, ]
 
+Tests are running on image        :office.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 35
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 223337, 119387, 61290.1, 34554.6, 22726.1, 21008.1, 18498.7,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 16, 18, 24, ]
+
