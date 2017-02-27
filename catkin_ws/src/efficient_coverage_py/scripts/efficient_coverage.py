@@ -13,6 +13,8 @@ from nav_msgs.msg import Odometry
 from nav2d_navigator.msg import MoveToPosition2DActionResult
 from tf import transformations
 
+SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
+
 WALL_WIDTH_PIXELS = 10
 WAYPOINT_RADIUS = 1.25
 ROBOT_BERTH_RADIUS = 3
@@ -122,18 +124,43 @@ class EffCovRobot(object):
                     continue
                 dx = self.x - self.poses[i].x
                 dy = self.y - self.poses[i].y
+                if self.too_close and self.too_close % 10 == 0:
+                    print self.too_close
                 if dx*dx + dy*dy < _RB_R_SQ:
                     if not self.too_close:
                         print 'Oh noes get away!'
-                        self.current_waypoint -= 1
-                        if self.current_waypoint >= 0:
-                            self.send_goal_waypoint(self.current_waypoint)
-                    self.too_close = 16
+                        other_x = self.poses[i].x
+                        other_y = self.poses[i].y
+                        y_offset = math.copysign(2, self.yaw)
+                        x_offset = y_offset
+                        good_x_offset = False
+                        on_negative = False
+                        threshold = 0xf0
+                        while not good_x_offset and threshold >= 0:
+                            good_x_offset = True
+                            for kx in (1,2):
+                                for ky in xrange(-2,4):
+                                    px, py = self.to_pixel_coords(other_x + x_offset, other_y + ky*y_offset)
+                                    if self.gauss_image[int(px), int(py)] <= threshold:
+                                        print 'OFFSET', x_offset, 'NO GOOD AT THRESHOLD', threshold
+                                        good_x_offset = False
+                                        break
+                                if not good_x_offset:
+                                    x_offset = -x_offset
+                                    on_negative = not on_negative
+                                    if not on_negative:
+                                        threshold -= 0x10
+                                    break
+                        if good_x_offset:
+                            print 'OFFSET', x_offset, 'GOOD'
+                            self.current_waypoint -= 1
+                            self.send_goal(other_x + x_offset, other_y + y_offset, self.yaw)
+                    self.too_close = 160
                 elif self.too_close:
                     self.too_close -= 1
                     if not self.too_close:
-                        print 'Resuming normal navigation.'
-                        self.send_next_waypoint()
+                        print 'Resuming normal navigation (DISABLED).'
+                        #self.send_next_waypoint()
 
     def my_pose_callback(self, msg):
         # Collect pose from message
@@ -144,13 +171,13 @@ class EffCovRobot(object):
             self.stay_counter += 1
         else:
             self.stay_counter = 0
-        if self.stay_counter >= 16:
+        if self.stay_counter >= 160: # TODO rostime
             print "I can't stay here no more!"
             self.send_next_waypoint()
         self.x = x
         self.y = y
         self.yaw = yaw
-        if self.done or self.stay_counter >= 16:
+        if self.done or self.stay_counter >= 160:
             self.stay_counter = 1
             return False
         self.pose_counter = (self.pose_counter + 1) % 128
@@ -183,12 +210,14 @@ class EffCovRobot(object):
         msg.angular.z = vyaw
         self.cmd_vel_pub.publish(msg)
 
+    def to_pixel_coords(self, x, y):
+        px = x/self.scale_factor - WALL_WIDTH_PIXELS
+        py = (self.top_wall_y - y)/self.scale_factor - WALL_WIDTH_PIXELS
+        return px, py
+
     def is_goal_line_clear(self):
-        irx = self.x/self.scale_factor - WALL_WIDTH_PIXELS
-        iry = (self.top_wall_y - self.y)/self.scale_factor - WALL_WIDTH_PIXELS
-        igx = self.goal_x/self.scale_factor - WALL_WIDTH_PIXELS
-        igy = ((self.top_wall_y - self.goal_y)/self.scale_factor
-               - WALL_WIDTH_PIXELS)
+        irx, iry = self.to_pixel_coords(self.x, self.y)
+        igx, igy = self.to_pixel_coords(self.goal_x, self.goal_y)
 
     def send_goal(self, gx, gy, gyaw):
         self.goal_x = gx
@@ -298,6 +327,7 @@ def generate_tours(input_dir, input_name, robot_count=1):
         subprocess.call(cmd_spec, cwd=tmpdir)
         # Parse the tour lines file
         tour_file_path = os.path.join(tmpdir, 'tourLines.txt')
+        shutil.copy2(tour_file_path, os.path.join(SCRIPT_DIR, 'DEBUG_tourLines.txt'))
         with open(tour_file_path) as tour_file:
             tours = parse_tours(tour_file)
     finally:
@@ -395,7 +425,7 @@ def main():
         tour = detail_tour(tour, image_path)
     for i, waypoint in enumerate(tour):
         offset = 1 / scale_factor
-        tour[i] = (waypoint[0] + offset, waypoint[1] - offset)
+        tour[i] = (waypoint[0], waypoint[1] - offset)
     print '{}: TOUR:\n  {}'.format(argv[0], tour)
     # Create ROS node
     ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor, image_path)

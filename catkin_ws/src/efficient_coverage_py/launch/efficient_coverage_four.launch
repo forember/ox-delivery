@@ -15,7 +15,7 @@
 <arg name="map" default="$(arg map_dir)/$(arg map_name)" />
 
 <!-- K for this launch file -->
-<arg name="robot_count" value="7" /> <!-- Yeah... Calibrated for Compare_1 -->
+<arg name="robot_count" default="7" /> <!-- Yeah... Calibrated for Compare_1 -->
 
 <param name="/use_sim_time" value="true" />
 
