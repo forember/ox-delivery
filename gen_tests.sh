@@ -30,6 +30,7 @@ gtfi_default () {
 gtfi_default bad_world.png
 gtfi_default cave.png
 gtfi_default Compare_1.png
+gtfi_default Compare_1_expanded.png
 gtfi_default greg_cottage_map.png
 gtfi_default img0.png
 gtfi_default img1.png

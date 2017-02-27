@@ -1,5 +1,5 @@
 /usr/local/lib/WayPoints/libWayPoints.so
-/usr/local/include/WayPoints/WayPoints.h
 /usr/local/include/WayPoints/DrawImage.h
+/usr/local/include/WayPoints/WayPoints.h
 /usr/lib/cmake/WayPoints/WayPointsConfig.cmake
 /etc/ld.so.conf.d/WayPoints.conf

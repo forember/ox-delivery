@@ -1,3 +1,5 @@
+# vim: set syntax=stageworld :
+
 define block model
 (
     size [ 0.5 0.5 0.5 ]
@@ -56,11 +58,12 @@ interval_sim 100  # simulation timestep in milliseconds
 
 speedup 1
 
+
 window
 (
   size [ 520.0 520.0 ]  # in pixels
-  scale 10.0  # pixels per meter
-  center [ 20.0 26.0 ]
+  scale 5.0  # pixels per meter
+  center [ 40.0 52.0 ]
   rotate [ 0.0 0.0 ]
 
   # GUI Options
@@ -73,14 +76,15 @@ floorplan
 (
     name "img2"
     bitmap "bitmaps/bordered/img2.png"
-    size [ 52.0 52.0 0.5 ]
-    pose [ 26.0 26.0 0.0 0.0 ]
+    size [ 104.0 104.0 0.5 ]
+    pose [ 52.0 52.0 0.0 0.0 ]
 )
 
 
 # robots
-erratic( pose [ 2.0 26.0 0.0 0.0 ] name "robot0" color "cyan" )
-erratic( pose [ -1.0 0.0 0.0 0.0 ] name "robot1" color "magenta" )
-erratic( pose [ -2.0 0.0 0.0 0.0 ] name "robot2" color "yellow" )
-erratic( pose [ -3.0 0.0 0.0 0.0 ] name "robot3" color "black" )
+erratic( pose [ 4.0 50.0 0.0 0.0 ] name "robot0" color "cyan" )
+erratic( pose [ 14.0 66.0 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ 60.0 38.0 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ 66.0 64.0 0.0 0.0 ] name "robot3" color "black" )
+
 
