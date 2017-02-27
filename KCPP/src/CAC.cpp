@@ -130,6 +130,10 @@ bool compareByYCoords (const ReebEdge& e1, const ReebEdge& e2) {
  **==============================================================*/
 void CAC::solve(bool t)
 {
+	if(m_k ==1) {
+		m_eulerTours.push_back(m_optimalPath);
+		return;
+	}
     //perform BFS over graph but taking into account neighborhood distances
     std::queue<ReebEdge> q;
 

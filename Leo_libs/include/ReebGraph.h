@@ -71,7 +71,7 @@ struct ReebEdge
         area = 0;
         for (unsigned int i = 0; i < topBoundary.size(); i++)
         {
-            area += abs(topBoundary[i].ycoord() - bottomBoundary[i].xcoord());
+            area += abs(topBoundary[i].ycoord() - bottomBoundary[i].ycoord()); //FIXME: <N>
         }
     }
 

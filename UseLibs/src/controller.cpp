@@ -6,10 +6,12 @@
  *
  * \author    Nare Karapetyan
  **==============================================================*/
-#define DEBUG
+//#define DEBUG
+#define RUN_TEST_CASES
 #include "controller.h"
 #include <fstream>
 #include <KCPP/CAC.h>
+#include <KCPP/NRC.h>
 
 Controller::Controller() : m_cppSolved(false), m_k(1) {}
 
@@ -68,19 +70,18 @@ void Controller::run(const std::string& directory, const std::string& image,
 
     /* testing the algorithms by storing the max tour cost*/
     
+#ifdef RUN_TEST_CASES
        int vec[] = {1, 2, 4, 8, 16, 20, 32};
        std::vector<int> k_vec (vec, vec+sizeof(vec)/sizeof(int)); //possible k robot values
        test(k_vec, graph, eulerCycle, data, mod);
+#endif //RUN_TEST_CASES
+#ifndef RUN_TEST_CASES
     runkCPP(m_k, graph, eulerCycle, data,  mod);
-
-#ifdef DEBUG
-    //m_kcpp->printEulerianTours();
-    //std::cout << std::endl;
-#endif
-    if(mod == CRC_MODE) {
+    if(mod != CAC_MODE) {
         m_tours = m_kcpp->getKEulerianTours();
         generateWaypoints(data, graph, eulerCycle, wayPoints, mod);
     } 
+#endif //RUN_TEST_CASES
 }
 
 
@@ -98,8 +99,10 @@ void Controller::runkCPP(int k, ReebGraph& graph, std::list<Edge>& eulerCycle, R
     {
         if(mod == CRC_MODE) {
             m_kcpp = new FredericksonKCPP(eulerCycle, graph, k);
-        } else {
+        } else if (mod == CAC_MODE) {
             m_kcpp = new CAC(eulerCycle, data, graph, k);
+        } else {
+            m_kcpp = new NRC(eulerCycle, graph, k);
         }
         m_kcpp->set(m_directory, m_image);
         m_kcpp->solve(false);
@@ -206,6 +209,9 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
 	QString mode_label = "CRC_";
     if(mod == CAC_MODE){
 		mode_label = "CAC_";
+	}
+    if(mod == NRC_MODE){
+		mode_label = "NRC_";
 	}
     QString fileName = QString(mode_label + QString::number(m_k) + "Robots_" +"%1.WayGraph.png").arg(imageQS);
     QImage qimage(QString((m_directory +"/"+ m_image).c_str()));
@@ -396,18 +402,44 @@ void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>&
     if(mod == CRC_MODE){
         testFileName = timestamp  + "_" + m_image + "_CRC_test_results.txt";
     }
+    if(mod == NRC_MODE){
+        testFileName = timestamp  + "_" + m_image + "_NRC_test_results.txt";
+    }
     testOutFile.open(testFileName.c_str(), std::ofstream::app); //appends from the end
 
-    testOutFile << "Tests are running on image ------ " << m_image << "\n";
-    testOutFile << "Number of tests per image are --- " << k_vec.size() <<"\n";
+    testOutFile << "Tests are running on image        :" << m_image << "\n";
+    testOutFile << "Number of tests per image are     : " << k_vec.size() <<"\n";
+    testOutFile << "Number of cells in the area are   : " << graph.numEdges() <<"\n";
+    std::vector<double> maxcosts;
+    std::vector<int> actualsize;
 
     for(int i = 0; i < k_vec.size(); i++)
     {
         runkCPP(k_vec.at(i), graph, eulerCycle, data,  mod);
-        if(k_vec.at(i) == 1) {
-            testOutFile << "----- # of Robots------ size of max coverage -------\n";
-        }
-        testOutFile << "    " << k_vec.at(i)  << "   ->   " << m_kcpp->getMaxCoverageCost()  << "  - #of routs  ->  #TODO " << "\n";
+        maxcosts.push_back(m_kcpp->getMaxCoverageCost());
+        actualsize.push_back(m_kcpp->getNumberOfTours());
     }
+    for(int i = 0; i < k_vec.size(); i++)
+    {
+        if(k_vec.at(i) == 1) {
+            testOutFile << "\nNumber of Robots       : [ " ;
+        }
+        testOutFile << k_vec.at(i) << " ";
+    }
+    for(int i = 0; i < k_vec.size(); i++)
+    {
+        if(k_vec.at(i) == 1) {
+            testOutFile << " ] \nMaximum tour cost      : [ " ;
+        }
+        testOutFile << maxcosts.at(i) << " ";
+    }
+    for(int i = 0; i < k_vec.size(); i++)
+    {
+        if(k_vec.at(i) == 1) {
+            testOutFile << " ] \nActual number of tours : [ " ;
+        }
+        testOutFile << actualsize.at(i) << " ";
+    }
+    testOutFile << "]\n\n";
     testOutFile.close();
 }

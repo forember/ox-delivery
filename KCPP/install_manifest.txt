@@ -1,4 +1,5 @@
 /usr/local/lib/KCPP/libKCPP.so
+/usr/local/include/KCPP/NRC.h
 /usr/local/include/KCPP/FredericksonKCPP.h
 /usr/local/include/KCPP/CAC.h
 /usr/local/include/KCPP/KChinesePostmen.h

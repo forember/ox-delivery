@@ -66,7 +66,8 @@ int parseInputArgs(int argc, char **argv, std::string& directory,
     if (printUsage)
     {
         std::cerr << "Usage: " << argv[0] << " [IMAGE_DIRECTORY] [IMAGE_NAME]"
-            << " [NUMBER_OF_ROBOTS]" << "[KCPP_ALGORITHM_MODE \n -> 0 FHK algorithm \n -> 1 CAC algorithm]" << std::endl;
+            << " [NUMBER_OF_ROBOTS]" << "[KCPP_ALGORITHM_MODE ... \n -> 0 FHK algorithm \n -> 1 CAC algorithm \
+			\n -> 2 NRC algorithm ]" << std::endl;
         return -1;
     }
 

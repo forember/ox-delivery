@@ -1,0 +1,24 @@
+Tests are running on image        :greg_cottage.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 34
+
+-------------------------CRC-------------------------------------------
+
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 555047 287182 164908 112412 73271.5 73271.5 73271.5  ] 
+Actual number of tours : [ 1 2 4 8 14 18 21 ]
+
+
+-------------------------Original FHK (without travel cost)------------
+
+-------------------------CAC-------------------------------------------
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 555047 253026 191208 101289 73584.1 73584.1 73584.1  ] 
+Actual number of tours : [ 1 2 4 7 11 12 13 ]
+
+
+-------------------------NRC-------------------------------------------
+
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 555047 314423 160135 110814 73271.5 73271.5 73271.5  ] 
+Actual number of tours : [ 1 2 4 8 14 15 19 ]

@@ -241,7 +241,9 @@ double KChinesePostmen::pathCost(EulerTour tour)
     double pathTravelCost = 0.0;
     EulerTour::iterator ei = tour.begin();
     EulerTour::iterator ei_end = tour.end();
+#ifdef DEBUG_KCHINESEPOSTMAN
 		std::cerr << " The area costs: \n";
+#endif
 
 /*		Vertex v_b_first, v_b_second; // beginning edge
 		Vertex v_e_first, v_e_second; // ending edge

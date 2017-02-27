@@ -1,0 +1,43 @@
+Tests are running on image ------ Compare_1.png
+Number of tests per image are --- 7
+----- # of Robots------ size of max coverage -------
+    1   ->   586826  
+    2   ->   330202  
+    4   ->   183101  
+    8   ->   108773  
+    16   ->   74898.5 
+    20   ->   74898.5 
+    32   ->   74898.5 
+
+Tests are running on image ------ img0.png
+Number of tests per image are --- 7
+----- # of Robots------ size of max coverage -------
+    1   ->   223337  
+    2   ->   116526  
+    4   ->   68086.7 
+    8   ->   35865  
+    16   ->   20191.7 
+    20   ->   18662.4 
+    32   ->   18662.4 
+
+Tests are running on image ------ greg_cottage.png
+Number of tests per image are --- 7
+----- # of Robots------ size of max coverage -------
+    1   ->   555047  
+    2   ->   253026  
+    4   ->   191208  
+    8   ->   101289  
+    16   ->   73584.1 
+    20   ->   73584.1 
+    32   ->   73584.1 
+
+Tests are running on image ------ cave9.png
+Number of tests per image are --- 7
+----- # of Robots------ size of max coverage -------
+    1   ->   584812  
+    2   ->   310716  
+    4   ->   176186  
+    8   ->   102556  
+    16   ->   71648.9 
+    20   ->   69285.3 
+    32   ->   69285.3 

@@ -1,0 +1,25 @@
+Tests are running on image        :office.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 35
+
+-------------------CRC--------------------------------------------
+
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 223337 119387 61290.1 34554.6 22726.1 21008.1 18498.7  ] 
+Actual number of tours : [ 1 2 4 8 16 18 24 ]
+
+-------------------Oringinal FHK (without travel edges)------------
+
+-------------------CAC---------------------------------------------
+
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 223337 116526 68086.7 35865 20191.7 18662.4 18662.4  ] 
+Actual number of tours : [ 1 2 4 8 15 16 17 ]
+
+
+-------------------NRC----------------------------------------------
+
+Number of Robots       : [ 1 2 4 8 16 20 32  ] 
+Maximum tour cost      : [ 223337 121797 61592.7 38484.5 27953.3 21535.3 18498.7  ] 
+Actual number of tours : [ 1 2 4 8 14 17 20 ]
+
