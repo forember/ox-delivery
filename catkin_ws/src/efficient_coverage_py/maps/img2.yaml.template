@@ -1,7 +1,7 @@
 image: ../world/bitmaps/bordered/expanded/img2.png
-resolution: 0.2
+% scale = float(_GET['scale'])
+resolution: {{0.1*scale}}
 origin: [0.0, 0.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196
 negate: 0
-

@@ -1,6 +1,7 @@
 <launch>
 
 <!-- Launch file arguments -->
+<arg name="custom_operator" default="true" />
 <arg name="name" default="Compare_1" />
 <arg name="world_dir" default="$(find efficient_coverage_py)/world" />
 <arg name="world_name" default="$(arg name).world" />
@@ -37,12 +38,22 @@
     <param name="robot_frame" value="/robot_0/base_link" />
 
     <!-- Start the Operator to control the simulated robot -->
-    <node name="Operator" pkg="nav2d_operator" type="operator">
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
         <remap from="scan" to="base_scan"/>
+        <!--
         <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_0.yaml"
                 ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="Operator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
     </node>
 
     <!-- Start fake localizer -->
@@ -75,12 +86,22 @@
     <param name="robot_frame" value="/robot_1/base_link" />
 
     <!-- Start the Operator to control the simulated robot -->
-    <node name="Operator" pkg="nav2d_operator" type="operator">
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
         <remap from="scan" to="base_scan"/>
+        <!--
         <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_1.yaml"
                 ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="Operator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
     </node>
 
     <!-- Start fake localizer -->
@@ -113,12 +134,22 @@
     <param name="robot_frame" value="/robot_2/base_link" />
 
     <!-- Start the Operator to control the simulated robot -->
-    <node name="Operator" pkg="nav2d_operator" type="operator">
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
         <remap from="scan" to="base_scan"/>
+        <!--
         <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_2.yaml"
                 ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="Operator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
     </node>
 
     <!-- Start fake localizer -->
@@ -151,12 +182,22 @@
     <param name="robot_frame" value="/robot_3/base_link" />
 
     <!-- Start the Operator to control the simulated robot -->
-    <node name="Operator" pkg="nav2d_operator" type="operator">
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
         <remap from="scan" to="base_scan"/>
+        <!--
         <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
         <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
         <rosparam file="$(find efficient_coverage_py)/param/costmap_3.yaml"
                 ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="Operator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
     </node>
 
     <!-- Start fake localizer -->
