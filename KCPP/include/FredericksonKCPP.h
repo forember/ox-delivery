@@ -14,7 +14,6 @@ public:
 
 		// mod flag indicates if we want to run solve with modified version of cluster computing 
     void solve(bool mod = false);
-	void solve_old(bool mod = false);
 
 //    void solve(EulerTour tour, int k);
 

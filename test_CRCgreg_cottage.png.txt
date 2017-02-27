@@ -1,0 +1,8 @@
+Tests are running on image        :greg_cottage.png
+Number of tests per image are     : 7
+Number of cells in the area are   : 34
+
+Number of Robots       : [ 1, 2, 4, 8, 16, 20, 32,  ] 
+Maximum tour cost      : [ 555047, 287182, 164908, 112412, 73271.5, 73271.5, 73271.5,  ] 
+Actual number of tours : [ 1, 2, 4, 8, 14, 18, 21, ]
+

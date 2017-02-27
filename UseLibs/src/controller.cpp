@@ -7,6 +7,7 @@
  * \author    Nare Karapetyan
  **==============================================================*/
 //#define DEBUG
+#define LOG_TOURS
 #define RUN_TEST_CASES
 #include "controller.h"
 #include <fstream>
@@ -372,7 +373,7 @@ void Controller::generateWaypoints(RegionData& data, ReebGraph& graph,
         placeHolder.saveImageBuffer(fileName);
     }
 
-#ifdef DEBUG
+#ifdef LOG_TOURS
     std::ofstream outputFile;
     outputFile.open("tourLines.txt");
     for (unsigned i = 0; i < tourPoints.size(); ++i)
@@ -397,13 +398,14 @@ void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>&
     time (&rawtime);
     std::string timestamp = ctime(&rawtime);
     std::ofstream testOutFile; // The kcpp results are recorded here
-    std::string testFileName = timestamp + "_" + m_image + "_CAC_test_results.txt";
+    //std::string testFileName = timestamp + "_" + m_image + "_CAC_test_results.txt";
+    std::string testFileName = "test_CAC"+ m_image + ".txt";
     std::cout << "--------------------------------------%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << testFileName << "\n";
     if(mod == CRC_MODE){
-        testFileName = timestamp  + "_" + m_image + "_CRC_test_results.txt";
+        testFileName = "test_CRC"+m_image + ".txt";
     }
     if(mod == NRC_MODE){
-        testFileName = timestamp  + "_" + m_image + "_NRC_test_results.txt";
+        testFileName = "test_NRC"+m_image + "_NRC_test_results.txt";
     }
     testOutFile.open(testFileName.c_str(), std::ofstream::app); //appends from the end
 
@@ -424,21 +426,21 @@ void Controller::test(std::vector<int> k_vec, ReebGraph& graph, std::list<Edge>&
         if(k_vec.at(i) == 1) {
             testOutFile << "\nNumber of Robots       : [ " ;
         }
-        testOutFile << k_vec.at(i) << " ";
+        testOutFile << k_vec.at(i) << ", ";
     }
     for(int i = 0; i < k_vec.size(); i++)
     {
         if(k_vec.at(i) == 1) {
             testOutFile << " ] \nMaximum tour cost      : [ " ;
         }
-        testOutFile << maxcosts.at(i) << " ";
+        testOutFile << maxcosts.at(i) << ", ";
     }
     for(int i = 0; i < k_vec.size(); i++)
     {
         if(k_vec.at(i) == 1) {
             testOutFile << " ] \nActual number of tours : [ " ;
         }
-        testOutFile << actualsize.at(i) << " ";
+        testOutFile << actualsize.at(i) << ", ";
     }
     testOutFile << "]\n\n";
     testOutFile.close();
