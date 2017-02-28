@@ -16,7 +16,7 @@ from tf import transformations
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 WALL_WIDTH_PIXELS = 10
-WAYPOINT_RADIUS = 1.25
+WAYPOINT_RADIUS = 1.5
 ROBOT_BERTH_RADIUS = 3
 
 _WP_R_SQ = WAYPOINT_RADIUS*WAYPOINT_RADIUS
@@ -82,6 +82,7 @@ class EffCovRobot(object):
         self.done = False
         self.op_coupled = not DO_DETAIL_TOUR
         self.stay_counter = 0
+        self.initial_stay_countdown = 320
         # Publish to command the stage robot
         self.goal_pub = rospy.Publisher('goal', PoseStamped, queue_size=1)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
@@ -167,17 +168,20 @@ class EffCovRobot(object):
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         yaw = get_quaternion_yaw(msg.pose.pose.orientation)
+        if self.initial_stay_countdown:
+            self.initial_stay_countdown -= 1
+            self.stay_counter = 0
         if self.op_coupled and x == self.x and y == self.y and yaw == self.yaw:
             self.stay_counter += 1
         else:
             self.stay_counter = 0
-        if self.stay_counter >= 160: # TODO rostime
+        if self.stay_counter >= 80: # TODO rostime
             print "I can't stay here no more!"
             self.send_next_waypoint()
         self.x = x
         self.y = y
         self.yaw = yaw
-        if self.done or self.stay_counter >= 160:
+        if self.done or self.stay_counter >= 80:
             self.stay_counter = 1
             return False
         self.pose_counter = (self.pose_counter + 1) % 128
@@ -301,7 +305,7 @@ def expand_image(input_dir, input_name, output_dir):
     img = cv2.imread(os.path.join(input_dir, root + '.map' + ext), 0)
     img = cv2.copyMakeBorder(img, 1, 1, 1, 1,  cv2.BORDER_CONSTANT, value=0)
     kernel = np.ones((9,9),np.uint8)
-    expansion = cv2.erode(img, kernel, iterations=2)
+    expansion = cv2.erode(img, kernel, iterations=3)
     expansion = expansion[1:-1, 1:-1]
     cv2.imwrite(output_path1, expansion)
     (Image.open(output_path1)

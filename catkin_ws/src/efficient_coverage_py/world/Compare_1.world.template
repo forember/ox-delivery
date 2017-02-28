@@ -56,7 +56,8 @@ resolution 0.02
 
 interval_sim 10  # simulation timestep in milliseconds
 
-speedup 0.75
+#speedup 0.5
+speedup 1
 
 % scale = float(_GET['scale'])
 
@@ -83,10 +84,14 @@ floorplan
 
 
 # robots
-erratic( pose [ {{1.0*scale}} {{18.025*scale}} 0.0 0.0 ] name "robot0" color "cyan" )
-erratic( pose [ {{39.85*scale}} {{28.9*scale}} 0.0 0.0 ] name "robot1" color "magenta" )
-erratic( pose [ {{12.65*scale}} {{20.8*scale}} 0.0 0.0 ] name "robot2" color "yellow" )
-erratic( pose [ {{14.65*scale}} {{1.05*scale}} 0.0 0.0 ] name "robot3" color "black" )
+erratic( pose [ {{1*scale}} {{19*scale}} 0.0 0.0 ] name "robot0" color "cyan" )
+erratic( pose [ {{31*scale}} {{27*scale}} 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ {{31*scale}} {{10*scale}} 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ {{44*scale}} {{19*scale}} 0.0 0.0 ] name "robot3" color "black" )
+#erratic( pose [ {{1.0*scale}} {{18.025*scale}} 0.0 0.0 ] name "robot0" color "cyan" )
+#erratic( pose [ {{39.85*scale}} {{28.9*scale}} 0.0 0.0 ] name "robot1" color "magenta" )
+#erratic( pose [ {{12.65*scale}} {{20.8*scale}} 0.0 0.0 ] name "robot2" color "yellow" )
+#erratic( pose [ {{14.65*scale}} {{1.05*scale}} 0.0 0.0 ] name "robot3" color "black" )
 #erratic( pose [ 3.6 8.41 0.0 0.0 ] name "robot0" color_rgba [ 0.94 0.90 0.55 1.0 ] )
 #erratic( pose [ 14.7 1.05 0.0 0.0 ] name "robot1" color_rgba [ 0.0 0.75 1.0 1.0 ] )
 #erratic( pose [ 13.45 13.8 0.0 0.0 ] name "robot2" color_rgba [ 0.0 0.5 0.0 1.0 ] )

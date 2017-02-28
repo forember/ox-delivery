@@ -11,7 +11,7 @@ from nav_msgs.msg import GridCells, Odometry
 from tf import transformations
 
 
-LINEAR_VEL_MPS = 2.0
+LINEAR_VEL_MPS = 1.5
 ANGULAR_VEL_RADPS = math.pi / 2
 
 
@@ -164,9 +164,13 @@ class PassThruOperator(object):
         else:
             near_up = abs(self.yaw - math.pi/2)
             near_down = abs(self.yaw + math.pi/2)
+            #near_left = min(abs(self.yaw - math.pi), abs(self.yaw + math.pi))
+            #near_right = abs(self.yaw)
+            #nearness = min(near_up, near_down, near_left, near_right)
+            nearness = min(near_up, near_down)
             if min(near_up, near_down) < math.pi / 8:
                 self.move(LINEAR_VEL_MPS*msg.Velocity,
-                          -math.copysign(min(near_up, near_down), msg.Turn))
+                          -(math.copysign(nearness, msg.Turn)))
             else:
                 self.move(LINEAR_VEL_MPS*msg.Velocity, -ANGULAR_VEL_RADPS*msg.Turn)
 
