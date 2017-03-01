@@ -101,6 +101,9 @@ def find_next_on_path(path, x, y):
     return out_vert
 
 
+DO_DIRECT = True
+
+
 class PassThruOperator(object):
     def __init__(self):
         rospy.init_node('Operator')
@@ -110,7 +113,10 @@ class PassThruOperator(object):
         self.goal_x = None
         self.goal_y = None
         self.path = None
-        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+        if DO_DIRECT:
+            self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+        else:
+            self.op_cmd_pub = rospy.Publisher('op_cmd', OpCmd, queue_size=1)
         self.pose_sub = rospy.Subscriber('base_pose_ground_truth', Odometry,
                                          self.pose_callback)
         #self.plan_sub = rospy.Subscriber('Navigator/plan', GridCells,
@@ -120,10 +126,16 @@ class PassThruOperator(object):
         #                                 self.goal_callback)
 
     def move(self, linear, angular):
-        out = Twist()
-        out.linear.x = linear
-        out.angular.z = angular
-        self.cmd_vel_pub.publish(out)
+        if DO_DIRECT:
+            out = Twist()
+            out.linear.x = linear
+            out.angular.z = angular
+            self.cmd_vel_pub.publish(out)
+        else:
+            out = OpCmd()
+            out.Velocity = linear
+            out.Turn = angular
+            self.op_cmd_pub.publish(out)
 
     def _old_pose_callback(self, msg):
         pose = msg.pose.pose
@@ -178,6 +190,7 @@ class PassThruOperator(object):
         position = msg.pose.position
         self.goal_x = position.x
         self.goal_y = position.y
+        self.move(0, 0)
 
     def spin(self):
         rospy.spin()

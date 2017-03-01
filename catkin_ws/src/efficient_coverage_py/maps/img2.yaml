@@ -1,5 +1,5 @@
 image: ../world/bitmaps/bordered/expanded/img2.png
-resolution: 0.3
+resolution: 0.6
 origin: [0.0, 0.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196

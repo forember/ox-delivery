@@ -13,3 +13,4 @@ update_scale () {
 
 update_scale Compare_1 "$1"
 update_scale img2 "$1"
+update_scale greg_cottage_map "$1"

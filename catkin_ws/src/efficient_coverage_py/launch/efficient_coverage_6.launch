@@ -1,0 +1,326 @@
+<!-- vim: set filetype=roslaunch : -->
+<launch>
+
+<!-- Launch file arguments -->
+<arg name="custom_operator" default="true" />
+<arg name="name" default="img2" />
+<arg name="world_dir" default="$(find efficient_coverage_py)/world" />
+<arg name="world_name" default="$(arg name).world" />
+<arg name="map_dir" default="$(find efficient_coverage_py)/maps" />
+<arg name="map_name" default="$(arg name).yaml" />
+<arg name="image_dir" default="$(find efficient_coverage_py)/inputs" />
+<arg name="image_name" default="$(arg name).png" />
+<!-- Overrides world_dir and world_name -->
+<arg name="world" default="$(arg world_dir)/$(arg world_name)" />
+<!-- Overrides map_dir and map_name -->
+<arg name="map" default="$(arg map_dir)/$(arg map_name)" />
+
+<!-- K for this launch file -->
+<!--<arg name="robot_count" default="7" />--> <!-- Yeah... Calibrated for Compare_1 -->
+<arg name="robot_count" value="6" />
+
+<param name="/use_sim_time" value="true" />
+
+<!-- Start stage -->
+<node name="stageros" pkg="stage_ros" type="stageros" args="$(arg world)">
+    <param name="base_watchdog_timeout" value="0" />
+</node>
+
+<!-- Load the environment map in the map_server -->
+<node name="MapServer" pkg="map_server" type="map_server"
+        args="$(arg map)" />
+
+<node name="static_map_tee_server" pkg="efficient_coverage_py"
+        type="static_map_tee_server.py" />
+
+<group ns="robot_0">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_0/base_laser_link" />
+    <param name="odometry_frame" value="/robot_0/odom" />
+    <param name="robot_frame" value="/robot_0/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_0.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_0/base_link" />
+        <param name="odom_frame_id" value="/robot_0/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 0 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+<group ns="robot_1">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_1/base_laser_link" />
+    <param name="odometry_frame" value="/robot_1/odom" />
+    <param name="robot_frame" value="/robot_1/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_1.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_1/base_link" />
+        <param name="odom_frame_id" value="/robot_1/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 1 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+<group ns="robot_2">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_2/base_laser_link" />
+    <param name="odometry_frame" value="/robot_2/odom" />
+    <param name="robot_frame" value="/robot_2/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_2.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_2/base_link" />
+        <param name="odom_frame_id" value="/robot_2/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 2 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+<group ns="robot_3">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_3/base_laser_link" />
+    <param name="odometry_frame" value="/robot_3/odom" />
+    <param name="robot_frame" value="/robot_3/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_3.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_3/base_link" />
+        <param name="odom_frame_id" value="/robot_3/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 3 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+<group ns="robot_4">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_4/base_laser_link" />
+    <param name="odometry_frame" value="/robot_4/odom" />
+    <param name="robot_frame" value="/robot_4/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_4.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_4/base_link" />
+        <param name="odom_frame_id" value="/robot_4/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 4 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+<group ns="robot_5">
+    <param name="map_frame" value="/map" />
+    <param name="laser_frame" value="/robot_5/base_laser_link" />
+    <param name="odometry_frame" value="/robot_5/odom" />
+    <param name="robot_frame" value="/robot_5/base_link" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="nav2d_operator" type="operator"
+            unless="$(arg custom_operator)">
+        <remap from="scan" to="base_scan"/>
+        <!--
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+        --><remap from="op_cmd" to="cmd"/>
+        <rosparam file="$(find efficient_coverage_py)/param/operator.yaml" />
+        <rosparam file="$(find efficient_coverage_py)/param/costmap_5.yaml"
+                ns="local_map" />
+    </node>
+    <node name="CmdFilter" pkg="efficient_coverage_py" type="cmd_filter.py"
+            unless="$(arg custom_operator)">
+    </node>
+    <node name="PassThruOperator" pkg="efficient_coverage_py"
+            type="passthru_operator.py" if="$(arg custom_operator)">
+        <remap from="cmd_vel" to="op_cmd_vel"/>
+    </node>
+
+    <!-- Start fake localizer -->
+    <node name="FakeLocalization"
+            pkg="fake_localization" type="fake_localization">
+        <param name="base_frame_id" value="/robot_5/base_link" />
+        <param name="odom_frame_id" value="/robot_5/odom" />
+        <param name="global_frame_id" value="/map" />
+    </node>
+
+    <!-- Start the Navigator to move the robot autonomously -->
+    <param name="map_service" value="/tee_static_map"/>
+    <node name="Navigator" pkg="nav2d_navigator" type="navigator">
+        <rosparam file="$(find efficient_coverage_py)/param/navigator.yaml" />
+    </node>
+
+    <node name="SetGoal" pkg="nav2d_navigator" type="set_goal_client" />
+
+    <!-- Start coverage node -->
+    <node name="ECRobot_0"
+            pkg="efficient_coverage_py" type="efficient_coverage.py"
+            args="$(arg image_dir) $(arg image_name) $(arg robot_count) 5 $(arg map)"
+            launch-prefix="xterm -hold -e" />
+</group>
+
+<!-- Debug stuff -->
+<!--
+<node name="$(anon rqt_graph)" pkg="rqt_graph" type="rqt_graph" />
+<node name="$(anon rqt_console)" pkg="rqt_console" type="rqt_console" />
+-->
+
+</launch>
+

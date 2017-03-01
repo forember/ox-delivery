@@ -62,8 +62,8 @@ speedup 1
 window
 (
   size [ 520.0 520.0 ]  # in pixels
-  scale 3.33333333333  # pixels per meter
-  center [ 60.0 78.0 ]
+  scale 1.66666666667  # pixels per meter
+  center [ 120.0 156.0 ]
   rotate [ 0.0 0.0 ]
 
   # GUI Options
@@ -76,15 +76,15 @@ floorplan
 (
     name "img2"
     bitmap "bitmaps/bordered/img2.png"
-    size [ 156.0 156.0 0.5 ]
-    pose [ 78.0 78.0 0.0 0.0 ]
+    size [ 312.0 312.0 0.5 ]
+    pose [ 156.0 156.0 0.0 0.0 ]
 )
 
 
 # robots
-erratic( pose [ 6.0 75.0 0.0 0.0 ] name "robot0" color "cyan" )
-erratic( pose [ 90.0 57.0 0.0 0.0 ] name "robot1" color "magenta" )
-erratic( pose [ 147.0 6.0 0.0 0.0 ] name "robot2" color "yellow" )
-erratic( pose [ 69.0 6.0 0.0 0.0 ] name "robot3" color "black" )
+erratic( pose [ 12.0 150.0 0.0 0.0 ] name "robot0" color "cyan" )
+erratic( pose [ 180.0 114.0 0.0 0.0 ] name "robot1" color "magenta" )
+erratic( pose [ 294.0 12.0 0.0 0.0 ] name "robot2" color "yellow" )
+erratic( pose [ 138.0 12.0 0.0 0.0 ] name "robot3" color "black" )
 
 

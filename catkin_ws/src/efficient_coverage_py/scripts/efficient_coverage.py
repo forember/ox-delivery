@@ -62,7 +62,7 @@ class PoseCallback(object):
 class EffCovRobot(object):
     '''WARNING: Only create one instance per process!'''
 
-    def __init__(self, robot_id, tour, top_wall_y, scale_factor, image_path):
+    def __init__(self, robot_id, tour, top_wall_y, scale_factor, image_path, num_robots):
         self.robot_id = robot_id
         self.tour = tour
         self.top_wall_y = top_wall_y
@@ -74,11 +74,11 @@ class EffCovRobot(object):
         self.y = self.top_wall_y - (tour[0][1]
                                     + WALL_WIDTH_PIXELS)*self.scale_factor
         self.yaw = 0
-        self.poses = [PoseTuple(-8, -8, 0)] * 4
+        self.poses = [PoseTuple(-8, -8, 0)] * num_robots
         self.too_close = False
         self.goal_x = self.goal_y = -65535
         self.going = RIGHT
-        self.current_waypoint = -1
+        self.current_waypoint = 0#-1
         self.done = False
         self.op_coupled = not DO_DETAIL_TOUR
         self.stay_counter = 0
@@ -98,7 +98,8 @@ class EffCovRobot(object):
         # Subscribe to pose of stage robot
         self.pose_counter = 0
         self.pose_subs = []
-        for i in range(4):
+        self.num_robots = num_robots
+        for i in range(num_robots):
             print '/robot_{}/base_pose_ground_truth'.format(i)
             pc_obj = PoseCallback(i, self.pose_callback)
             self.pose_subs.append(rospy.Subscriber(
@@ -120,7 +121,7 @@ class EffCovRobot(object):
         yaw = get_quaternion_yaw(msg.pose.pose.orientation)
         self.poses[i] = PoseTuple(x, y, yaw)
         if i == self.robot_id and self.my_pose_callback(msg):
-            for i in range(4):
+            for i in range(self.num_robots):
                 if i == self.robot_id:
                     continue
                 dx = self.x - self.poses[i].x
@@ -409,6 +410,7 @@ def main():
                ' <this robot #> <map file> [tour lines file]').format(argv[0])
         return 1
     # Parse arguments
+    num_robots = int(argv[3])
     robot_id = int(argv[4])
     image_path = os.path.join(argv[1], argv[2])
     scale_factor = 0.1
@@ -432,7 +434,7 @@ def main():
         tour[i] = (waypoint[0], waypoint[1] - offset)
     print '{}: TOUR:\n  {}'.format(argv[0], tour)
     # Create ROS node
-    ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor, image_path)
+    ecr = EffCovRobot(robot_id, tour, top_wall_y, scale_factor, image_path, num_robots)
     # Go! Main loop.
     ecr.spin()
 
